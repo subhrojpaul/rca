@@ -1,0 +1,15 @@
+#pa-tour-screen-mask { position:absolute; left:0; right:0; top:0; z-index:1000000; background:rgba(0,0,0,.1)}
+#pa-tour-card { width:400px; border-radius:5px; background:#fff; border: 1px solid #aaa; position:absolute; color:#333; left: 20%;
+    top: 200px; font-size:12px;}
+#pa-tour-card:before {content:"";position:absolute;right: 100%;top: 30px;     border-right: 10px solid white;border-top: 10px solid transparent;border-bottom: 10px solid transparent;border-left: none;}
+#pa-tour-card:after { content:""; position:absolute; left: -8px; top: 33px; border-left: 1px solid #aaa; border-bottom: 1px solid #aaa; width: 14px; height: 14px; transform: rotate(45deg); }
+#pa-tour-canvas { }
+#pa-tour-title { width:398px; border-top-left-radius:5px;border-top-right-radius:5px; background:#eee; padding:2px 5px;font-size:13px;}
+#pa-tour-details { width:398px; padding:2px 5px; min-height:100px; }
+#pa-tour-control { width:398px; border-top:1px solid #aaa; overflow:hidden;}
+#pa-tour-close, #pa-tour-next, #pa-tour-prev { float:right; padding:0px 5px; text-align: center; background: #eee; border-left:1px solid #aaa; cursor:pointer; }
+#pa-tour-idx-ind {float:left;overflow:hidden}
+#pa-tour-idx-ind div {float:left;width:10px;height:10px;border-radius:5px;background:#eee;margin:4px;}
+#pa-tour-idx-ind div.sel {background:#aaa}
+#pa-tour-control .disabled {color:#999; cursor:default;}
+#pa-tour-close {border-bottom-right-radius: 5px;}

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>QuestionUpload</name>
+	<action>../handlers/basic_handler.php</action>
+	<method>post</method>
+	<legend>Question Answer Update</legend>
+	<hasfile>true</hasfile>
+	<inputelements>
+	
+		
+		
+		<element>
+			<type>text</type>
+			<name>cdqansupdt_qtopiclev</name>
+			<label>Level of Topic</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>Number</additional>
+		</element>
+
+		<element>
+			<type>text</type>
+			<name>cdqansupdt_qallottime</name>
+			<label>Allocated Time in (secs)</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_qimage_update</name>
+			<id>cdqansupdt_qimage_update</id>
+			<label>Change Question Image</label>
+		</element>
+
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage1_update</name>
+			<id>cdqansupdt_ansimage1_update</id>
+			<label>Change Answer 1 Image</label>
+		</element>		
+		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage2_update</name>
+			<id>cdqansupdt_ansimage2_update</id>
+			<label>Change Answer 2 Image</label>
+		</element>		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage3_update</name>
+			<id>cdqansupdt_ansimage3_update</id>
+			<label>Change Answer 3 Image</label>
+		</element>		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage4_update</name>
+			<id>cdqansupdt_ansimage4_update</id>
+			<label>Change Answer 4 Image</label>
+		</element>		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage5_update</name>
+			<id>cdqansupdt_ansimage5_update</id>
+			<label>Change Answer 5 Image</label>
+		</element>		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage6_update</name>
+			<id>cdqansupdt_ansimage6_update</id>
+			<label>Change Answer 6 Image</label>
+		</element>		
+		<element>
+			<type>file</type>
+			<name>cdqansupdt_ansimage7_update</name>
+			<id>cdqansupdt_ansimage7_update</id>
+			<label>Change Answer 7 Image</label>
+		</element>		
+		
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Submit</name>
+			<id>btn-submit</id>
+			<label>Submit Question</label>
+			<subtype>btn-primary</subtype>
+			<action></action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<id>btn-cancel</id>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action></action>
+		</button>		
+	</actionbuttons>
+</form>

@@ -1,0 +1,438 @@
+/* mixin */
+/* exp
+input,  
+textarea {  
+    @include input-placeholder {
+        color: $greyc;
+    }
+} */
+.tooltip {
+  font-size: 10px; }
+
+.tooltip.top .tooltip-inner {
+  background-color: #808080;
+  padding: 4px 20px; }
+
+.tooltip.top .tooltip-arrow {
+  border-top-color: #808080; }
+
+/* service css */
+._service {
+  background-color: #FFF;
+  padding: 5px 10px 0;
+  box-shadow: 0 0 6px 0 #E2E8EE;
+  margin-bottom: 2px; }
+  ._service ._service_text h2 {
+    font-size: 13px;
+    color: #444444;
+    margin: 20px 10px 4px;
+    font-weight: bold;
+    font-family: 'ubuntuB';
+    float: left;
+    padding-bottom: 10px;
+    cursor: pointer;
+  }
+
+._search_result {
+  background-color: #F5f5f5; }
+  ._search_result input {
+    border-radius: 30px;
+    border: 1px solid #CCC;
+    padding: 0 10px;
+    height: 35px;
+    line-height: 35px;
+    color: #444444;
+    width: 225px; }
+
+._search_input {
+  margin: 0 auto;
+  display: block;
+  width: 350px; }
+
+._widget {
+  padding: 0.2em 0;float: right; }
+  ._widget a img {
+    margin: 7px 1px; }
+
+._search_icon {
+  position: absolute;
+  top: 0;
+  right: 0; }
+
+._date_value {
+  font-size: 9px;
+  font-family: 'UbuntuM'; }
+
+._filter {
+  background: #FFF;
+  padding: 1em 1em;
+  text-align: center; }
+  ._filter .item {
+    padding: 1px 20px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    border-radius: 30px;
+    border: 1px solid #CCC;
+    color: #999;
+    font-size: 11px;
+    display: inline-block;
+    margin-right: 2px;
+    margin-bottom: 7px; }
+    ._filter .item:hover {
+      background: #02B2F6;
+      cursor: pointer;
+      color: #FFF;
+      border: 1px solid #02B2F6; }
+
+.table_service {
+  background: #FFF;
+  margin-top: 5px;
+  padding: 0;
+  /* pax / grp view */ }
+  .table_service .table {
+    margin-bottom: 0; }
+  .table_service .table > thead > tr > th {
+    font-size: 10px;
+    background: #E5EDEF;
+    border: none;
+    color: #8298A4;
+    border-bottom: none;
+    padding: 13px; }
+  .table_service .table > tbody > tr > td {
+    font-size: 11px;
+    border: none;
+    padding: 13px 8px 7px;
+    font-family: 'UbuntuM';
+    color: #333; }
+  .table_service .table > tbody > tr {
+    position: relative; }
+  .table_service .table > tbody > tr.bdrb {
+    border-bottom: 1px solid #EEE; }
+  .table_service .table > tbody > tr > td.padding0 {
+    padding: 0 0 15px; }
+  .table_service .table > tbody > tr > td.working {
+    width: 100%;
+    display: block;
+    z-index: 1;
+    height: 75px;
+    position: absolute;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #EEE;
+    padding-top: 16px;
+    text-align: center;
+    line-height: 26px; }
+  .table_service .pg_view {
+    width: 100%;
+    display: none;
+    z-index: 1;
+    height: 80px;
+    position: absolute;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    line-height: 60px;
+    text-align: center; }
+    .table_service .pg_view a.links {
+      border: 1px solid #CCC;
+      border-radius: 30px;
+      color: #EEE;
+      font-size: 10px;
+      padding: 10px 40px; }
+  .table_service .table > tbody > tr:hover .pg_view {
+    display: block; }
+
+.travel_date {
+  border: 1px solid #EEE;
+  float: left;
+  line-height: 0px;
+  padding: 8px 15px;
+  text-align: center;
+  color: #999;
+  font-size: 9px; }
+  .travel_date h2 {
+    line-height: 10px;
+    margin: 9px 0;
+    padding: 0;
+    font-size: 18px;
+    color: #333; }
+
+.status_box {
+  border: 1px solid #EEE;
+  padding: 3px 15px 3px 7px;
+  width: 100%;
+  float: left;
+  border-radius: 30px;
+  margin-right: 10px;
+  color: #8298A4;
+  font-family: 'Ubuntu';
+  font-weight: bold;
+  font-size: 9px;
+  width: auto; }
+  .status_box span.active {
+    float: left;
+    background: #448AFF;
+    padding: 2px 10px;
+    border-radius: 30px;
+    margin-right: 8px;
+    font-size: 8px;
+    color: #FFF; }
+
+/* modal */
+.create_modal {
+  top: 0; }
+
+.create_modal.modal-dialog {
+  width: auto;
+  overflow: hidden;
+  overflow-y: auto;
+  margin-right: 5px;
+  margin-left: 5px;
+  height: 100%; }
+
+.create_modal .modal-body {
+  height: 100%; }
+
+.create_modal .modal-content {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #F3F5F7; }
+
+._close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer; }
+
+@media (min-width: 768px) {
+  .create_modal.modal-dialog {
+    width: 100%;
+    height: 100%;
+    margin: 0; } }
+
+.create_text {
+  font-family: 'UbuntuM';
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 40px; }
+
+._create_form {
+  border-bottom: 1px solid #E5E8EE;
+  margin-bottom: 30px; }
+  ._create_form .__loginput input {
+    background: transparent;
+    border: none;
+    font-weight: bold; }
+  ._create_form ._passenger p {
+    font-size: 12px;
+    line-height: 30px;
+    color: #999; }
+  ._create_form ._passenger img {
+    float: left;
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor: pointer; }
+  ._create_form ._passenger input {
+    width: 30px;
+    float: left;
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 5px; }
+
+._create_body {
+  background: #FFF;
+  height: 320px;
+  text-align: center;
+  padding: 1em 1.5em;
+  border: 1px solid #E7EAEF;
+  box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.03); }
+  ._create_body h4 {
+    font-family: 'ubuntuB';
+    margin: 0; }
+
+ul._visa {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 1.3em; }
+
+._visa_radio {
+  border-radius: 3px;
+  margin-top: -1px;
+  cursor: pointer; }
+  ._visa_radio h2 {
+    float: left;
+    margin: 0;
+    font-family: 'ubuntuB';
+    font-size: 30px;
+    margin-right: 10px;
+    line-height: 30px; }
+  ._visa_radio p {
+    color: #999;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: left; }
+  ._visa_radio p .sm {
+    font-size: 11px;
+    color: #CCCCCC; }
+
+._visa_radio:hover {
+  color: #FFF;
+  background: #02B2F6; }
+  ._visa_radio:hover p, ._visa_radio:hover p .sm {
+    color: #FFF; }
+
+input[type=radio]._radio_input {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px; }
+
+input[type=radio]._radio_input ~ label {
+  color: #333;
+  padding: 8px 10px;
+  border: 1px solid #CCC;
+  margin: 0;
+  border-radius: 2px;
+  font-size: 11px;
+  cursor: pointer;
+  width: 100%; }
+
+input[type=radio]._radio_input:checked ~ label p, input[type=radio]._radio_input:checked ~ label p .sm {
+  color: #FFF; }
+
+input[type=checkbox]._radio_input:checked ~ label:before {
+  font-size: 1.4em;
+  color: #02B2F6; }
+
+input[type=radio]._radio_input:checked ~ label {
+  color: #FFF;
+  background: #02B2F6;
+  border: 1px solid #02B2F6;
+  margin: 0; }
+
+/* other service checkbox  */
+._other_service {
+  margin-top: 4em; }
+
+input[type=radio]._pretty,
+input[type=checkbox]._pretty {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px; }
+
+input[type=checkbox]._pretty ~ label,
+input[type=radio]._pretty ~ label {
+  color: #999;
+  border: 1px solid #CCC;
+  border-radius: 50%;
+  height: 50px;
+  line-height: 50px;
+  width: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #CCC;
+}
+
+input[type=radio]._pretty ~ label:before,
+input[type=checkbox]._pretty ~ label:before {
+  font-family: FontAwesome;
+  display: inline-block;
+  content: "\f1db";
+  font-size: 1.3em;
+  color: #CCC; }
+
+input[type=checkbox]._pretty:checked ~ label:before {
+  content: "\f058";
+  color: #02B2F6; }
+
+input[type=radio]._pretty:checked ~ label:before {
+  content: "\f111";
+  font-size: 1.3em;
+  color: #02B2F6; }
+
+input[type=checkbox]._pretty ~ label:before {
+  content: "\f00c"; }
+
+input[type=checkbox]._pretty:checked ~ label,
+input[type=radio]._pretty:checked ~ label {
+  color: #FFF;
+  border: 1px solid #02B2F6;
+  box-shadow: 0 2px 6px 0 rgba(1, 177, 246, 0.21);
+  background: #02B2F6; }
+
+input[type=checkbox]._pretty:checked ~ label:before {
+  content: "\f00c";
+  color: #FFF; }
+
+p.note {
+  font-size: 12px;
+  color: #333333; }
+
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000; }
+
+._select_visa {
+  position: relative;
+  margin: 20px 0; }
+  ._select_visa select {
+    width: 100%;
+    border: 1px solid #CCC;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: 'UbuntuM';
+    border-radius: 0;
+    -webkit-border-radius: 0; }
+  ._select_visa ._down {
+    position: absolute;
+    right: 20px;
+    top: 10px; }
+
+.__control {
+  float: left; }
+
+._multi_check {
+  float: left;
+  display: inline-flex;
+  width: 100%; }
+
+._multi_check input[type=checkbox], ._multi_check input[type=radio] {
+  display: none; }
+
+/* to hide the checkbox itself */
+._multi_check input[type=checkbox] + label:before, ._multi_check input[type=radio] + label:before {
+  font-family: FontAwesome;
+  display: inline-block;
+  font-size: 15px;
+  cursor: pointer; }
+
+._multi_check input[type=checkbox] + label:before, ._multi_check input[type=radio] + label:before {
+  content: "\f096";
+  color: #02B2F6; }
+
+._multi_check input[type=checkbox] + label:before, ._multi_check input[type=radio] + label:before {
+  letter-spacing: 5px; }
+
+._multi_check input[type=checkbox]:checked + label:before, ._multi_check input[type=radio]:checked + label:before {
+  content: "\f14a"; }
+
+/* checked icon */
+._multi_check input[type=checkbox]:checked + label:before, ._multi_check input[type=radio]:checked + label:before {
+  letter-spacing: 5px;
+  color: #02B2F6; }

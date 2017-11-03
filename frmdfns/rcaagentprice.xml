@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>Agent Pricing Form</name>
+	<action></action>
+	<method>post</method>
+	<legend>Create / Update Agent pricing.</legend>
+	<inputelements>	
+		<element>
+			<type>hidden</type>
+			<name>agent_pricing_id</name>
+		</element>
+	
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>agent_id</name>
+			<label>Agent</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<select_stmt>select agent_id, concat(agent_code, '-', agent_name) agent from agents where enabled = 'Y'</select_stmt>
+		</element>
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>visa_type_id</name>
+			<label>Visa Type</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<select_stmt>select visa_type_id, concat(visa_type_code, '-', visa_type_name) visa_name from visa_types where  enabled = 'Y'</select_stmt>
+		</element>
+		
+		<element>
+			<type>text</type>
+			<name>price</name>
+			<label>Amount</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>update</name>
+			<label>Update</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/rcaagtpricehndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/dashboard.php</action>
+		</button>		
+	</actionbuttons>
+</form>

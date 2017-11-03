@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>cdcommertialpkgs</name>
+	<action></action>
+	<method>post</method>
+	<legend>Collegedoors - Create Commercial Code Transaction Setup</legend>
+	<inputelements>
+		<element>
+			<type>hidden</type>
+			<name>comm_code_txn_setup_id</name>
+		</element>
+	
+		<element>
+			<type>text</type>
+			<name>commercial_code_id</name>
+			<label>Commercial Code ID</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<placeholder>Commercial Code ID</placeholder>
+		</element>
+		
+		<element>
+			<type>static_select_with_value</type>
+			<name>rule_seq</name>
+			<label>Rule Sequence</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Select one..</option_text>
+				<option_value>NOSELECTION</option_value>
+			</option>
+			
+			<option>
+				<option_text>0</option_text>
+				<option_value>0</option_value>
+			</option>
+			<option>
+				<option_text>1</option_text>
+				<option_value>1</option_value>
+			</option>
+			<option>
+				<option_text>2</option_text>
+				<option_value>2</option_value>
+			</option>
+			<option>
+				<option_text>3</option_text>
+				<option_value>3</option_value>
+			</option>
+			<option>
+				<option_text>4</option_text>
+				<option_value>4</option_value>
+			</option>
+					
+		</element>
+	<element>
+			<type>static_select_with_value</type>
+			<name>input_user_type</name>
+			<label>User Type</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Select one..</option_text>
+				<option_value>NOSELECTION</option_value>
+			</option>
+			
+			<option>
+				<option_text>Student</option_text>
+				<option_value>STUDENT</option_value>
+			</option>
+			<option>
+				<option_text>Teacher</option_text>
+				<option_value>TEACHER</option_value>
+			</option>
+			<option>
+				<option_text>Reseller</option_text>
+				<option_value>RESELLER</option_value>
+			</option>
+			<option>
+				<option_text>School</option_text>
+				<option_value>SCHOOL</option_value>
+			</option>
+			<option>
+				<option_text>Coaching Institute</option_text>
+				<option_value>INSTITUTE</option_value>
+			</option>
+			<option>
+				<option_text>Partner</option_text>
+				<option_value>PARTNER</option_value>
+			</option>
+			<option>
+				<option_text>Reseller</option_text>
+				<option_value>RESELLER</option_value>
+			</option>
+			<option>
+				<option_text>Partner Company</option_text>
+				<option_value>PARTNER-CO</option_value>
+			</option>
+			<option>
+				<option_text>Reseller Company</option_text>
+				<option_value>RESELLER-CO</option_value>
+			</option>
+			
+		</element>
+		
+		<element>
+			<type>static_select_with_value</type>
+			<name>value</name>
+			<label>Value</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Select one..</option_text>
+				<option_value>NOSELECTION</option_value>
+			</option>
+			
+			<option>
+				<option_text>0.15</option_text>
+				<option_value>0.15</option_value>
+			</option>
+			<option>
+				<option_text>0.02</option_text>
+				<option_value>0.02</option_value>
+			</option>
+			<option>
+				<option_text>0.08</option_text>
+				<option_value>0.08</option_value>
+			</option>
+			<option>
+				<option_text>0.03</option_text>
+				<option_value>0.03</option_value>
+			</option>
+			<option>
+				<option_text>0.00</option_text>
+				<option_value>0.00</option_value>
+			</option>
+			
+		</element>
+		
+		<element>
+			<type>static_select_with_value</type>
+			<name>eligibility_rule</name>
+			<label>Eligibility Rule</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Select one..</option_text>
+				<option_value>NOSELECTION</option_value>
+			</option>
+			<option>
+				<option_text>FOREVER</option_text>
+				<option_value>FOREVER</option_value>
+			</option>
+			<option>
+				<option_text>APPLY_ON_PREV_LEVEL_REGN_DATE</option_text>
+				<option_value>APPLY_ON_PREV_LEVEL_REGN_DATE</option_value>
+			</option>
+			
+		</element>
+	
+	<element>
+			<type>text</type>
+			<name>rule_data_num1</name>
+			<label>Rule Data Number1</label>
+			<size>large</size>
+<mandatory>yes</mandatory>
+			<placeholder>Rule Data Num1</placeholder>			
+		</element>
+	
+	<element>
+			<type>text</type>
+			<name>rule_data_num2</name>
+			<label>Rule Data Number2</label>
+			<size>large</size>
+<mandatory>yes</mandatory>
+			<placeholder>Rule Data Num2</placeholder>			
+		</element>
+	
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Register</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/comm_code_txn_setup_hndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/comm_code_txn_list.php</action>
+		</button>		
+	</actionbuttons>
+</form>

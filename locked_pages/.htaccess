@@ -1,0 +1,4 @@
+AuthName "RCA Secure Area"
+AuthType Basic
+AuthUserFile /var/www/html/ocr/rca/locked_pages/.htpasswd
+require valid-user

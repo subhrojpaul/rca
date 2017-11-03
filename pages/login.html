@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Twc- Login</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/master.css">
+    <link rel="stylesheet" type="text/css" href="css/login.css">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="js/modernizr.js"></script>
+</head>
+
+<body class="grey_bg">
+    <img src="images/login_bg.png" alt="" class="log_bg" />
+    <div class="log_center">
+        <img src="images/logo.png" alt="" class="center-block" width="220" />
+        <div class="__logbox">
+            <div class="clsRight">
+                <div class="clsContainer">
+                    <div class="clsSlide __loginput">
+                        <h3 class="_log_title">LOGIN</h3>
+                        <div class="col-md-12 login_body" style="padding-top: 1em;">
+                            <div class="form-group">
+                                <input type="text" class="label_better" data-new-placeholder="Enter Email ID" placeholder="Enter Email Id">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="label_better" data-new-placeholder="Agent Id" placeholder="Agent Id">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" class="label_better label_alert" data-new-placeholder="Enter Password" placeholder="Enter Password">
+                                <p class="__alert">Please enter the correct email id &amp; password</p>
+                            </div>
+                            <a class="clsForgotPsw forget">Forgot Password? </a>
+                            <button type="button" class="__btn __btn_active">SUBMIT</button>
+                        </div>
+                    </div>
+                    <div class="clsSlide __loginput">
+                        <h3 class="_log_title"><i class="fa fa-angle-left" id="reset_back"></i> RESET PASSWORD</h3>
+                        <div class="col-md-12 login_body" style="padding-top: 6em;">
+                            <div class="form-group">
+                                <input type="text" class="label_better" data-new-placeholder="Enter Email ID" placeholder="Enter Email Id">
+                            </div>
+                            <button type="button" class="__btn" id="OTP" style="margin-top: 4em;">SEND REQUEST</button>
+                        </div>
+                    </div>
+                    <div class="clsSlide __loginput">
+                        <h3 class="_log_title"><i class="fa fa-angle-left clsLogin2"></i> ENTER 6 DIGIT CODE</h3>
+                        <div class="col-md-12 login_body" style="padding-top: 6em;">
+                            <div class="form-group">
+                                <input type="text" class="label_better" data-new-placeholder="Enter Code" placeholder="Enter Code">
+                            </div>
+                            <button type="button" class="__btn" id="go_cpwd" style="margin-top: 4em;">SUBMIT</button>
+                        </div>
+                    </div>
+                    <div class="clsSlide __loginput">
+                        <h3 class="_log_title"><i class="fa fa-angle-left" id="back_cpwd"></i> CHANGE PASSWORD</h3>
+                        <div class="col-md-12 login_body" style="padding-top: 3em;">
+                            <div class="form-group">
+                                <input type="text" class="label_better" data-new-placeholder="Enter New Password" placeholder="Enter New Password">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" class="label_better" data-new-placeholder="Confirm New Password" placeholder="Confirm New Password">
+                            </div>
+                            <button type="button" class="__btn" style="margin-top: 2em;">NEW PASSWORD</button>
+                        </div>
+                    </div><!--change pswd -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/library.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/support-min.js"></script>
+    <script type="text/javascript">
+    $(document).keydown(function(objEvent) {
+        if (objEvent.keyCode == 9) {  //tab pressed
+            objEvent.preventDefault(); // stops its action
+        }
+    });
+    </script>
+</body>
+
+</html>

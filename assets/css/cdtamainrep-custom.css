@@ -1,0 +1,59 @@
+table, tr, td, th { border-collapse:collapse;border-spacing:0px; }
+.cd-mr-body {height:100%;min-height:650px;min-width:1250px;position:relative;}
+
+/*analysis top nav interactive*/
+.cd-mr-anl-sub.mathematics:hover .cd-mr-anl-sub-icon.mathematics { background-image: url(../images/mathswhite.png); }
+.cd-mr-anl-sub.mathematics.sel .cd-mr-anl-sub-icon.mathematics { background-image: url(../images/mathswhite.png); }
+.cd-mr-anl-sub.physics:hover .cd-mr-anl-sub-icon.physics { background-image: url(../images/physicsWhite.png); }
+.cd-mr-anl-sub.physics.sel .cd-mr-anl-sub-icon.physics { background-image: url(../images/physicsWhite.png); }
+.cd-mr-anl-sub.chemistry:hover .cd-mr-anl-sub-icon.chemistry { background-image: url(../images/chemistryWhite.png); }
+.cd-mr-anl-sub.chemistry.sel .cd-mr-anl-sub-icon.chemistry { background-image: url(../images/chemistryWhite.png); }
+.cd-mr-anl-sub .cd-mr-anl-topnav-sub-ind { display:none; }
+.cd-mr-anl-sub.sel .cd-mr-anl-topnav-sub-ind { display:block; }
+/* last subsub no border*/
+.cd-mr-res-sub-ssub-name:last-child{ border: none; }
+
+/*answer key table*/
+.cd-rpt-anskey { margin-left:auto; margin-right:auto; width:1100px; table-layout:fixed; }
+.cd-rpt-anskey tr, .cd-rpt-anskey td { padding:3px;text-align:center; }
+.cd-rpt-anskey, .cd-rpt-anskey tr, .cd-rpt-anskey td { border:1px solid black; }
+.cd-rpt-anskey td:nth-child(1) { width:35px; }
+.cd-rpt-anskey td:nth-child(2) { width:100px; }
+.cd-rpt-anskey td:nth-child(3) { width:330px; }
+.cd-rpt-anskey td:nth-child(4) { width:190px; }
+.cd-rpt-anskey td:nth-child(5) { width:190px; }
+.cd-rpt-anskey td:nth-child(6) { width:60px; } 
+.cd-rpt-anskey td:nth-child(7) { width:65px; }
+.cd-rpt-anskey td:nth-child(8) { width:55px; }
+.cd-rpt-anskey td:nth-child(9) { width:75px; }
+.cd-rpt-anskey div { background-size: contain; background-position: center; background-repeat: no-repeat; }
+/*answer key title*/
+.cd-mr-akey-title-blk { float:left;text-align:center; }
+.cd-mr-akey-title { width:1120px; float:none; height:70px; margin-left:auto; margin-right:auto; background:#808080; padding-left:10px; 
+					padding-right:10px; padding-top:5px; padding-bottom:5px; border-radius:10px; color:white; font-weight: 400; margin-top:5px; }
+.cd-mr-akey-main { font-size:12px; }
+
+/*comments styles*/
+.cd-mr-res-comments { overflow: auto; padding-top: 10px; min-height:100px; top:300px;}
+.cd-mr-res-comments table, .cd-mr-res-comments td, .cd-mr-res-comments th { border:1px solid black; }
+.cd-mr-res-comments td, .cd-mr-res-comments th {padding: 3px; }
+
+/*leftnav expand collapse*/
+.cd-mr-ln-arrow { cursor: pointer; }
+.cd-mr-leftnav.expanded .cd-mr-logo { position: absolute; width:160px;top: 85px; left: 50%; margin-left: -80px; background-image: url(../images/logo3txt.png)}
+/*.cd-mr-leftnav.expanded .cd-mr-logo-txt { display: block; }*/
+.cd-mr-leftnav.expanded .cd-mr-ln-res { background-image: url(../images/myResultBig.png); width:279px;}
+.cd-mr-leftnav.expanded .cd-mr-ln-res.sel { background-image: url(../images/myResultBigRollover.png)}
+.cd-mr-leftnav.expanded .cd-mr-ln-analysis { background-image: url(../images/myAnalysisBig.png); width:279px;}
+.cd-mr-leftnav.expanded .cd-mr-ln-analysis.sel { background-image: url(../images/myAnalysisBigRollover.png); }
+.cd-mr-leftnav.expanded .cd-mr-ln-akey { background-image: url(../images/myAnswerBig.png); width:279px;background-position: 62% 50%;}
+.cd-mr-leftnav.expanded .cd-mr-ln-akey.sel { background-image: url(../images/myAnswerBigRollover.png); }
+.cd-mr-leftnav.expanded .cd-mr-logout { background-image: url(../images/mylogoutBig.png); width:279px; background-position: 50% 50%;}
+.cd-mr-leftnav.expanded .cd-mr-logout.sel { background-image: url(../images/mylogoutBigRollover.png); }
+.cd-mr-leftnav.expanded .cd-mr-ln-mypage { margin-top: 60px; background-image: url(../images/myPageBig.png); width:279px; background-position: 55% 50%;}
+.cd-mr-leftnav.expanded .cd-mr-ln-mypage.sel { background-image: url(../images/myPageBigRollover.png); }
+
+/*custom media queries*/
+
+.cd-mr-ln-email-cont, .cd-mr-ln-prof-name, .cd-mr-logo-txt {opacity:0;transition:opacity 500ms ease;}
+

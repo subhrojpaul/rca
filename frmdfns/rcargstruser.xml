@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <name>signin</name>
+    <action></action>
+    <method>post</method>
+    <legend>Register as RCA User</legend>
+    <inputelements>
+        <element>
+                <type>text</type>
+                <name>rcargstruser_user_name</name>
+                <label>Login User Name</label>
+                <size>xlarge</size>
+                <mandatory>yes</mandatory>
+                <additional>Your user name will be your sign in id</additional>
+        </element>
+
+        <element>
+                <type>email</type>
+                <name>rcargstruser_email</name>
+                <label>eMail Address</label>
+                <size>xlarge</size>
+                <placeholder>myname@mydomain.com</placeholder>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargstruser_fname</name>
+                <label>First Name</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargstruser_mname</name>
+                <label>Middle Name</label>
+                <size>large</size>
+                <additional></additional>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargstruser_lname</name>
+                <label>Last Name</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>password</type>
+                <name>rcargstruser_pswd1</name>
+                <label>Password</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+                <additional>Password Requirements: 8-20 chars, min 1 lowercase letter, 1 uppercase letter and 1 number</additional>
+        </element>
+        <element>
+                <type>password</type>
+                <name>rcargstruser_pswd2</name>
+                <label>Confirm Password</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>dynamic_select_with_value</type>
+                <name>rcargstruser_agent_id</name>
+                <select_stmt>select null id, "rca backoffice agent" value from dual union all select agent_id id, agent_name value from agents</select_stmt>
+                <label>Agent</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+                <selectedoption>rca backoffice agent</selectedoption>
+        </element>
+    </inputelements>
+    <actionbuttons>
+        <button>
+                <type>submit</type>
+                <name>Register</name>
+                <label>Register</label>
+                <subtype>btn-primary</subtype>
+                <action>../handlers/rcargstruserhndlr.php</action>
+        </button>
+        <button>
+                <type>submit</type>
+                <name>Cancel</name>
+                <label>Cancel</label>
+                <subtype></subtype>
+                <action>../pages/index.php</action>
+        </button>		
+    </actionbuttons>
+</form>

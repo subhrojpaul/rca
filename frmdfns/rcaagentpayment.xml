@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>Agent Credit/Debit/Payment Form</name>
+	<action></action>
+	<method>post</method>
+	<legend>Record Credits/Debits/Payments against an agent.</legend>
+	<inputelements>
+		<element>
+			<type>hidden</type>
+			<name>agent_payment_id</name>
+		</element>
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>agent_id</name>
+			<label>Agent</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<select_stmt>select agent_id id, concat(agent_code, '-', agent_name) value from agents where enabled = 'Y'</select_stmt>
+		</element>
+		<element>
+			<type>text</type>
+			<name>payment_receipt_no</name>
+			<label>Reference No.</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>The reference number for this transaction</additional>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>payment_type</name>
+			<label>Transaction Type</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Payment</option_text>
+				<option_value>PAYMENT</option_value>
+			</option>
+			<option>
+				<option_text>Credit</option_text>
+				<option_value>CREDIT</option_value>
+			</option>
+			<option>
+				<option_text>Debit</option_text>
+				<option_value>DEBIT</option_value>
+			</option>
+		</element>
+
+		<element>
+			<type>static_select_with_value</type>
+			<name>payment_method</name>
+			<label>Transaction Method</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Cash</option_text>
+				<option_value>CASH</option_value>
+			</option>
+			<option>
+				<option_text>Cheque</option_text>
+				<option_value>CHEQUE</option_value>
+			</option>
+			<option>
+				<option_text>Electronic</option_text>
+				<option_value>ELECTRONIC</option_value>
+			</option>
+			<option>
+				<option_text>On Ledger</option_text>
+				<option_value>LEDGER</option_value>
+			</option>
+
+			<option>
+				<option_text>Debit</option_text>
+				<option_value>DEBIT</option_value>
+			</option>
+		</element>
+
+		<element>
+			<type>static_select_with_value</type>
+			<name>txn_status</name>
+			<label>Transaction Status</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Pending</option_text>
+				<option_value>PENDING</option_value>
+			</option>			
+			<option>
+				<option_text>Approved</option_text>
+				<option_value>APPROVED</option_value>
+			</option>
+			<option>
+				<option_text>Rejected</option_text>
+				<option_value>REJECTED</option_value>
+			</option>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>payment_currency</name>
+			<label>Transaction Currency</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>INR</option_text>
+				<option_value>INR</option_value>
+			</option>
+			<option>
+				<option_text>AED</option_text>
+				<option_value>AED</option_value>
+			</option>
+		</element>		
+		<element>
+			<type>text</type>
+			<name>payment_amount</name>
+			<label>Amount</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>textarea</type>
+			<name>txn_comments</name>
+			<label>Comments</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+		</element>
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>update</name>
+			<label>Update</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/rcaagtpmnthndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/dashboard.php</action>
+		</button>		
+	</actionbuttons>
+</form>

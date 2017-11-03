@@ -1,0 +1,349 @@
+@import 'modules';
+._cozy {
+	padding-left: 40px;
+	padding-right: 40px;
+}
+._force0 {
+	margin: 0;
+	padding: 0;
+}
+._profile_bdr {
+	padding:25px 0;
+	border-bottom: 1px solid #E3E6EC;
+}
+._profile {
+	float: left;
+	padding: 17px 0;
+	._pro_pic {
+		float: left;
+		margin-right: 10px;
+		img {
+			width: 55px;
+			border-radius: 50%;
+			border:2px solid #C0CDDD;
+			float: left;
+			padding: 5px;
+		}
+	}
+	._pro_txt {
+		float: left;
+		h4 {
+			font-size: 18px;
+			font-family: 'UbuntuM';
+		}
+		p {
+			font-size: 12px;
+			color: $grey9;
+			line-height: 0;
+		}
+	}
+}
+ul._profile_nav {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	text-align: center;
+	li {
+		display: inline-block;
+		a {
+			font-size: 12px;
+			color: #666666;
+			padding: 12px 35px;
+			border-radius: 30px;
+			margin-right: 3.5em;
+			cursor: pointer;
+			&.active {
+				background: #6D9EE1;
+				color: #FFF;
+			}
+			&:hover {
+				background: #6D9EE1;
+				color: #FFF;
+			}
+			&:hover .svg path {
+				fill:#FFF;
+				stroke: #fff;
+			}
+		}
+	}
+}
+.svg {
+	margin: 0 2px -4px;
+}
+ul._profile_nav li a.active .svg path {
+    fill: #FFF;
+    stroke: #fff;
+}
+._whitebox {
+	background-color: #FFF;
+	padding: 10px 20px;
+}
+._idate {
+	float: left;
+	img {
+		margin-top: 8px;
+	}
+}
+._select {
+	position: relative;
+	width: 170px;
+	float: left;
+	border-bottom: .5px solid #90A4AE;
+	margin-left: 15px;
+	margin-right: 15px;
+	select {
+		border: 0;
+		padding: 8px 0;
+		color: #666;
+		width: 100%;
+		-webkit-appearance:none;
+		-moz-appearance:none;
+		background: transparent;
+	}
+	.input {
+		border:none;
+		padding: 8px 0;
+		font-size: 12px;
+		color: #666;
+		width: 90%;
+	}
+	.input::-webkit-input-placeholder {
+    	color:#666;
+	}
+	.input::-moz-placeholder {
+  		color:#000;
+	}
+	._angle {
+		position: absolute;
+		right: 1px;
+		top: 8px;
+		color: #90A4AE;
+	}
+}
+._support_search {
+	float: left;margin-left: 15px;
+}
+._print {
+	margin-top: 8px;
+	float: right;
+}
+.report_table {
+	background-color: #FFF;
+	.table {
+		margin-bottom: 50px;
+	}
+	.table > thead > tr > th {
+    	vertical-align: bottom;
+    	border-bottom: none;
+    	background-color: #E9F1F2;
+    	color: #8298A4;
+    	padding: 15px 15px;
+    	font-size: 11px;
+	}
+	.table > tbody > tr > td {
+		border:none;
+		border-bottom: 1px solid #EEE;
+		padding: 15px 15px;
+		color: #8298A4;
+		font-size: 11px;
+	}
+}
+.status {
+	border-radius: 3px;
+	padding: 8px 10px;
+	color: #FFF;
+	&.approved {
+		background-color: #4CB6AC;
+	}
+	&.inprocess {
+		background-color: #FF7043;
+	}
+}
+._times {
+	float: left;
+	margin: 6px 6px;
+	font-size: 16px;
+	cursor: pointer;
+	display: none;
+}
+._datext {
+	font-size: 10px;
+	margin-top: 7px;
+	float: right;
+	padding-left: 5px;
+	display: none;
+	position: absolute;
+	top: -15px;
+	padding: 1px 8px;
+	left: -20px;
+	background: #FFF;
+	z-index: 1;
+	border-radius: 30px;
+	box-shadow: 0px 2px 4px #CCC;
+	-webkit-animation:fadeInDown 0.5s;
+	-moz-animation:fadeInDown 0.5s;
+	-ms-animation:fadeInDown 0.5s
+}
+._idate:hover ._datext {
+	display: block;
+}
+._datext2 {
+	font-size: 10px;
+	margin-left: 6px;
+	margin-top: 7px;
+	float: right;
+	font-family: 'UbuntuM';
+}
+/* recharge */
+._bankname {
+	width: 100%;
+    float: inherit;
+    margin: 0;
+    border-bottom: 1px solid #CCC;
+    margin-bottom: 30px;
+	select {
+		font-size: 13px;
+	}
+}
+._agree_check input[type=checkbox] { display:none; } /* to hide the checkbox itself */
+._agree_check  input[type=checkbox] + label:before {
+  font-family: FontAwesome;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 100;
+}
+._agree_check input[type=checkbox] + label {
+	color: #999;
+	font-size: 12px;
+}
+._agree_check input[type=checkbox] + label:before { content: "\f096";color: #999; }
+._agree_check  input[type=checkbox] + label:before { letter-spacing: 5px; } 
+._agree_check input[type=checkbox]:checked + label:before { content: "\f14a";letter-spacing: 5px;color: #02B2F6; }
+._agree_check input[type=checkbox]:checked + label {
+	font-family: 'Ubuntu';
+	color: #333;
+}
+.marbt_30 {
+	margin-bottom: 30px;
+}
+._agree {
+	float: left;width: 100%;margin-bottom: 30px;
+}
+._note {
+	font-family:'Ubuntu';
+	font-size: 12px;
+	color: #666666;
+	line-height: 20px;
+	text-align: center;
+	&.italy {
+		text-align: left;
+		margin: 0;
+		font-style: italic;font-size: 10px;
+	}
+}
+/* myprofile */
+ul._subprofile {
+	margin: 0;
+	padding: 10px 0;
+	list-style: none;
+	text-align: left;
+	float: left;
+	li {
+		display: inline-block;
+		a {
+			font-size: 12px;
+			color: #666666;
+			padding: 8px 30px;
+			border-radius: 30px;
+			margin-right: 3em;
+			cursor: pointer;
+			border:1px solid transparent;
+			&:hover {
+				border:1px solid #6D9EE1;
+				color: #6D9EE1;
+			}
+		}
+	}
+	.active a {
+		color: #6D9EE1;
+		border:1px solid #6D9EE1;
+	}
+}
+._subprofile-content {
+    display: none;
+}
+#tab1 {
+ display: block;   
+}
+.left0 {
+	padding-left: 0;
+}
+.right0 {
+	padding-right: 0;
+}
+.padd0 {
+	padding: 0;
+}
+._profilebg {
+	background-color: $white;
+	padding: 20px 10px;
+	margin-bottom: 30px;
+	float: left;width: 100%;
+	.label_better {
+		font-size: 11px;
+		font-family: 'UbuntuM';
+		margin-bottom: 4px;
+	}
+}
+._profile_left {
+	padding: 0 25px;
+	font-family: 'Ubuntu';
+	p {
+		font-size: 12px;
+		color: #999999;
+		line-height: 25px;
+		&.dark {
+			color: #666666;
+		}
+	}
+}
+.edit_pic {
+	text-align: center;
+	margin-bottom: 15px;
+	img {
+		border-radius: 50%;
+		border:1px solid #CCC;
+		padding: 5px 5px;
+		margin-bottom: 10px;
+		width: 100px;
+		height: 100px;
+	}
+	input[type="file"] {
+		display: none;
+	}
+}
+span.edit {
+	color: #E84B4B;
+	font-size: 12px;
+	cursor: pointer;
+	&._mrgn10 {
+		margin: 0 0 15px 0;
+	}
+}
+.textarea {
+	border-bottom: 1px solid #CCC;
+	height: auto;
+	margin-top: 9px;
+}
+
+
+
+
+
+
+
+
+
+
+

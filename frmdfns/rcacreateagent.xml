@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <name>createagent</name>
+    <action></action>
+    <method>post</method>
+    <hasfile>true</hasfile>
+    <legend>Create RCA agent (Company)</legend>
+    <inputelements>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_code</name>
+            <label>Agent code</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_name</name>
+            <label>Agent Name</label>
+            <size>large</size>
+            <additional></additional>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_desc</name>
+            <label>Description</label>
+            <size>large</size>
+        </element>
+        <element>            
+            <type>select</type>
+            <name>rcaagnt_txn_currency</name>
+            <label>Transaction Currency</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+            <option>INR</option>
+            <option>AED</option>
+            <option>USD</option>
+            <selectedoption>INR</selectedoption>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_credit_limit</name>
+            <label>Credit Limit</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+            <additional>This is the limit of operations for all users within this agent.</additional>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_sec_deposit</name>
+            <label>Security Deposit</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <additional>Security deposit amount for this agent.</additional>
+        </element>
+        <element>            
+            <type>static_select_with_value</type>
+            <name>rcaagnt_form_fill_mode</name>
+            <label>Form Mode</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+            <option>
+            	<option_value>SS</option_value>
+            	<option_text>Self Service</option_text>
+            </option>
+            <option>
+            	<option_value>AS</option_value>
+            	<option_text>Assited Service</option_text>
+            </option>
+            <selectedoption>SS</selectedoption>
+        </element>
+        <element>
+            <label>Address details</label>
+            <type>divider</type>
+        </element>
+        
+                <element>
+                        <type>file</type>
+                        <name>agent_pic</name>
+                        <id>agent_pic</id>
+                        <label>Profile Picture</label>
+                </element>
+                <element>
+                        <type>image</type>
+                        <name>agent_pic_img</name>
+                        <id>agent_pic_img</id>
+                        <label>Profile Picture Image</label>
+                        <src>noimage</src>
+                        <additional></additional>
+                </element>
+                <element>
+                        <type>hidden</type>
+                        <name>agent_pic_img_hid</name>
+                </element>
+
+                <element>
+                        <type>hidden</type>
+                        <name>agent_pic_orig_file</name>
+                </element>        
+
+        <element>
+            <type>text</type>
+            <name>rcaagnt_address_line1</name>
+            <label>Address</label>
+            <size>large</size>
+            <placeholder>Address Line 1...</placeholder>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_address_line2</name>
+            <size>large</size>
+            <placeholder>Address Line 2...</placeholder>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_city</name>
+            <label>City</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_pincode</name>
+            <label>Pincode</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_state</name>
+            <label>State</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>select</type>
+            <name>rcaagnt_country</name>
+            <label>Country</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <option>India</option>
+            <option>UAE</option>                
+            <selectedoption>India</selectedoption>
+        </element>   
+        <element>
+            <type>text</type>
+            <name>rcaagnt_phone1</name>
+            <label>Phone1</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <placeholder>919898989898</placeholder>
+            <additional>Include ISD and STD codes, if applicable</additional>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_phone2</name>
+            <label>Phone2</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <placeholder>919898989898</placeholder>
+            <additional>Include ISD and STD codes, if applicable</additional>
+        </element>
+        <element>                
+            <type>text</type>
+            <name>rcaagnt_contact_person_name</name>
+            <label>Contact person name</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->                
+        </element>
+        <element>                
+            <type>text</type>
+            <name>rcaagnt_contact_email_id</name>
+            <label>Contact email id</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->                
+        </element>
+        <element>
+            <label>Finance details</label>
+            <type>divider</type>
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_registration_no</name>
+            <label>Registration no</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_tax_no</name>
+            <label>Tax No</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_bank_account_name</name>
+            <label>Bank account name</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_bank_branch</name>
+            <label>Bank branch</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>rcaagnt_ifsc_code</name>
+            <label>IFSC/IBAN</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>dynamic_select_with_value</type>
+            <name>rca_entity_id</name>
+            <select_stmt>select null id, "Select RCA Entity" value from dual union all select rca_entity_id id, entity_name value from rca_entities</select_stmt>
+            <label>RCA Entity</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <selectedoption></selectedoption>
+        </element>        
+        <element>
+            <type>dynamic_select_with_value</type>
+            <name>rca_territory_id</name>
+            <select_stmt>select null id, "Select Territory" value from dual union all select rca_territory_id id, territory_name value from rca_territories</select_stmt>
+            <label>Territory</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <selectedoption></selectedoption>
+        </element>        
+        <element>
+            <type>dynamic_select_with_value</type>
+            <name>rca_channel_id</name>
+            <select_stmt>select null id, "Select Channel" value from dual union all select rca_channel_id id, channel_name value from rca_channels</select_stmt>
+            <label>Channel</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <selectedoption></selectedoption>
+        </element>
+        <element>
+            <type>dynamic_select_with_value</type>
+            <name>rca_agent_id</name>
+            <select_stmt>select null id, "select RCA user" value from dual union all select user_id id, fname value from user_info where agent_id is null</select_stmt>
+            <label>RCA Agent</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <selectedoption></selectedoption>
+        </element>        
+    </inputelements>
+    <actionbuttons>
+        <button>
+            <type>submit</type>
+            <name>Register</name>
+            <label>Register</label>
+            <subtype>btn-primary</subtype>
+            <action>../handlers/rcaagentcreatehndlr.php</action>
+            <!--<action>../handlers/basic_handler.php</action>-->
+        </button>
+        <button>
+            <type>submit</type>
+            <name>Cancel</name>
+            <label>Cancel</label>
+            <subtype></subtype>
+            <action>../pages/dashboard.php</action>
+        </button>		
+    </actionbuttons>
+</form>

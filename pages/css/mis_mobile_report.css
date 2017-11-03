@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800');
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+body {
+    line-height: 1;
+    margin: 0 auto;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: normal;
+}
+.container {
+    display: none;
+}
+
+@media only screen and (max-width: 768px) {
+    body {
+        background-color: #FFF;
+    }
+    .container {
+        width: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+    .topbar {
+        padding: 15px 20px;
+        text-align: center;
+        background-color: #FFF;
+    }
+    span.report_text {
+        font-weight: 600;
+        color: #333;
+        line-height: 23px;
+    }
+    span.arrow_left {
+        color: #999;
+        font-size: 23px;
+        float: left;
+    }
+    .tab-header {
+        padding: 0 10px;border-top: 1px solid #EEE;background-color: #FFF;
+    }
+    .tab-overflow {
+        height: auto;
+        overflow: hidden;
+        overflow-x: auto;
+    }
+    ul.tabs-menu {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        float: left;
+    }
+    ul.tabs-menu li {
+        display: inline;
+        float: left;
+        width: 33.33%;
+        text-align: center;
+        height: 40px;
+        line-height: 40px;
+        background-color: #FFF;
+        color: #999;
+    }
+    ul.tabs-menu li.current {
+        border: none;
+        background-color: #fff;
+        font-weight: 600;
+        border-bottom: 2px solid #E94C4C;
+    }
+    ul.tabs-menu li.current a {
+        color: #333333;
+    }
+    .tabs-menu li a {
+        color: #999;
+        text-decoration: none;
+        font-size: 11px;
+        float: left;
+        width: 100%;
+        white-space: nowrap;  
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tab {
+        background-color: rgb(233, 236, 237);
+        padding: 10px 10px;
+    }
+    .tab-content {
+        background-color: #FFF;
+        padding: 0 0;
+        display: none;
+    }
+    #dsr {
+        display: block;
+    }
+    .title {
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 40px;
+        padding: 0 15px;
+        border-bottom: 1px solid #EEE;
+    }
+    .grid .text {
+        font-size: 12px;
+        line-height: 15px;
+        color: #666;
+        display: inline-block;
+    }
+    .grid .count {
+        border-left: 1px solid #EEE;
+        color: #333;
+        font-weight: bold;
+        font-size: 18px;
+        padding-left: 15px;
+    }
+    .grid {
+        background-color: #FFF;
+        border-bottom: 1px solid #EEE;
+        margin: 0 0 0 0;
+        padding: 20px 0 20px 15px;
+        height: 40px;
+        line-height: 40px;
+    }
+    .grid:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    .grid:last-of-type {
+        padding-right: 0;
+    }
+    [class*='col-'] {
+        float: left;
+        padding-right: 10px;
+    }
+    [class*='col-']:last-of-type {
+        padding-right: 10px;
+    }
+    .col-70 {
+        width: 70%;
+    }
+    .col-20 {
+        width: 20%;
+    }
+}

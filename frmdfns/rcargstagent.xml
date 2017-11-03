@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <name>signin</name>
+    <action></action>
+    <method>post</method>
+    <legend>Register in RCA</legend>
+    <inputelements>
+        <element>                
+                <type>text</type>
+                <name>rcargst_security_deposit</name>
+                <label>Security Deposit</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>                
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_address_line1</name>
+                <label>Address</label>
+                <size>large</size>
+                <placeholder>Address Line 1...</placeholder>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_address_line2</name>
+                <size>large</size>
+                <placeholder>Address Line 2...</placeholder>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_city</name>
+                <label>City</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_pincode</name>
+                <label>Pincode</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_state</name>
+                <label>State</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>select</type>
+                <name>rcargst_country</name>
+                <label>Country</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+                <option>India</option>
+                <option>UAE</option>                
+                <selectedoption>India</selectedoption>
+        </element>   
+        <element>
+                <type>text</type>
+                <name>rcargst_phone1</name>
+                <label>Phone1</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+                <placeholder>919898989898</placeholder>
+                <additional>Include ISD and STD codes, if applicable</additional>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_phone2</name>
+                <label>Phone2</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+                <placeholder>919898989898</placeholder>
+                <additional>Include ISD and STD codes, if applicable</additional>
+        </element>
+        <element>                
+                <type>text</type>
+                <name>rcargst_contact_person_name</name>
+                <label>Contact person name</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>                
+        </element>
+        <element>                
+                <type>text</type>
+                <name>rcargst_contact_email_id</name>
+                <label>Contact email id</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>                
+        </element>
+        <element>
+                <label>Fianance details</label>
+                <type>divider</type>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_registration_no</name>
+                <label>Registration no</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_tax_no</name>
+                <label>Tax No</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_bank_account_name</name>
+                <label>Bank account name</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_bank_branch</name>
+                <label>Bank branch</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>text</type>
+                <name>rcargst_ifsc_code</name>
+                <label>IFSC/IBAN</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+        </element>
+        <element>
+                <type>dynamic_select_with_value</type>
+                <name>rca_agent_id</name>
+                <select_stmt>select null rca_agent_id, "select RCA user" rca_agent_name from dual union all select user_id, fname from user_info where agent_id is null</select_stmt>
+                <label>RCA Agent</label>
+                <size>large</size>
+                <mandatory>yes</mandatory>
+                <selectedoption>India</selectedoption>
+        </element>
+            
+        <element>
+                <type>captcha</type>
+                <src>../assets/utils/captcha.php</src>
+                <label>Validation Code</label>
+                <name>captcha_img</name>
+        </element>
+
+        <element>
+                <type>text</type>
+                <name>rcargst_captchacode</name>
+                <label>Type Validation Code</label>
+                <size>medium</size>
+                <mandatory>yes</mandatory>
+                <additional></additional>
+        </element>
+    </inputelements>
+    <actionbuttons>
+        <button>
+                <type>submit</type>
+                <name>Register</name>
+                <label>Register</label>
+                <subtype>btn-primary</subtype>
+                <action>../handlers/rcargstragenthndlr.php</action>
+        </button>
+        <button>
+                <type>submit</type>
+                <name>Cancel</name>
+                <label>Cancel</label>
+                <subtype></subtype>
+                <action>../pages/index.php</action>
+        </button>		
+    </actionbuttons>
+</form>

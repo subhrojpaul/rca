@@ -1,0 +1,44 @@
+._document_col._ajax:after { content: ""; background: url(../images/processing-large.gif); position: absolute; left: 50%; top: 50%; margin: -40px; display: block; width: 80px; height: 80px; background-size: contain; background-position: 50%;z-index:1; } 
+._document_col ._lable { text-transform: uppercase }
+._document_col ._lable._ajax { background-image: linear-gradient(to right, black, black 50%, #02B2F6 50%, #02B2F6); background-size: 200%; background-position: 0%; transition: background 500ms ease }
+._document_col ._lable._ajax:after { content: ""; background: url(../images/processing.gif); position: absolute; right: 3px; top: 3px; display: block; width: 16px; height: 16px; background-size: contain; background-position: 50% }
+._document_col ._delete_now { display: block; text-align: center; font-size: 25px; color: #fff; position: absolute; bottom: 20px; right: 20px; cursor: pointer }
+._document_col[data-app-service-img-id=""] ._delete_now{ display: none }
+.tabs-service ._service_delete:hover { cursor: pointer; color: #000 }
+.modal-dialog.form_modal { width: 90% }
+._modal_form_img_view { height: 480px; width: 100%; text-align: center; overflow: hidden }
+._modal_form_img_view img { max-width: 100%; max-height: 100%; position: relative }
+._modal_form_img_list { overflow-x: hidden; overflow-y: scroll; height: 120px }
+._modal_form_img_list img { width: auto; height: 100px; float: left; margin: 10px }
+.lock_message { display: none }
+.lock_message span { display: inline-block; font-size: 17px; line-height: 20px; color: #fff; padding: 5px }
+._applicant ._app_img, ._applicant ._app_text { float: left; margin-right: 20px }
+._applicant ._app_img img { height: 60px; width: auto }
+._applicant ._app_text  { font-size: 25px }
+._applicant .lock_header { text-align: center }
+._applicant .lock_header>div { display: inline-block }
+._modal_form_img_tools { position: absolute; z-index: 1; opacity: .2; bottom: 5px; right: 5px; width: 145px; background: #ddd; border-radius: 5px; padding: 5px }
+._modal_form_img_tools:hover { opacity:1 }
+._modal_form_img_tools div { text-align: right }
+._modal_form_img_tools span { font-size: 10px; vertical-align: middle; display: inline-block; padding-right: 5px; padding-bottom: 5px }
+._modal_form_img_tools i { font-size:22px; padding: 5px; cursor: pointer; opacity: .5 }
+._modal_form_img_tools i:hover { opacity: 1 }
+.ui-draggable-handle{ -ms-touch-action: none; touch-action: none }
+.status_box { position: relative; padding: 0 5em 0 0; }
+.status_box[data-has-errors="Y"]:after { content:"\f06a"; font-family: "FontAwesome"; position: absolute; right: 5px; font-size: 22px; color: #f00; cursor:pointer }
+#rca-data-row .__left, #rca-data-row .__right { overflow: auto }
+._select_field {height:54px;}
+._select_field .chosen-single { background:#fff;border:none;border-bottom:1px solid #E3E6EC; border-radius:0px; font-size: 11px; font-family: 'UbuntuM'; padding: 0px; box-shadow: none;}
+._select_field .chosen-single>div{display: none}
+.chosen-container-active .chosen-single { border-bottom: 1.2px solid rgb(2,178,246); }
+a.final-doc{ display: block; width: 140px; height: 170px; float: left; border: 1px dashed #ccc; margin: 0px 13px 30px 0px; padding: 40px 0px 5px; position: relative; background-size: contain; background-repeat: no-repeat; background-position: 50% 50%; }
+a.final-doc[data-type="PDF"]{background-image: url("../images/pdf-icon.png"); background-size: 64px 64px; background-repeat: no-repeat; background-position: 5px 2px; }
+a.final-doc ._lable { background:#000; }
+._txt_field, ._select_field {position: relative;}
+.valid-error-main {font-family: "FontAwesome"; position: absolute; right: 5px; top: 5px; font-size: 15px; color: #f00; cursor: pointer; width: 22px; height: 22px; overflow:hidden;}
+.valid-error-text {width: 150px; font-size: 11px; font-style:italic; background: #eee; position: absolute; right: 0px; top: 29px; padding: 2px 5px; border-radius: 5px; z-index: 1; font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; color: #333;} 
+.valid-error-text:after {content: ""; position: absolute; right: 10px; width: 0px; bottom: 100%; border-right: 10px solid #eee; border-top: 10px solid transparent;}
+.valid-error-main:hover {overflow:visible;}
+._document_col[data-doc-type="FORM"][data-form-status="COMPLETE"]:after {top: 10px; right: 10px; width: 25px; height: 25px; background-image: url(../images/greentick.svg); content: ""; position: absolute; background-size: 100%; }
+._document_col[data-highlight="1"] { border:1px dashed red; }
+._document_col[data-highlight="1"] ._lable { border:1px dashed red; border-top:none;}

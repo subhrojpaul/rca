@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <name>createchannel</name>
+    <action></action>
+    <method>post</method>
+    <legend>Create Channel</legend>
+    <inputelements>
+        <element>
+            <type>hidden</type>
+            <name>rca_channel_id</name>
+        </element>
+        <element>
+            <type>text</type>
+            <name>channel_code</name>
+            <label>Channel code</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>channel_name</name>
+            <label>Channel Name</label>
+            <size>large</size>
+            <additional></additional>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>channel_desc</name>
+            <label>Description</label>
+            <size>large</size>
+        </element>
+    </inputelements>
+    <actionbuttons>
+        <button>
+            <type>submit</type>
+            <name>Submit</name>
+            <label>Submit</label>
+            <subtype>btn-primary</subtype>
+            <action>../handlers/rcachannelcreatehndlr.php</action>
+        </button>
+        <button>
+            <type>submit</type>
+            <name>Cancel</name>
+            <label>Cancel</label>
+            <subtype></subtype>
+            <action>../pages/dashboard.php</action>
+        </button>		
+    </actionbuttons>
+</form>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>cdrgstrmin</name>
+	<action></action>
+	<method>post</method>
+	<legend>Register in Collegedoors</legend>
+	<inputelements>
+		<element>
+			<type>email</type>
+			<name>cdrgstrmin_email</name>
+			<label>eMail Address</label>
+			<size>xlarge</size>
+			<mandatory>yes</mandatory>
+			<additional>Your eMail will be your sign in id</additional>
+			<placeholder>myname@mydomain.com</placeholder>
+		</element>
+		
+		<element>
+			<type>text</type>
+			<name>cdrgstrmin_fname</name>
+			<label>First Name</label>
+			<size>large</size>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cdrgstrmin_lname</name>
+			<label>Last Name</label>
+			<size>large</size>
+		</element>
+
+		<element>
+			<type>password</type>
+			<name>cdrgstrmin_pswd1</name>
+			<label>Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+<!--			<additional>Password Requirements: 8-20 chars, min 1 lowercase letter, 1 uppercase letter and 1 number</additional> -->
+			<additional>Password Requirements: mininum 6 characters</additional>
+		</element>
+		<element>
+			<type>password</type>
+			<name>cdrgstrmin_pswd2</name>
+			<label>Confirm Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>MathCaptcha</type>
+			<label>Please Add: </label>
+			<textname>cdrgstrmin_math_text</textname>
+			<size>small</size>
+			<name>cdrgstrmin_captcha_math</name>
+		</element>
+<!--		<element>
+			<type>captcha</type>
+			<src>../assets/utils/captcha.php</src>
+			<label>Validation Code</label>
+			<name>captcha_img</name>
+		</element>
+
+
+		<element>
+			<type>text</type>
+			<name>cdrgstrmin_captchacode</name>
+			<label>Type Validation Code</label>
+			<size>medium</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+-->
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Register</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cdrgstrminhndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

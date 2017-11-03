@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>signin</name>
+	<action></action>
+	<method>post</method>
+	<legend>Create RCA agent (Company)</legend>
+	<inputelements>
+		<element>
+			<type>text</type>
+			<name>rcaagnt_code</name>
+			<label>Agent code</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>text</type>
+			<name>rcaagnt_name</name>
+			<label>Agent Name</label>
+			<size>large</size>
+			<additional></additional>
+		</element>
+		<element>
+			<type>text</type>
+			<name>rcaagnt_desc</name>
+			<label>Description</label>
+			<size>large</size>
+		</element>
+		<element>
+			<type>select</type>
+			<name>rcaagnt_txn_currency</name>
+			<label>Transaction Currency</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>INR</option>
+			<option>AUD</option>
+			<option>USD</option>
+			<selectedoption>INR</selectedoption>
+		</element>
+		<element>
+			<type>text</type>
+			<name>rcaagnt_credit_limit</name>
+			<label>Credit Limit</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>This is the limit of operations for all users within this agent.</additional>
+		</element>
+		<element>
+			<type>text</type>
+			<name>rcaagnt_sec_deposit</name>
+			<label>Security Deposit</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>Security deposit amount for this agent.</additional>
+		</element>
+
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Register</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/rcaagentcreatehndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/dashboard.php</action>
+		</button>		
+	</actionbuttons>
+</form>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>Application Edit</name>
+	<action></action>
+	<method>post</method>
+	<legend>Create / Update Application.</legend>
+	<inputelements>	
+		<element>
+			<type>hidden</type>
+			<name>lot_application_id</name>
+		</element>
+		<element>
+			<type>para_text</type>
+			<name>application_lot_code</name>
+			<label>Group Code</label>
+		</element>
+		<element>
+			<type>para_text</type>
+			<name>lot_comments</name>
+			<label>Group Comments</label>
+		</element>
+
+		<element>
+			<type>para_text</type>
+			<name>agent_name</name>
+			<label>Agent Name</label>
+		</element>
+
+		<element>
+			<type>para_text</type>
+			<name>application_passport_no</name>
+			<label>Passport No</label>
+		</element>
+		<element>
+			<type>para_text</type>
+			<name>applicant_first_name</name>
+			<label>First Name</label>
+		</element>
+		<element>
+			<type>para_text</type>
+			<name>applicant_last_name</name>
+			<label>Last Name</label>
+		</element>
+		<element>
+			<type>hidden</type>
+			<name>visa_type_id</name>
+		</element>
+		<element>
+			<type>para_text</type>
+			<name>visa_type_name</name>
+			<label>Visa Type</label>
+		</element>
+
+		<element>
+			<type>static_select_with_value</type>
+			<name>application_status</name>
+			<label>Status</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>New</option_text>
+				<option_value>NEW</option_value>
+			</option>
+			<option>
+				<option_text>Verified</option_text>
+				<option_value>VERIFIED</option_value>
+			</option>
+			<option>
+				<option_text>Forwarded</option_text>
+				<option_value>FORWARDED</option_value>
+			</option>
+			<option>
+				<option_text>Applied</option_text>
+				<option_value>APPLIED</option_value>
+			</option>
+			<option>
+				<option_text>Granted</option_text>
+				<option_value>GRANTED</option_value>
+			</option>
+			<option>
+				<option_text>Rejected</option_text>
+				<option_value>REJECTED</option_value>
+			</option>
+			<option>
+				<option_text>Submit</option_text>
+                                <option_value>SUBMIT</option_value>
+			</option>
+			<option>
+				<option_text>INCOMPLETE</option_text>
+				<option_value>INCOMPLETE</option_value>
+			</option>
+			<option>
+				<option_text>COMPLETE</option_text>
+				<option_value>COMPLETE</option_value>
+			</option>
+		</element>
+		<element>
+			<type>text</type>
+			<name>ednrd_ref_no</name>
+			<label>EDNRD Reference No.</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+		</element>		
+
+		<element>
+			<type>static_select_with_value</type>
+			<name>otb_required_flag</name>
+			<label>OTB Requried</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Yes</option_text>
+				<option_value>Y</option_value>
+			</option>
+			<option>
+				<option_text>No</option_text>
+				<option_value>NO</option_value>
+			</option>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>meet_assist_flag</name>
+			<label>Meet Assist</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Yes</option_text>
+				<option_value>Y</option_value>
+			</option>
+			<option>
+				<option_text>No</option_text>
+				<option_value>N</option_value>
+			</option>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>spa_flag</name>
+			<label>Spa</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Yes</option_text>
+				<option_value>Y</option_value>
+			</option>
+			<option>
+				<option_text>No</option_text>
+				<option_value>N</option_value>
+			</option>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>lounge_flag</name>
+			<label>Lounge</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Yes</option_text>
+				<option_value>Y</option_value>
+			</option>
+			<option>
+				<option_text>No</option_text>
+				<option_value>N</option_value>
+			</option>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>hotel_flag</name>
+			<label>Hotel</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Yes</option_text>
+				<option_value>Y</option_value>
+			</option>
+			<option>
+				<option_text>No</option_text>
+				<option_value>N</option_value>
+			</option>
+		</element>
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>update</name>
+			<label>Update</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/rcaapplupdthndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/dashboard.php</action>
+		</button>		
+	</actionbuttons>
+</form>

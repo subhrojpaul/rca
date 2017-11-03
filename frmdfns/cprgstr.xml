@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>signin</name>
+	<action></action>
+	<method>post</method>
+	<legend>Register in RCA</legend>
+	<inputelements>
+		<element>
+			<type>email</type>
+			<name>cprgstr_email</name>
+			<label>eMail Address</label>
+			<size>xlarge</size>
+			<mandatory>yes</mandatory>
+			<additional>Your eMail will be your sign in id</additional>
+			<placeholder>myname@mydomain.com</placeholder>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_fname</name>
+			<label>First Name</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_mname</name>
+			<label>Middle Name</label>
+			<size>large</size>
+			<additional></additional>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_lname</name>
+			<label>Last Name</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>password</type>
+			<name>cprgstr_pswd1</name>
+			<label>Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>Password Requirements: 8-20 chars, min 1 lowercase letter, 1 uppercase letter and 1 number</additional>
+		</element>
+		<element>
+			<type>password</type>
+			<name>cprgstr_pswd2</name>
+			<label>Confirm Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>cprgstr_agent_id</name>
+			<select_stmt>select null agent_id, "select rca backoffice agent" agent_name from dual union all select agent_id, agent_name from agents</select_stmt>
+			<label>Agent</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		
+		<element>
+			<label>Communication Preferences</label>
+			<type>divider</type>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_phone</name>
+			<label>Phone</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<placeholder>919898989898</placeholder>
+			<additional>Include ISD and STD codes, if applicable</additional>
+		</element>
+		
+		<element>
+			<type>captcha</type>
+			<src>../assets/utils/captcha.php</src>
+			<label>Validation Code</label>
+			<name>captcha_img</name>
+		</element>
+
+
+		<element>
+			<type>text</type>
+			<name>cprgstr_captchacode</name>
+			<label>Type Validation Code</label>
+			<size>medium</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Register</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cprgstrhndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

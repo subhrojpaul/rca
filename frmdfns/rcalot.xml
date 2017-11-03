@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>Group / Lot update Form</name>
+	<action></action>
+	<method>post</method>
+	<legend>Update Group / Lot</legend>
+	<inputelements>
+		<element>
+			<type>text</type>
+			<name>application_lot_id</name>
+			<label>Group/Lot id</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>
+		<element>
+			<type>text</type>
+			<name>application_lot_code</name>
+			<label>Group/Lot code</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>
+
+		<element>
+			<type>hidden</type>
+			<name>agent_id</name>
+		</element>
+		
+		<element>
+			<type>text</type>
+			<name>agent_name</name>
+			<label>Agent Name</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>		
+
+		<element>
+			<type>hidden</type>
+			<name>visa_type_id</name>
+		</element>
+		
+		<element>
+			<type>text</type>
+			<name>visa_type_name</name>
+			<label>Visa Type Name</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>		
+		
+		<element>
+			<type>text</type>
+			<name>lot_application_count</name>
+			<label>No of Applications</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>		
+
+		<element>
+			<type>para_text</type>
+			<name>lot_comments</name>
+			<label>Group / Lot Comments</label>
+		</element>
+		<element>
+			<type>text</type>
+			<name>lot_date</name>
+			<label>Group / Lot Date</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>
+		<element>
+			<type>text</type>
+			<name>travel_date</name>
+			<label>Travel Date</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+			<readonly>yes</readonly>
+		</element>
+		<element>
+			<type>text</type>
+			<name>lot_price</name>
+			<label>Price</label>
+			<size>large</size>
+			<mandatory>no</mandatory>
+		</element>
+
+		<element>
+			<type>static_select_with_value</type>
+			<name>lot_status</name>
+			<label>Status</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>New</option_text>
+				<option_value>NEW</option_value>
+			</option>
+			<option>
+				<option_text>Submitted</option_text>
+				<option_value>SUBMIT</option_value>
+			</option>
+			<option>
+				<option_text>On Hold</option_text>
+				<option_value>ON_BALANCE_HOLD</option_value>
+			</option>
+			<option>
+				<option_text>Complete</option_text>
+				<option_value>COMPLETE</option_value>
+			</option>
+			<option>
+				<option_text>Rejected</option_text>
+				<option_value>REJECTED</option_value>
+			</option>
+		</element>
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>update</name>
+			<label>Update</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/rcalotupdthndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/dashboard.php</action>
+		</button>		
+	</actionbuttons>
+</form>

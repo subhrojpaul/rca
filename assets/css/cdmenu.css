@@ -1,0 +1,160 @@
+/* ==========================================================================
+   Start of custom Webflow CSS
+   ========================================================================== */
+.cd-logo {
+  z-index: 10;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  margin-top: 10px;
+  background-image: url("http://uploads.webflow.com/56a3c450d0a034e52a6ea2e1/56a3c6584f77fc045512ac2a_colourLogo.png");
+  background-position: 50% 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.cd-nav-menu {
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+  float: left;
+  background-color: transparent;
+}
+
+.cd-navbar {
+  height: 70px;
+  background-color: #e5e5e5;
+}
+
+.cd-nav-container {
+  position: relative;
+  max-width: none;
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.cd-nav-menu-dd {
+  padding-left: 25px;
+  background-color: #e5e5e5;
+  background-image: url("http://uploads.webflow.com/56a3c450d0a034e52a6ea2e1/56a3db9bb627cde43304fc30_mystudents.jpg");
+  background-position: 0px 10px;
+  background-repeat: no-repeat;
+  background-size: auto;  
+}
+
+.cd-nav-menu-dd.mystudents {
+  margin-left: 100px;
+}
+
+.cd-nav-menu-dd.username {
+  float: right;
+  background-image: none;
+  background-size: auto;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.cd-nav-menu-dd.outeruser {
+  display: block;
+  margin-top: 10px;
+  float: right;
+  background-image: none;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.cd-dropdown-icon {
+  background-image: url("http://uploads.webflow.com/56a3c450d0a034e52a6ea2e1/56a3dcb3b627cde43304fcec_arrow.jpg");
+  background-position: 50% 50%;
+  color: transparent;
+}
+
+.cd-nav-menu-dd-list {
+  background-color: #e5e5e5;
+}
+
+.cd-nav-menu-dd-link {
+  margin-left: -25px;
+  padding-left: 45px;
+  background-color: #e5e5e5;
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  box-shadow: 0px 1px 1px 1px #c5c5c5;
+}
+
+.cd-nav-menu-dd-link:hover {
+  background-color: #5eb252;
+  
+}
+
+.cd-nav-user-pic {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin-top: -5px;
+  margin-left: -40px;
+  border-radius: 15px;
+}
+
+.cd-nav-menu-dd-outeruser {
+  display: none;
+  margin-top: 10px;
+  float: right;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.cd-nav-menu-dd.mystudents {
+  background-image: url("../images/mystudents.jpg");
+}
+.cd-nav-menu-dd.myreports {
+  background-image: url("../images/myreports.jpg");
+}
+.cd-nav-menu-dd.myaccount {
+  background-image: url("../images/myaccount.jpg");
+}
+.cd-nav-menu-dd.myactions {
+  background-image: url("../images/myactions.gif");
+}
+/*.cd-nav-menu-dd.myfriends {
+  background-image: url("../images/myfriends.png");
+}*/
+
+/*added by kavita*/
+.cd-nav-menu-dd.myfriends {
+  background-image: url("../images/myfrnd.gif");
+  padding-left: 30px;
+}
+
+.cd-nav-menu-dd:first-child {
+    margin-left: 100px;
+}
+@media (max-width: 991px) {
+  .cd-nav-menu {
+    margin-top: 0px;
+  }
+  .cd-nav-menu-dd:first-child {
+    margin-left: 0px;
+  }
+  .cd-nav-menu-dd.username {
+    display: block;
+    float: none;
+  }
+  .cd-nav-menu-dd.outeruser {
+    display: none;padding-left: 30px;
+  }
+}
+
+/*webkit scrollbar*/
+::-webkit-scrollbar {width: 8px;height:8px;}
+/* Track */
+::-webkit-scrollbar-track {-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); -webkit-border-radius: 10px;border-radius: 10px;}
+/* Handle */
+::-webkit-scrollbar-thumb {-webkit-border-radius: 10px;border-radius: 10px;background: rgba(56,152,236,.8); }
+::-webkit-scrollbar-thumb:window-inactive {background: rgba(56,152,236,.4); }
+
+.cd-button{border-radius:5px;text-align: center;position:relative;}

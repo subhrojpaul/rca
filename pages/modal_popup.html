@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Twc - Modal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/master.css">
+    <link rel="stylesheet" type="text/css" href="css/modal.css">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="js/modernizr.js"></script>
+</head>
+
+<body>
+
+    <div class="modal" id="modal_popup" tabindex="-1" role="dialog" aria-hidden="true" data-appear-animation="fadeIn" data-appear-animation-delay="100">
+        <div class="modal-dialog alert_modal">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="_dark_title paddingtb_50"><h2>03</h2></div>
+                    <div class="_white_body">
+                        <p>You are about to delete these applicants from the group along<br /> with their documents and forms.<br /><br />Do you wish to continue?</p>
+                        <br />
+                        <button type="button" class="__btn_sm __btn_solid" data-dismiss="modal" style="margin-right: 20px;" >NO</button>
+                        <button type="button" class="__btn_sm __btn_solidr">YES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal 2 -->
+    <div class="modal" id="modal_popup2" tabindex="-1" role="dialog" aria-hidden="true" data-appear-animation="fadeIn" data-appear-animation-delay="100">
+        <div class="modal-dialog alert_modal">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="_dark_title paddingtb_30">
+                        <p>Pending Applications</p>
+                        <h2>03<br /><span class="sm">VISA</span></h2>
+                    </div>
+                    <div class="_white_body">
+                        <p>Only completed applications will be submitted.<br /> Do you wish to continue?</p>
+                        <br />
+                        <button type="button" class="__btn_sm __btn_solid" data-dismiss="modal" style="margin-right: 20px;">NO</button>
+                        <button type="button" class="__btn_sm __btn_solidr">YES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal 3 -->
+    <div class="modal" id="modal_popup3" tabindex="-1" role="dialog" aria-hidden="true" data-appear-animation="fadeIn" data-appear-animation-delay="100">
+        <div class="modal-dialog alert_modal">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="_dark_title _muli_heading paddingtb_30">
+                        <p>Pending Applications</p>
+                        <h2>03<br /><span class="sm">VISA</span></h2>
+                        <h2>20<br /><span class="sm">OTB</span></h2>
+                        <h2>33<br /><span class="sm">M&amp;A</span></h2>
+                        <h2>25<br /><span class="sm">LOUNGE</span></h2>
+                    </div>
+                    <div class="_white_body" style="float: left;width: 100%;">
+                        <p>Only completed applications will be submitted.<br /> Do you wish to continue?</p>
+                        <br />
+                        <button type="button" class="__btn_sm __btn_solid" data-dismiss="modal" style="margin-right: 20px;">NO</button>
+                        <button type="button" class="__btn_sm __btn_solidr">YES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal 4 -->
+    <div class="modal" id="modal_popup4" tabindex="-1" role="dialog" aria-hidden="true" data-appear-animation="fadeIn" data-appear-animation-delay="100">
+        <div class="modal-dialog alert_modal">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="_dark_title paddingtb_50">
+                        <img src="svg/delete.svg" alt="" width="20" />
+                        <p class="margin0">OTB: Emirates</p>
+                    </div>
+                    <div class="_white_body">
+                        <p>You are about to delete this service.<br /> Do you wish to continue?</p>
+                        <br />
+                        <button type="button" class="__btn_sm __btn_solid" data-dismiss="modal" style="margin-right: 20px;">NO</button>
+                        <button type="button" class="__btn_sm __btn_solidr">YES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/library.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/support-min.js"></script>
+    <script type="text/javascript">
+        $("#modal_popup,#modal_popup2,#modal_popup3,#modal_popup4").show();
+        $("#modal_popup,#modal_popup2,#modal_popup3,#modal_popup4").modal({backdrop: true});
+    </script>
+
+</body>
+</html>

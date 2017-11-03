@@ -1,0 +1,33 @@
+<?php
+include "../assets/utils/fwdbutil.php";
+$dbh = setupPDO();
+$ocr_list_qry = "select ocr_test_result_id, image_file_path, image_file_name, local_tess_ocr_text, google_ocr_text, ocr_space_text, correct_text_manual
+					from rca.ocr_test_results
+				   where enabled = 'Y'
+				";
+$ocr_list_res = runQueryAllRows($dbh, $ocr_list_qry, array());
+?>
+<table>
+	<tr>
+		<td>#</td>
+		<td>Image</td>
+		<td>Local OCR</td>
+		<td>Google OCR</td>
+		<td>OCR Space</td>
+		<td>Correct text (Manual)</td>
+	</tr>
+<?php
+foreach ($ocr_list_res as $key => $ocr_rec) {
+	?>
+	<tr>
+		<td><?php echo $ocr_rec["ocr_test_result_id"]?></td>
+		<td> <img src="<?php echo $ocr_rec["image_file_path"].$ocr_rec["image_file_name"]?>"></td>
+		<td><?php echo $ocr_rec["local_tess_ocr_text"]?></td>
+		<td><?php echo $ocr_rec["google_ocr_text"]?></td>
+		<td><?php echo $ocr_rec["ocr_space_text"]?></td>
+		<td><?php echo $ocr_rec["correct_text_manual"]?></td>
+	</tr>
+	<?php
+}
+?>
+</table>

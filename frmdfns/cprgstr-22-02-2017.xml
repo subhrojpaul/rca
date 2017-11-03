@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>signin</name>
+	<action></action>
+	<method>post</method>
+	<legend>Register in RCA</legend>
+	<inputelements>
+		<element>
+			<type>email</type>
+			<name>cprgstr_email</name>
+			<label>eMail Address</label>
+			<size>xlarge</size>
+			<mandatory>yes</mandatory>
+			<additional>Your eMail will be your sign in id</additional>
+			<placeholder>myname@mydomain.com</placeholder>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_fname</name>
+			<label>First Name</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_mname</name>
+			<label>Middle Name</label>
+			<size>large</size>
+			<additional></additional>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_lname</name>
+			<label>Last Name</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>password</type>
+			<name>cprgstr_pswd1</name>
+			<label>Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>Password Requirements: 8-20 chars, min 1 lowercase letter, 1 uppercase letter and 1 number</additional>
+		</element>
+		<element>
+			<type>password</type>
+			<name>cprgstr_pswd2</name>
+			<label>Confirm Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>cprgstr_agent_id</name>
+			<select_stmt>select -99 agent_id, "select one.." agent_name from dual union all select agent_id, agent_name from rca.agents</select_stmt>
+			<label>Agent</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		
+		
+		<element>
+			<type>radio</type>
+			<name>cprgstr_gender</name>
+			<label>Gender</label>
+			<size></size>
+			<mandatory>yes</mandatory>
+			<option>Male</option>
+			<option>Female</option>
+			<option>Unspecified</option>
+			<selectedoption></selectedoption>
+		</element>
+		<element>
+			<type>hidden</type>
+			<name>cprgstr_gender</name>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_dob</name>
+			<label>Date of Birth</label>
+			<size>medium</size>
+			<mandatory>yes</mandatory>
+			<placeholder>DD/MM/YYYY</placeholder>
+		</element>
+		<element>
+			<type>divider</type>
+			<label>Address</label>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_address1</name>
+			<label>Address Line 1</label>
+			<size>xlarge</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_address2</name>
+			<label>Address Line 2</label>
+			<size>xlarge</size>
+			<additional></additional>
+		</element>
+		<element>
+			<type>select</type>
+			<name>cprgstr_country</name>
+			<label>Country</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>India</option>
+			<option>Afghanistan</option>
+			<option>Albania</option>
+			<option>Algeria</option>
+			<option>American Samoa</option>
+			<option>Andorra</option>
+			<option>Angola</option>
+			<option>Anguilla</option>
+			<option>Antigua and Barbuda</option>
+			<option>Argentina</option>
+			<option>Armenia</option>
+			<option>Aruba</option>
+			<option>Australia</option>
+			<option>Austria</option>
+			<option>Azerbaijan</option>
+			<option>Bahamas</option>
+			<option>Bahrain</option>
+			<option>Bangladesh</option>
+			<option>Barbados</option>
+			<option>Belarus</option>
+			<option>Belgium</option>
+			<option>Belize</option>
+			<option>Benin</option>
+			<option>Bermuda</option>
+			<option>Bhutan</option>
+			<option>Bolivia</option>
+			<option>Bonaire</option>
+			<option>Bosnia</option>
+			<option>Botswana</option>
+			<option>Brazil</option>
+			<option>British Virgin Islands</option>
+			<option>Brunei</option>
+			<option>Bulgaria</option>
+			<option>Burkina Faso</option>
+			<option>Burundi</option>
+			<option>Cambodia</option>
+			<option>Cameroon</option>
+			<option>Canada</option>
+			<option>Cape Verde</option>
+			<option>Caribbean Netherlands</option>
+			<option>Cayman Islands</option>
+			<option>Central African Republic</option>
+			<option>Chad</option>
+			<option>Channel Islands</option>
+			<option>Chile</option>
+			<option>China</option>
+			<option>Colombia</option>
+			<option>Congo</option>
+			<option>Cook Islands</option>
+			<option>Costa Rica</option>
+			<option>Croatia</option>
+			<option>Curacao</option>
+			<option>Cyprus</option>
+			<option>Czech Republic</option>
+			<option>Democratic Republic of Congo</option>
+			<option>Denmark</option>
+			<option>Djibouti</option>
+			<option>Dominica</option>
+			<option>Dominican Republic</option>
+			<option>Ecuador</option>
+			<option>Egypt</option>
+			<option>El Salvador</option>
+			<option>Equatorial Guinea</option>
+			<option>Eritrea</option>
+			<option>Estonia</option>
+			<option>Ethiopia</option>
+			<option>Faroe Islands</option>
+			<option>Fiji</option>
+			<option>Finland</option>
+			<option>France</option>
+			<option>French Guiana</option>
+			<option>French Polynesia</option>
+			<option>Gabon</option>
+			<option>Gambia</option>
+			<option>Georgia</option>
+			<option>Germany</option>
+			<option>Ghana</option>
+			<option>Gibraltar</option>
+			<option>Greece</option>
+			<option>Greenland</option>
+			<option>Grenada</option>
+			<option>Guadeloupe</option>
+			<option>Guam</option>
+			<option>Guatemala</option>
+			<option>Guinea</option>
+			<option>Guinea Bissau</option>
+			<option>Guyana</option>
+			<option>Haiti</option>
+			<option>Honduras</option>
+			<option>Hong Kong</option>
+			<option>Hungary</option>
+			<option>Iceland</option>
+			<option>Indonesia</option>
+			<option>Iran</option>
+			<option>Iraq</option>
+			<option>Ireland</option>
+			<option>Israel</option>
+			<option>Italy</option>
+			<option>Ivory Coast</option>
+			<option>Jamaica</option>
+			<option>Japan</option>
+			<option>Jordan</option>
+			<option>Kazakhstan</option>
+			<option>Kenya</option>
+			<option>Korea</option>
+			<option>Kuwait</option>
+			<option>Kyrgyzstan</option>
+			<option>Laos</option>
+			<option>Latvia</option>
+			<option>Lebanon</option>
+			<option>Lesotho</option>
+			<option>Liberia</option>
+			<option>Libya</option>
+			<option>Liechtenstein</option>
+			<option>Lithuania</option>
+			<option>Luxembourg</option>
+			<option>Macau</option>
+			<option>Macedonia</option>
+			<option>Madagascar</option>
+			<option>Malawi</option>
+			<option>Malaysia</option>
+			<option>Maldives</option>
+			<option>Mali</option>
+			<option>Malta</option>
+			<option>Marshall Islands</option>
+			<option>Martinique</option>
+			<option>Mauritania</option>
+			<option>Mauritius</option>
+			<option>Mexico</option>
+			<option>Micronesia</option>
+			<option>Moldova</option>
+			<option>Monaco</option>
+			<option>Mongolia</option>
+			<option>Montenegro</option>
+			<option>Montserrat</option>
+			<option>Morocco</option>
+			<option>Mozambique</option>
+			<option>Myanmar/Burma</option>
+			<option>Namibia</option>
+			<option>Nepal</option>
+			<option>Netherlands</option>
+			<option>New Caledonia</option>
+			<option>New Zealand</option>
+			<option>Nicaragua</option>
+			<option>Niger</option>
+			<option>Nigeria</option>
+			<option>Norway</option>
+			<option>Oman</option>
+			<option>Pakistan</option>
+			<option>Palau</option>
+			<option>Panama</option>
+			<option>Papua New Guinea</option>
+			<option>Paraguay</option>
+			<option>Peru</option>
+			<option>Philippines</option>
+			<option>Poland</option>
+			<option>Portugal</option>
+			<option>Puerto Rico</option>
+			<option>Qatar</option>
+			<option>Reunion</option>
+			<option>Romania</option>
+			<option>Russia</option>
+			<option>Rwanda</option>
+			<option>Saba</option>
+			<option>Saipan</option>
+			<option>Saint Martin</option>
+			<option>San Marino</option>
+			<option>Saudi Arabia</option>
+			<option>Senegal</option>
+			<option>Serbia</option>
+			<option>Seychelles</option>
+			<option>Sierra Leone</option>
+			<option>Singapore</option>
+			<option>Sint Eustatius</option>
+			<option>Sint Maarten</option>
+			<option>Slovak Republic</option>
+			<option>Slovenia</option>
+			<option>Somalia</option>
+			<option>South Africa</option>
+			<option>South Korea</option>
+			<option>Spain</option>
+			<option>Sri Lanka</option>
+			<option>St. Barthelemy</option>
+			<option>St. Croix</option>
+			<option>St. John</option>
+			<option>St. Kitts and Nevis</option>
+			<option>St. Lucia</option>
+			<option>St. Thomas</option>
+			<option>St. Vincent</option>
+			<option>Sudan</option>
+			<option>Suriname</option>
+			<option>Swaziland</option>
+			<option>Sweden</option>
+			<option>Switzerland</option>
+			<option>Syria</option>
+			<option>Taiwan</option>
+			<option>Tanzania</option>
+			<option>Thailand</option>
+			<option>Togo</option>
+			<option>Tortola</option>
+			<option>Trinidad and Tobago</option>
+			<option>Tunisia</option>
+			<option>Turkey</option>
+			<option>Turkmenistan</option>
+			<option>Turks and Caicos Islands</option>
+			<option>Uganda</option>
+			<option>Ukraine</option>
+			<option>United Arab Emirates</option>
+			<option>United Kingdom</option>
+			<option>United States</option>
+			<option>Uruguay</option>
+			<option>US Virgin Islands</option>
+			<option>Uzbekistan</option>
+			<option>Vanuatu</option>
+			<option>Vatican City State</option>
+			<option>Venezuela</option>
+			<option>Vietnam</option>
+			<option>Virgin Gorda</option>
+			<option>Wallis &amp; Futuna</option>
+			<option>Yemen</option>
+			<option>Zambia</option>
+			<option>Zimbabwe</option>
+			<selectedoption>India</selectedoption>
+		</element>
+		<element>
+			<type>select</type>
+			<name>cprgstr_ind_state</name>
+			<label>State</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>Select State</option>
+			<option>Andhra Pradesh</option>
+			<option>Arunachal Pradesh</option>
+			<option>Assam</option>
+			<option>Bihar</option>
+			<option>Chandigarh</option>
+			<option>Chattisgarh</option>
+			<option>Goa</option>
+			<option>Gujarat</option>
+			<option>Haryana</option>
+			<option>Himachal Pradesh</option>
+			<option>Jammu and Kashmir</option>
+			<option>Jharkhand</option>
+			<option>Karnataka</option>
+			<option>Kerala</option>
+			<option>Madhya Pradesh</option>
+			<option>Maharashtra</option>
+			<option>Manipur</option>
+			<option>Meghalaya</option>
+			<option>Mizoram</option>
+			<option>Nagaland</option>
+			<option>NCR</option>
+			<option>Odissa</option>
+			<option>Pondicherry</option>
+			<option>Port Blair</option>
+			<option>Punjab</option>
+			<option>Rajasthan</option>
+			<option>Sikkim</option>
+			<option>Tamil Nadu</option>
+			<option>Tripura</option>
+			<option>Uttar Pradesh</option>
+			<option>Uttaranchal</option>
+			<option>West Bengal</option>
+			<option>Other</option>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_non_ind_state</name>
+			<label>State</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+		<element>
+			<type>hidden</type>
+			<name>cprgstr_state</name>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_city</name>
+			<label>City</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_postal</name>
+			<label>Postal Code</label>
+			<size>medium</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+		<element>
+			<label>Communication Preferences</label>
+			<type>divider</type>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_phone</name>
+			<label>Phone</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<placeholder>919898989898</placeholder>
+			<additional>Include ISD and STD codes, if applicable</additional>
+		</element>
+		<element>
+			<type>radio</type>
+			<name>cprgstr_prefContact</name>
+			<label>Preferred Contact</label>
+			<size></size>
+			<mandatory>yes</mandatory>
+			<option>eMail</option>
+			<option>Phone</option>
+			<selectedoption>eMail</selectedoption>
+		</element>
+		<element>
+			<type>hidden</type>
+			<name>cprgstr_prefContact</name>
+			<value>eMail</value>
+		</element>
+		<element>
+			<type>text</type>
+			<name>cprgstr_contactspecial</name>
+			<label>Contact Instructions</label>
+			<size>xlarge</size>
+		</element>
+
+		<element>
+			<type>captcha</type>
+			<src>../assets/utils/captcha.php</src>
+			<label>Validation Code</label>
+			<name>captcha_img</name>
+		</element>
+
+
+		<element>
+			<type>text</type>
+			<name>cprgstr_captchacode</name>
+			<label>Type Validation Code</label>
+			<size>medium</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Register</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cprgstrhndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

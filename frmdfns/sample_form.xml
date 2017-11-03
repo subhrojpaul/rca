@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>cdcommertialpkgs</name>
+	<action></action>
+	<method>post</method>
+	<hasfile>true</hasfile>
+	<legend>VOTW - Sample form.. This is form level description</legend>
+	<inputelements>
+		<element>
+			<type>hidden</type>
+			<name>field_1_hidden</name>
+		</element>
+	
+		<element>
+			<type>text</type>
+			<name>field_2_text</name>
+			<label>Text Field 1 (Req)</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<placeholder>Put some text...</placeholder>
+			<additional>Some more text that helps filling this field</additional>
+		</element>
+
+		<element>
+			<type>text</type>
+			<name>field_3_text</name>
+			<label>Text Field 2 (Readonly)</label>
+			<size>large</size>
+			<readonly>yes</readonly>
+			<placeholder>Pre initialised text...</placeholder>
+		</element>
+
+        <element>
+            <type>email</type>
+            <name>field_4_email</name>
+            <label>eMail Address</label>
+            <size>xlarge</size>
+            <mandatory>yes</mandatory>
+            <additional>Your eMail will be your sign in id</additional>
+            <placeholder>myname@mydomain.com</placeholder>
+        </element>
+
+		
+		<element>
+			<type>static_select_with_value</type>
+			<name>field_5_select</name>
+			<label>Selection field</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<option>
+				<option_text>Select one..</option_text>
+				<option_value>NOSELECTION</option_value>
+			</option>
+			
+			<option>
+				<option_text>Option 0</option_text>
+				<option_value>0</option_value>
+			</option>
+			<option>
+				<option_text>Option 1</option_text>
+				<option_value>1</option_value>
+			</option>
+			<option>
+				<option_text>Option 2</option_text>
+				<option_value>2</option_value>
+			</option>
+			<option>
+				<option_text>Option 3</option_text>
+				<option_value>3</option_value>
+			</option>
+			<option>
+				<option_text>Option 4</option_text>
+				<option_value>4</option_value>
+			</option>
+					
+		</element>
+		<element>
+			<type>const_text</type>
+			<name>field_6_const</name>
+			<label>This is some constant text... from the xml</label>
+			<size>large</size>
+		</element>
+		
+        <element>
+            <type>password</type>
+            <name>field_7_password</name>
+            <label>Password</label>
+        	<size>medium</size>
+        	<forgetpwdlink>../pages/index.php</forgetpwdlink>
+        </element>	
+
+		<element>
+			<type>text</type>
+			<name>field_8_date</name>
+			<label>Date Field 1 (Req)</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<placeholder>dd/mm/yyyy</placeholder>
+			<additional>Some more text that helps filling this field</additional>
+		</element>        
+        
+		<element>
+			<type>checkbox</type>
+            <name>field_9_checkbox</name>
+            <label>Sample Checkbox</label>
+            <size></size>
+            <option>Option 1</option>
+            <option>Option 2</option>
+            <selectedoption>Option 2</selectedoption>
+        </element>
+
+		<element>
+			<type>radio</type>
+            <name>field_10_radio</name>
+            <label>Sample Radio</label>
+            <size></size>
+            <mandatory>yes</mandatory>
+            <option>
+                <name>option_1</name>
+                <label>Option 1</label>
+            </option>
+            <option>
+                <name>option_2</name>
+                <label>Option 2</label>
+            </option>
+            <selectedoption>Option 2</selectedoption>
+        </element>
+
+        <element>
+            <type>divider</type>
+            <label>This is a section divider... from xml</label>
+        </element>
+        
+        <element>
+                <type>textarea</type>
+                <name>field_14_textarea</name>
+                <label>TextArea field</label>
+                <size>xlarge</size>
+                <placeholder>long long.. Message..</placeholder>
+                <additional>Some additional text in xml...</additional>
+        </element>        
+        <!--
+    	<element>
+            <type>captcha</type>
+            <src>../assets/utils/captcha.php</src>
+            <label>Validation Code</label>
+            <name>field_11_captcha_img</name>
+        </element>
+        <element>
+        	<type>text</type>
+            <name>field_13_captchacode</name>
+            <label>Captcha code</label>
+            <size>medium</size>
+            <mandatory>yes</mandatory>
+            <additional></additional>
+        </element>
+        -->
+        
+        <element>
+            <type>image</type>
+            <label>Image...</label>
+<!--            <src>../assets/images/Arrow.png</src> -->
+			<src>../assets/images/breakChemistry.png</src>
+            <src>../assets/images/chemistryIcon.png</src>
+        </element>        
+
+        <element>
+            <type>ahref</type>
+            <name>field_7_ahref</name>
+            <label>sample Link</label>
+            <target>../pages/index.php</target>
+            <size>medium</size>
+        </element>
+
+        <element>
+            <type>file</type>
+            <name>field_15_file</name>
+            <id>field_15_file</id>
+            <label>File uploader</label>
+        </element>
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>btn_1</name>
+			<label>B-1-Default-Sel</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/basic_handler.php</action>
+		</button>
+		<button>
+			<type>reset</type>
+			<name>btn_2</name>
+			<label>Reset</label>
+			<subtype></subtype>
+			<action></action>
+		</button>	
+	</actionbuttons>
+</form>

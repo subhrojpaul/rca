@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>UpdateStatus</name>
+	<action></action>
+	<method>post</method>
+	<legend>Update Status</legend>
+	<hasfile>true</hasfile>
+	<inputelements>
+	<element>
+			<type>text</type>
+			<name>test_error_report_id</name>
+			<label>Test Error Eeport Id</label>
+			<size>xlarge</size>
+			<readonly>yes</readonly>
+			<placeholder></placeholder>
+		</element>
+	
+	
+		<element>
+			<type>text</type>
+			<name>question_code</name>
+			<label>Question Code</label>
+			<size>xlarge</size>
+			<readonly>yes</readonly>
+			<additional>Question code</additional>
+			<placeholder></placeholder>
+		</element>
+
+		<element>
+				<type>static_select_with_value</type>
+				<name>status</name>
+				<label>Question Status</label>
+				<size>xlarge</size>
+				<option><option_value>NEW</option_value><option_text>NEW</option_text></option>
+				<option><option_value>CLOSED</option_value><option_text>CLOSED</option_text></option>
+				<option><option_value>INPROGRESS</option_value><option_text>INPROGRESS</option_text></option>
+			</element>	
+			
+		<element>
+			<type>textarea</type>
+			<name>comments</name>
+			<label>Comments</label>
+			<size>xlarge</size>
+			<readonly>no</readonly>
+			<rows>4</rows>
+			<placeholder></placeholder>
+		</element>
+			
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Submit</name>
+			<id>btn-submit</id>
+			<label>Submit</label>
+			<subtype>btn-primary</subtype>
+			<action></action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<id>btn-cancel</id>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action></action>
+		</button>		
+	</actionbuttons>
+</form>

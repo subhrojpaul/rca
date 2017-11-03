@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 10</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard-Select" transform="translate(-627.000000, -107.000000)">
+            <g id="Group-10" transform="translate(627.000000, 107.000000)">
+                <circle id="Oval" fill="#02B2F6" cx="22" cy="22" r="22"></circle>
+                <g id="Search-4" transform="translate(14.000000, 13.000000)" fill-rule="nonzero" fill="#FFF">
+                    <g id="Group">
+                        <path d="M10.196,0.0755 C5.9345,0.0755 2.467,3.543 2.467,7.804 C2.467,9.6665 3.129,11.3765 4.2295,12.7115 L0.297,16.6435 C0.0035,16.937 0.0035,17.4115 0.2965,17.7045 C0.443,17.851 0.635,17.9235 0.8275,17.9235 C1.0195,17.9235 1.2115,17.8505 1.358,17.7045 L5.291,13.772 C6.6265,14.871 8.335,15.5325 10.1965,15.5325 C14.457,15.5325 17.924,12.065 17.924,7.804 C17.924,3.543 14.4565,0.0755 10.196,0.0755 Z M10.195,14.0325 C6.761,14.0325 3.967,11.2385 3.967,7.804 C3.967,4.37 6.761,1.5755 10.195,1.5755 C13.629,1.5755 16.4225,4.37 16.4225,7.804 C16.4225,11.239 13.629,14.0325 10.195,14.0325 Z" id="Shape"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

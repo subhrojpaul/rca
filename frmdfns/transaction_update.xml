@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>cdpkgs</name>
+	<action></action>
+	<method>post</method>
+	<legend>Collegedoors - Update Transaction</legend>
+	<inputelements>
+		<element>
+			<type>hidden</type>
+			<name>transaction_id</name>
+		</element>
+
+
+		<element>
+			<type>text</type>
+			<name>transaction_proc_ref_no</name>
+			<label>Cheque No</label>
+			<size>large</size>
+			<placeholder>Cheque No</placeholder>
+		</element>
+
+		<element>
+			<type>text</type>
+			<name>transaction_oth_text</name>
+			<label>Bank Name and Branch</label>
+			<size>large</size>
+			<additional></additional>
+			<placeholder>Bank Name and Branch</placeholder>
+		</element>
+		
+		<element>
+			<type>text</type>
+			<name>transaction_ret_date</name>
+			<label>Cheque Date</label>
+			<size>xlarge</size>
+			<mandatory></mandatory>
+			<additional></additional>
+			<placeholder>dd/mm/yyyy</placeholder>	
+		</element>
+
+		<element>
+			<type>text</type> 
+			<name>transaction_price</name>
+			<label>Transaction Amount</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+			<readonly>yes</readonly>
+			<placeholder>Transaction Amount</placeholder>
+		</element>
+		
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Save</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/transactionupdatehndler.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

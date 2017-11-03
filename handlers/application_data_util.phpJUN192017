@@ -1,0 +1,3593 @@
+<?php
+//include "../assets/utils/fwdbutil.php";
+
+//session_start();
+//$dbh = setupPDO();
+
+
+// v3 code starts
+include "../assets/utils/fwdateutil.php";
+function get_lot_appl_data($dbh, $p_lot_id) {
+	$lot_qry = "select application_lot_id, application_lot_code, agent_id, visa_type_id
+						, lot_application_count, lot_comments, lot_date, lot_status, lot_price, travel_date
+						, 'TBD' visa_disp_val
+				from application_lots
+				where application_lot_id = ?
+				";
+	$lot_services_qry = "select lot_service_id, lot_id, service_id, service_json
+							from lot_services
+							where lot_id = ?
+						";
+
+	$lot_appl_qry = "select lot_application_id, lot_id, application_passport_no, applicant_first_name, applicant_last_name, applicant_mid_name, application_visa_type_id
+							, application_status, application_data, received_visa_file_name, received_visa_file_path, ednrd_ref_no, applicant_seq_no, age_category
+							, case when application_status in ('NEW', 'INCOMPLETE', 'UPDATED', 'COMPLETE') then 'N' else 'Y' end as appl_readonly_flag
+						from lot_applications
+						where lot_id = ?
+					";
+	$lot_appl_image_qry = "select application_id, i.image_id, it.image_type_id, it.image_type_code, it.default_blank_image_id
+								, i.image_orig_file_name, i.image_orig_file_path
+							from lot_applications la,
+								 application_services aps,
+								 application_service_images asi, images i, image_types it
+							where la.lot_id = ?
+							  and la.lot_application_id = aps.application_id
+							  and aps.application_service_id = asi.application_service_id
+							  and asi.image_id = i.image_id
+							  and i.image_type_id = it.image_type_id
+							  and it.image_type_code = 'PASS_PIC'
+						";
+
+	try {
+		$lot_res = runQuerySingleRow($dbh, $lot_qry, array($p_lot_id));
+		$lot_service_res = runQueryAllRows($dbh, $lot_services_qry, array($p_lot_id));
+		$lot_appl_res = runQueryAllRows($dbh, $lot_appl_qry, array($p_lot_id));
+		$lot_appl_image_res = runQueryAllRows($dbh, $lot_appl_image_qry, array($p_lot_id));
+	} catch (PDOException $ex) {
+		echo "Something went wrong with lot creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	foreach ($lot_appl_image_res as $key => $value) {
+		$appl_pp_pic_arr[$value["application_id"]]["image_url"] = $value["image_orig_file_path"].$value["image_orig_file_name"];
+	}
+	$ret_arr = array('lot_data' => $lot_res, 
+					'lot_services' => $lot_service_res,
+					'lot_applications' => $lot_appl_res,
+					'appl_pp_pics' => $appl_pp_pic_arr
+					);
+	return $ret_arr;
+}
+
+function get_application_data($dbh, $p_application_id) {
+	$logging = false;
+	$t1=microtime(true);
+	$tstart = $t1;
+	if($logging) echo "1. t1: $t1", "\n";
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$appl_qry = "select lot_application_id, lot_id, application_passport_no, applicant_first_name, applicant_last_name, applicant_mid_name
+						, application_visa_type_id , application_status, application_data, age_category, visa_disp_val
+						, received_visa_file_name, received_visa_file_path, ednrd_ref_no, applicant_seq_no
+						, case when application_status in ('NEW', 'INCOMPLETE', 'UPDATED', 'COMPLETE') then 'N' else 'Y' end as appl_readonly_flag
+					from lot_applications
+					where lot_application_id = ?
+				";
+	$appl_services_qry = "select application_service_id, application_id, service_id, service_options_json, service_status, last_validation_result
+							from application_services
+							where application_id = ?
+							";
+	$appl_services_img_qry = "select asi.application_service_image_id, asi.application_service_id, apls.application_id, apls.service_id, asi.image_id
+									, i.image_orig_file_name, i.image_orig_file_path
+									, it.image_type_code, it.image_type_name
+									, case when i.image_id = it.default_blank_image_id then 'Y' else 'N' end as show_blank_image_flag
+									, i.image_cropped_file_name, i.image_cropped_file_path, i.image_final_file_name, i.image_final_file_path, i.image_status
+								from application_service_images asi, application_services apls, images i, image_types it
+								where asi.application_service_id = apls.application_service_id
+								  and asi.image_id = i.image_id
+								  and i.image_type_id = it.image_type_id
+								  and apls.application_id = ?
+							";
+
+	// first is lock check, if locked, return the lock data
+	$t2=microtime(true);
+	$t_diff = $t2-$t1;
+	$t1 = $t2;
+	if($logging) echo "2. t2: $t2 t_diff: $t_diff", "\n";
+	$lock_check_result = check_lock($dbh, 'LOT_APPLICATION', $p_application_id);
+	$t2=microtime(true);
+	$t_diff = $t2-$t1;
+	$t1 = $t2;
+	if($logging) echo "3. t2: $t2 t_diff: $t_diff", "\n";
+
+	if($lock_check_result["locked"] && $lock_check_result["lock_data"]["locked_by_user_id"] != $user_id) {
+		return $lock_check_result;
+	} else {
+		if($lock_check_result["locked"] && $lock_check_result["lock_data"]["locked_by_user_id"] == $user_id) {
+			// locked by current user itself, proceed with data and give the current locked_entity_id as the new_lock_id
+			$new_lock_id = $lock_check_result["lock_data"]["locked_entity_id"];
+		} else {
+			// user_id is derived inside as well, so sending null
+			$new_lock_id = lock_data($dbh, 'LOT_APPLICATION', $p_application_id, null);
+		}
+	}
+
+	// lock check done
+	try {
+		$t2=microtime(true);
+		$t_diff = $t2-$t1;
+		$t1 = $t2;
+		if($logging) echo "4. t2: $t2 t_diff: $t_diff", "\n";
+
+		$appl_res = runQuerySingleRow($dbh, $appl_qry, array($p_application_id));
+
+		$t2=microtime(true);
+		$t_diff = $t2-$t1;
+		$t1 = $t2;
+		if($logging) echo "5. t2: $t2 t_diff: $t_diff", "\n";
+
+		$appl_services_res = runQueryAllRows($dbh, $appl_services_qry, array($p_application_id));
+
+		$t2=microtime(true);
+		$t_diff = $t2-$t1;
+		$t1 = $t2;
+		if($logging) echo "6. t2: $t2 t_diff: $t_diff", "\n";
+
+		$appl_services_img_res = runQueryAllRows($dbh, $appl_services_img_qry, array($p_application_id));
+
+		$t2=microtime(true);
+		$t_diff = $t2-$t1;
+		$t1 = $t2;
+		if($logging) echo "7. t2: $t2 t_diff: $t_diff", "\n";
+
+	} catch (PDOException $ex) {
+		echo "Something went wrong with lot creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	foreach ($appl_services_res as $key => $appl_svs_rec) {
+		$t3 = microtime(true);
+		$t_diff = $t3-$t2;
+		if($logging) echo "7.1. t3: $t3 t_diff: $t_diff", "\n";
+		$form_defn_json1 = get_service_form_definition($dbh, $appl_svs_rec["application_service_id"], null);
+		$appl_svs_form_arr[$appl_svs_rec["application_service_id"]] = array('form_defn' => $form_defn_json1);
+	}
+	$t2=microtime(true);
+	$t_diff = $t2-$t1;
+	$t1 = $t2;
+	if($logging) echo "8. t2: $t2 t_diff: $t_diff", "\n";
+
+	// rearrange the last array..
+	foreach ($appl_services_img_res as $key => $appl_svs_img) {
+		/*
+		$form_defn_json = get_service_form_definition($dbh, $appl_svs_img["application_service_id"], null);
+		$appl_svs_imgs_arr[$appl_svs_img["service_id"]][] = array('image_id' => $appl_svs_img["image_id"], 
+																'image_orig_file_name' => $appl_svs_img["image_orig_file_name"],
+																'image_orig_file_path' => $appl_svs_img["image_orig_file_path"],
+																'image_type_code' => $appl_svs_img["image_type_code"],
+																'image_type_name' => $appl_svs_img["image_type_name"],
+																'show_blank_image_flag' => $appl_svs_img["show_blank_image_flag"],
+																'application_service_id' => $appl_svs_img["application_service_id"],
+																'application_service_image_id' => $appl_svs_img["application_service_image_id"],
+																'form_defn' => $form_defn_json
+																);
+		*/
+
+		$appl_svs_id_imgs_arr[$appl_svs_img["application_service_id"]][] = array('image_id' => $appl_svs_img["image_id"], 
+																'image_orig_file_name' => $appl_svs_img["image_orig_file_name"],
+																'image_orig_file_path' => $appl_svs_img["image_orig_file_path"],
+																'image_type_code' => $appl_svs_img["image_type_code"],
+																'image_type_name' => $appl_svs_img["image_type_name"],
+																'show_blank_image_flag' => $appl_svs_img["show_blank_image_flag"],
+																'service_id' => $appl_svs_img["service_id"],
+																'application_service_image_id' => $appl_svs_img["application_service_image_id"],
+																'image_cropped_file_name' => $appl_svs_img["image_cropped_file_name"],
+																'image_cropped_file_path' => $appl_svs_img["image_cropped_file_path"],
+																'image_final_file_name' => $appl_svs_img["image_final_file_name"],
+																'image_final_file_path' => $appl_svs_img["image_final_file_path"],
+																'image_status' => $appl_svs_img["image_status"]
+																);
+
+	}
+	$t2=microtime(true);
+	$t_diff = $t2-$t1;
+	$t1 = $t2;
+	if($logging) echo "9. t2: $t2 t_diff: $t_diff", "\n";
+
+	$ret_arr = array('application_data' => $appl_res, 
+					'application_services' => $appl_services_res,
+					//'application_service_images' => $appl_svs_imgs_arr,
+					'application_service_images' => $appl_svs_id_imgs_arr,
+					'application_service_form_defns' => $appl_svs_form_arr
+					);
+	$t2=microtime(true);
+	$t_diff = $t2-$tstart;
+	$t1 = $t2;
+	if($logging) echo "Final t2: $t2 t_diff: $t_diff", "\n";
+
+	return array("locked" => false, "my_lock_id" => $new_lock_id, "application_data_result" => $ret_arr);
+}
+
+// edit image for service
+function edit_service_image($dbh, $p_appl_service_image_id, $p_image_type_code, $p_orig_file_name, $p_orig_file_path, $p_auto_test=true) {
+
+	$img_type_qry = "select image_type_id from image_types where image_type_code = ?";
+	if($p_auto_state) $dbh->beginTransaction();
+	try {
+		$img_type_res = runQuerySingleRow($dbh, $img_type_qry, array($p_image_type_code));
+		$img_type_id = $img_type_res["image_type_id"];
+		if(empty($img_type_id)) return array("error" => true, "message" => "Invalid Image type ".$p_image_type_code, "data" => null);
+		$image_id = insert_image($dbh, $img_type_id, 
+									$p_orig_file_name, $p_orig_file_path, 
+									//$p_cropped_file_name, $p_cropped_file_path, 
+									$p_orig_file_name, $p_orig_file_path, 
+									//$p_final_file_name, $p_final_file_path,
+									$p_orig_file_name, $p_orig_file_path, 
+									//$p_image_status, $p_image_ocr_pct
+									"NEW", null
+								);
+		update_appl_service_image($dbh, $p_appl_service_image_id, $image_id);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with image update..";
+		echo " Message: ", $ex->getMessage();
+		if($p_auto_state) $dbh->rollBack();
+		throw $ex;		
+	}
+	if($p_auto_state) $dbh->commit();
+	return array("error" => false, "message" => null, "data" => array("image_id" => $image_id));
+}
+
+function create_other_service_image($dbh, $p_appl_service_id, $p_orig_file_name, $p_orig_file_path, $p_auto_state=true) {
+	$img_type_qry = "select image_type_id from image_types where image_type_code = 'OTHER'";
+	if($p_auto_state) $dbh->beginTransaction();
+	try {
+		$img_type_res = runQuerySingleRow($dbh, $img_type_qry, array());
+		$img_type_id = $img_type_res["image_type_id"];
+		if(empty($img_type_id)) return array("error" => true, "message" => "Invalid Image type setup for OTHER..", "data" => null);
+		$image_id = insert_image($dbh, $img_type_id, 
+									$p_orig_file_name, $p_orig_file_path, 
+									//$p_cropped_file_name, $p_cropped_file_path, 
+									$p_orig_file_name, $p_orig_file_path, 
+									//$p_final_file_name, $p_final_file_path,
+									$p_orig_file_name, $p_orig_file_path, 
+									//$p_image_status, $p_image_ocr_pct
+									"NEW", null
+								);
+		$appl_service_image_id = insert_appl_service_image($dbh, $p_appl_service_id, $image_id);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with image create and attach to service..";
+		echo " Message: ", $ex->getMessage();
+		if($p_auto_state) $dbh->rollBack();
+		throw $ex;		
+	}
+	if($p_auto_state) $dbh->commit();
+	return array("error" => false, "message" => null, "data" => array("image_id" => $image_id, "application_service_image_id" => $appl_service_image_id));
+}
+
+// function to create lot record
+
+function insert_group($dbh, $p_lot_code, $p_agent_id, $p_application_count, $p_comments, $p_travel_date, $p_status) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$lot_ins_qry = "insert into application_lots 
+						(application_lot_id, application_lot_code, agent_id, visa_type_id, 
+						lot_application_count, lot_comments, lot_date, lot_status, 
+						created_date, created_by, updated_date, updated_by, enabled,
+						lot_price, travel_date
+						) values (
+						null, ?, ?, ?,
+						?, ?, NOW(), ?,
+						NOW(), ?, NOW(), ?, 'Y',
+						?, ?
+						)";
+	$lot_params = array($p_lot_code, $p_agent_id, null,
+						$p_application_count, $p_comments, $p_status,
+						$user_id, $user_id,
+						null, $p_travel_date
+						);
+	try {
+		$lot_id = runInsert($dbh, $lot_ins_qry, $lot_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with lot creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $lot_id;
+}
+
+// function to create a blank application record
+function insert_group_blank_appl($dbh, $p_lot_id, $p_application_seq_no, $p_appl_disp_visa, $p_appl_seq) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$applicant_name = "Applicant - ".$p_application_seq_no;
+	$appl_ins_qry = "insert into lot_applications 
+						(lot_application_id, lot_id, application_passport_no, 
+						applicant_first_name, applicant_last_name, applicant_mid_name, 
+						application_visa_type_id, application_status, visa_disp_val, 
+						created_date, created_by, updated_date, updated_by, enabled,
+						application_data, applicant_seq_no
+						) values (
+						null, ?, ?,
+						?, ?, ?,
+						?, 'NEW', ?,
+						NOW(), ?, NOW(), ?, 'Y',
+						?, ?
+						)";
+	$appl_params = array($p_lot_id, null, 
+						$applicant_name, null, null,
+						null, $p_appl_disp_visa,
+						$user_id, $user_id,
+						null, $p_appl_seq
+						);
+	try {
+		$appl_id = runInsert($dbh, $appl_ins_qry, $appl_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_id;
+}
+
+// function to create service record
+function insert_group_appl_blank_service($dbh, $p_appl_id, $p_service_id) {
+
+// application_service_id, application_id, service_id, service_options_json, created_by, created_date, updated_by, updated_date, enabled
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$appl_svs_qry = "insert into application_services 
+						(application_service_id, application_id, service_id
+						, service_options_json, service_status
+						, created_by, created_date, updated_by, updated_date, enabled
+						) values (
+						null, ?, ?,
+						null, 'NEW',
+						?, NOW(), ?, NOW(), 'Y'
+						)";
+	$appl_svs_params = array($p_appl_id, $p_service_id, 
+						$user_id, $user_id
+						);
+	try {
+		$appl_svs_id = runInsert($dbh, $appl_svs_qry, $appl_svs_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with blank application service creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_svs_id;
+}
+// lot service record
+function insert_lot_service($dbh, $p_lot_id, $p_service_id, $p_service_json) {
+
+// application_service_id, application_id, service_id, service_options_json, created_by, created_date, updated_by, updated_date, enabled
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$lot_svs_qry = "insert into lot_services 
+						(lot_service_id, lot_id, service_id, service_json
+						, created_by, created_date, updated_by, updated_date, enabled
+						) values (
+						null, ?, ?, ?,
+						?, NOW(), ?, NOW(), 'Y'
+						)";
+	$lot_svs_params = array($p_lot_id, $p_service_id, $p_service_json,
+						$user_id, $user_id
+						);
+	try {
+		$lot_svs_id = runInsert($dbh, $lot_svs_qry, $lot_svs_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with blank Lot service creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $lot_svs_id;
+}
+
+//create application initial services 
+function insert_lot_appl_services($dbh, $p_lot_id) {
+	// this would create all the application service records in bulk for the lot.
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$lot_appl_svs_qry = "insert into application_services 
+						(application_service_id, application_id, service_id, service_options_json, service_status
+						, created_by, created_date, updated_by, updated_date, enabled
+						) 
+					select null, la.lot_application_id, ls.service_id, ls.service_json, 'NEW',
+							la.created_by, NOW(), la.updated_by, NOW(), 'Y'
+					  from lot_applications la, lot_services ls
+					 where la.lot_id = ?
+					";
+	$lot_appl_svs_params = array($p_lot_id);
+	try {
+		$lot_appl_svs_id = runInsert($dbh, $lot_appl_svs_qry, $lot_appl_svs_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with blank Lot application service creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return 1;
+}
+
+function create_service_blank_docs($dbh, $p_service_id, $p_service_json){
+	// get the documents json from the service definition
+	// convert to array, convert service json to array
+	// wherever the documents json has a blank entry , get the value from service json
+	// use the merged json to find the documents json, for each entry there, just find the blank image ids and return them
+	global $ob_file;
+	$ob_started = false;
+	if(empty($ob_file)) { 
+		$ob_file = fopen("../logs/v3_create_service_blank_docs-".date('YmdHis').".log",'a');
+		ob_start('ob_file_callback');
+		$ob_started = true;
+	}
+
+	echo "1. create_service_blank_docs.. service_id: ", $p_service_id, "\n";
+	/*
+	$svs_defn_qry = "select rca_service_id, service_code, service_name, service_desc, service_options_json
+							, service_seq, service_primary_image, choose_at_group_json, allow_appl_override, default_docs_json
+						from rca_services
+					   where rca_service_id = ?
+					";
+	$svs_defn_param = array($p_service_id);
+	try {
+		$svs_defn_rec = runQuerySingleRow($dbh, $svs_defn_qry, $svs_defn_param);
+		echo "2. service definition record.. for service_id: ", $p_service_id, "\n";
+		print_r($svs_defn_rec);
+		echo "\n";
+	} catch (PDOException $ex) {
+		echo "Something went wrong with service definition selection..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if(empty($svs_defn_rec) || empty($svs_defn_rec["default_docs_json"])) {
+		echo "3. service definition empty, return.. for service_id: ", $p_service_id, "\n";
+		if($ob_started) ob_end_flush();
+		return array("error" => true, "message" => "Invalid service id/No service docs defined");
+	}
+	// define the default_docs_json as a 1 D json only
+	$default_svs_docs_arr = json_decode($svs_defn_rec["default_docs_json"], true);
+	$svs_json_arr = json_decode($p_service_json, true);
+	echo "4. service default documents and services json array.. ", "\n";
+	print_r($default_svs_docs_arr);
+	print_r($svs_json_arr);
+	echo "\n";
+	foreach ($default_svs_docs_arr as $key => $value) {
+		echo "5. looping in default services docs array: $key, value..", $value, "\n";
+		if(empty($value)){
+			echo "6. found an empty slot in default array.. fill it using user input: ", $svs_json_arr[$key], "\n";
+			$default_svs_docs_arr[$key] = $svs_json_arr[$key];
+		}
+	}
+	// now we have a default docs array that should be complete, even if not we dont care as next step should catch it.
+	echo "7. final filled default array..", "\n";
+	print_r($default_svs_docs_arr);
+	echo "\n";
+	$doc_rules_qry = "select doc_requirement_id, requirement_key_json, doc_code_json
+						from doc_requirements";
+	$doc_rules_data = runQueryAllRows($dbh, $doc_rules_qry, array());
+	$doc_codes_json = null;
+	echo "Going to use default json to find the doc codes.. using recursive match", "\n";
+	foreach ($doc_rules_data as $key => $doc_rule_rec) {
+		$doc_rule_rec_arr = json_decode($doc_rule_rec["requirement_key_json"], true);
+		echo "8. going to match a and b.. ", "\n";
+		print_r($default_svs_docs_arr);
+		print_r($doc_rule_rec_arr);
+		echo "\n";
+	 	if(recursive_array_comp($default_svs_docs_arr, $doc_rule_rec_arr)) {
+	 		echo "9. matched.. break now..", "\n";
+	 		$doc_codes_json = $doc_rule_rec["doc_code_json"];
+	 		break;
+	 	}
+	 }
+	 */
+	 // send a default age-category -> adult in additional_data_arr
+	 $additional_data_arr["age-category"] = "adult";
+	 $addn_data_arr["gender"] = "M";
+	$addn_data_arr["profession"] = "other";
+	 $doc_codes_json = get_service_doc_requirements($dbh, $p_service_id, $p_service_json, $additional_data_arr);
+	 echo "10. Doc codes found for the service was: ", "\n";
+	 print_r($doc_codes_json);
+	 echo "\n";
+
+	 if(empty($doc_codes_json)) {
+	 	// no rules found.. we still return error false and simply no emtries will be done..
+	 	echo "11. doc codes empty so no default docs to create.. return with success..", "\n";
+	 	if($ob_started) ob_end_flush();
+	 	return array("error" => false, "message" => "No document rules were found", "service_images_arr" => null);
+	 } else {
+	 	$doc_codes_arr = json_decode($doc_codes_json, true);
+	 	print_r($doc_codes_arr);
+	 	echo "\n";
+	 	foreach ($doc_codes_arr["image-types"] as $key => $value) {
+	 		// insert the blank row
+	 		// blank row needs a default image.. so that we can do image type
+	 		echo "12. going to get image type properties for code: ", $value["image-type-code"], "\n";
+	 		$img_type_qry = "select image_type_id, image_type_code, default_blank_image_id from image_types where image_type_code = ?";
+	 		try {
+	 			$img_type_res = runQuerySingleRow($dbh, $img_type_qry, array($value["image-type-code"]));
+			} catch (PDOException $ex) {
+				echo "Something went wrong with image type id query..";
+				echo " Message: ", $ex->getMessage();
+				throw $ex;
+			}
+			$default_blank_image_id = $img_type_res["default_blank_image_id"];
+			if(empty($default_blank_image_id)) {
+				echo "13. default image id is null.", "\n";
+				null;
+			} else {
+				echo "14. default blank image id is: ", $default_blank_image_id, "\n";
+				$service_image_id_arr[] = $default_blank_image_id;
+		 	}
+	 	}
+	 	echo "15. final array of image ids..", "\n";
+	 	print_r($service_image_id_arr);
+	 	echo "\n";
+	 	if($ob_started) ob_end_flush();
+	 	// this is wrong.. always shows no docs.. to do - done
+	 	return array("error" => false, "message" => "", "service_images_arr" => $service_image_id_arr);
+	 }
+}
+// to do: use this function inside create_blank_service_docs
+function get_service_doc_requirements($dbh, $p_service_id, $p_service_json, $p_addn_data_arr) {
+	$logging = false;
+	global $ob_file;
+	$ob_started = false;
+	//echo "ob_file: ", $ob_file, "\n";
+	if(empty($ob_file)) { 
+		$ob_file = fopen("../logs/v3_get_service_doc_reqs-".date('YmdHis').".log",'a');
+		ob_start('ob_file_callback');
+		$ob_started = true;
+	}
+
+	if($logging) echo "1. get_service_doc_requirements.. service_id: ", $p_service_id, "\n";
+	$svs_defn_qry = "select rca_service_id, service_code, service_name, service_desc, service_options_json
+							, service_seq, service_primary_image, choose_at_group_json, allow_appl_override, default_docs_json
+						from rca_services
+					   where rca_service_id = ?
+					";
+	$svs_defn_param = array($p_service_id);
+	try {
+		$svs_defn_rec = runQuerySingleRow($dbh, $svs_defn_qry, $svs_defn_param);
+		if($logging) {
+			echo "2. service definition record.. for service_id: ", $p_service_id, "\n";
+			print_r($svs_defn_rec);
+			echo "\n";
+		}
+	} catch (PDOException $ex) {
+		echo "Something went wrong with service definition selection..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if(empty($svs_defn_rec)) {
+		if($logging) echo "3. service definition empty, return.. for service_id: ", $p_service_id, "\n";
+		if($ob_started) ob_end_flush();
+		// to do: this should be a new exception rather than return null
+		return null;
+	}
+	if(empty($svs_defn_rec["default_docs_json"])) {
+		if($logging) echo "3.1. service definition default docs empty, return.. for service_id: ", $p_service_id, "\n";
+		if($ob_started) ob_end_flush();
+		return null;
+	}
+	// define the default_docs_json as a 1 D json only
+	$default_svs_docs_arr = json_decode($svs_defn_rec["default_docs_json"], true);
+	$svs_json_arr = json_decode($p_service_json, true);
+	if($logging) {
+		echo "4. service default documents, services json array and p_addn_data_arr..", "\n";
+		print_r($default_svs_docs_arr);
+		print_r($svs_json_arr);
+		print_r($p_addn_data_arr);
+		echo "\n";
+	}
+
+	$user_params_arr = get_user_defn_params($dbh);
+
+	foreach ($default_svs_docs_arr as $key => $value) {
+		if($logging) echo "5. looping in default services docs array: $key, value..", $value, "\n";
+		if(empty($value) && !empty($svs_json_arr[$key])){
+			if($logging) echo "6. found an empty slot in default array.. fill it using user input: ", $svs_json_arr[$key], "\n";
+			$default_svs_docs_arr[$key] = $svs_json_arr[$key];
+		}
+		// if the entry is still empty, check within additional data
+		// cannot check in $value
+		if(empty($default_svs_docs_arr[$key]) && !empty($p_addn_data_arr[$key])){
+			if($logging) echo "6.1. found an empty slot in default array.. fill it using additonal input: ", $p_addn_data_arr[$key], "\n";
+			$default_svs_docs_arr[$key] = $p_addn_data_arr[$key];
+		}
+		if(empty($default_svs_docs_arr[$key]) && !empty($user_params_arr[$key])){
+			if($logging) echo "6.2. found an empty slot in default array.. fill it using user_params_arr input: ", $user_params_arr[$key], "\n";
+			$default_svs_docs_arr[$key] = $user_params_arr[$key];
+		}
+	}
+	// now we have a default docs array that should be complete, even if not we dont care as next step should catch it.
+	if($logging) {
+		echo "7. final filled default array..", "\n";
+		print_r($default_svs_docs_arr);
+		echo "\n";
+	}
+	$doc_rules_qry = "select doc_requirement_id, requirement_key_json, doc_code_json
+						from doc_requirements 
+						where enabled = 'Y'";
+	$doc_rules_data = runQueryAllRows($dbh, $doc_rules_qry, array());
+	$doc_codes_json = null;
+	if($logging) echo "8. Going to use default json to find the doc codes.. using recursive match", "\n";
+	foreach ($doc_rules_data as $key => $doc_rule_rec) {
+		$doc_rule_rec_arr = json_decode($doc_rule_rec["requirement_key_json"], true);
+		/*
+		echo "9. going to match a and b.. ", "\n";
+		print_r($default_svs_docs_arr);
+		print_r($doc_rule_rec_arr);
+		echo "\n";
+		*/
+	 	if(recursive_array_comp($default_svs_docs_arr, $doc_rule_rec_arr)) {
+	 		if($logging) echo "10. matched.. return now..", "\n";
+	 		$doc_codes_json = $doc_rule_rec["doc_code_json"];
+	 		if($ob_started) ob_end_flush();
+	 		return $doc_codes_json;
+	 	}
+	 }
+	 if($ob_started) ob_end_flush();
+	 return null;
+}
+
+function check_service_required_docs($dbh, $p_appl_service_id) {
+	$logging = false;
+	// get the application_service and application data
+	// from application_service: pick service_json, service_id
+	// from application: pick age-group, put in additional_data_arr
+	// call get_service_doc_requirements to get all image_types that should be there
+	// get all records in application_service_images for this application_service_id
+	// if any image type is missing or same as default image, return fail
+	$t1=microtime(true);
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "1: t2: $t2, time diff: $time_diff", "\n";
+
+	$appl_svs_qry = "select application_service_id, application_id, service_id, service_options_json
+						from application_services
+						where application_service_id = ?
+					";
+	$appl_qry = "select lot_application_id, lot_id, application_passport_no, applicant_first_name, applicant_last_name, applicant_mid_name
+						, application_visa_type_id, application_status
+						, applicant_seq_no, age_category, visa_disp_val
+						, gender, profession
+				  from lot_applications
+				  where lot_application_id = ?
+				";
+	$appl_svs_img_qry = "select asi.application_service_image_id
+								, asi.image_id, it.image_type_code, it.image_type_name
+						  from application_service_images asi, images i, image_types it
+						 where asi.image_id = i.image_id
+						   and i.image_type_id = it.image_type_id
+						   and i.image_id != it.default_blank_image_id
+						   and asi.application_service_id = ?
+						";
+	try {
+		$step = "application service";
+		$appl_svs_res = runQuerySingleRow($dbh, $appl_svs_qry, array($p_appl_service_id));
+		
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "2: t2: $t2, time diff: $time_diff", "\n";
+
+		if(empty($appl_svs_res)) {
+			// to do: raise exception here
+			return array("result" => false, "doc_list" => null);
+		}
+		$application_id = $appl_svs_res["application_id"];
+		$step = "application";
+		$appl_res = runQuerySingleRow($dbh, $appl_qry, array($application_id));
+		
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "3: t2: $t2, time diff: $time_diff", "\n";
+
+		if(empty($appl_res)) {
+			// to do: raise exception here
+			return array("result" => false, "doc_list" => null);
+		}
+		$step = "application service images";
+		$appl_svs_img_res = runQueryAllRows($dbh, $appl_svs_img_qry, array($p_appl_service_id));
+		
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "4: t2: $t2, time diff: $time_diff", "\n";
+
+		// arrange into an array using image type code
+		$appl_svs_img_arr[] = null;
+		foreach ($appl_svs_img_res as $key => $value) {
+			$appl_svs_imgs_arr[$value["image_type_code"]] = $value["application_service_image_id"];
+			
+			$t2=microtime(true);
+			$time_diff = $t2-$t1;
+			$t1=$t2;
+			if($logging) echo "5: t2: $t2, time diff: $time_diff", "\n";
+		}
+		
+
+	} catch (PDOException $ex) {
+		echo "exception occurred in ".$step.".. message: ".$ex->getMessage()."\n";
+		$dbh->rollBack();
+		throw $ex;
+	}
+
+	$age_category = $appl_res["age_category"];
+	$service_json = $appl_svs_res["service_options_json"];
+	$service_id = $appl_svs_res["service_id"];
+	$additional_data_arr = array("age-category" => $age_category);
+	$additional_data_arr["gender"] = $appl_res["gender"];
+	$additional_data_arr["profession"] = $appl_res["profession"];
+	$svs_req_docs_json = get_service_doc_requirements($dbh, $service_id, $service_json, $additional_data_arr);
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "6: t2: $t2, time diff: $time_diff", "\n";
+
+	$svs_req_docs_arr = json_decode($svs_req_docs_json, true);
+	if($logging) {
+		echo "7: (check_service_required_docs)";
+		print_r($svs_req_docs_arr);
+		echo "\n";
+	}
+	$ret_status = true;
+	$ret_doc_codes = "";
+	foreach ($svs_req_docs_arr["image-types"] as $key => $value) {
+		if(empty($appl_svs_imgs_arr[$value["image-type-code"]])) {
+			// this required doc does not exist, return value false with this code
+			if($logging) {
+				echo "8: (check_service_required_docs) - required doc does not exist.. key:", $key, " value: ";
+				print_r($value);
+				echo "\n";
+			}
+			$ret_status = false;
+			$ret_doc_codes .= $value["image-type-code"].",";
+			//$ret_doc_codes .= $value.",";
+		}
+	}
+	$ret_doc_codes = rtrim($ret_doc_codes, ',');
+	if($logging) echo "9: (check_service_required_docs) - doc_list:", $ret_doc_codes, "\n";
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "9: t2: $t2, time diff: $time_diff", "\n";
+	return array("result" => $ret_status, "doc_list" => $ret_doc_codes);
+}
+
+// function create a group based on user input on screen
+function ob_file_callback($buffer) {
+	global $ob_file;
+	fwrite($ob_file, $buffer);
+}
+function create_application($dbh, $p_lot_id, $p_application_count, $p_auto_state=true) {
+	// need following: agent_id -> send null, group_name -> send null, travel_date -> send null, 
+	// service_array -> get from lot_services
+	$lot_svs_qry = "select lot_service_id, lot_id, service_id, service_json
+					  from lot_services
+					 where lot_id = ?
+					";
+	$services_arr = null;
+	try {
+		$lot_svs_res = runQueryAllRows($dbh, $lot_svs_qry, array($p_lot_id));
+	} catch (PDOException $ex) {
+		echo "exception occurred in lot services query.. message: ".$ex->getMessage()."\n";
+		$dbh->rollBack();
+		throw $ex;
+	}
+	foreach ($lot_svs_res as $key => $service) {
+		$services_arr[] = array('service_id' => $service["service_id"], 'service_json' => $service["service_json"]);
+	}
+	return create_group($dbh, null, null, null, $p_application_count, null, $services_arr, $p_lot_id, $p_auto_state);
+}
+
+function create_group($dbh, $p_agent_id, $p_group_name, $p_travel_date, $p_application_count, $p_comments, $p_services_arr, $p_lot_id=null, $p_auto_state=true) {
+
+	/*
+	global $logFileName;
+	global $log_to_file;
+	if(empty($log_to_file)) $log_to_file = true;
+	if(empty($logFileName)) $logFileName = "../logs/v3_create_group-".date('YmdHis').".log";
+	*/
+	global $ob_file;
+	if(empty($ob_file)) $ob_file = fopen("../logs/v3_create_group-".date('YmdHis').".log",'a');
+	ob_start('ob_file_callback');
+
+	if($p_auto_state) $dbh->beginTransaction();
+
+	try {
+		//if($log_to_file) file_put_contents($logFileName,'1: In create group, going to create lot, agent: '.$p_agent_id." group name: ".$p_group_name."\n",FILE_APPEND);
+		//if($log_to_file) file_put_contents($logFileName,'2: create lot application count: '.$p_application_count."\n",FILE_APPEND);
+		echo '1: In create group, going to create lot, agent: '.$p_agent_id." group name: ".$p_group_name."\n";
+		echo '2: create lot application count: '.$p_application_count."\n";
+		echo '2: create lot travel_date: '.$p_travel_date."\n";
+		echo "service array: ", "\n";
+		print_r($p_services_arr);
+		echo "\n";
+		echo "2.1: check if lot id already passed.. p_lot_id: ", $p_lot_id, "\n";
+		if(empty($p_lot_id)) {
+			echo "2.1.1 get a date obj from travel date.. ";
+			$date_fmt = 'd/m/Y';
+			list($valid_date, $travel_date_obj) = create_valid_date($p_travel_date, $date_fmt);
+			if($valid_date) {
+				$travel_date_str = get_date_obj_in_mysql_fmt($travel_date_obj);
+				echo "2.1.2 got date object value (in mysql format): ", $travel_date_str, "\n";
+
+			} else {
+				echo "2.1.3 Date was invalid, throw exception";
+				throw new Exception("Invalid Travel Date");
+				
+			}
+
+			echo "2.2: lot id is NOT passed.. going to get a new lot code for agent_id: ", $p_agent_id,"\n";
+			$new_lot_code = get_new_lot_code($dbh, $p_agent_id);
+			echo "2.3: create new lot with lot code: ", $new_lot_code, "\n";
+			$lot_id = insert_group($dbh, $new_lot_code, $p_agent_id, $p_application_count, $p_group_name, $travel_date_str, "NEW");
+			//if($log_to_file) file_put_contents($logFileName,'3: lot created - lot id: '.$p_application_count."\n",FILE_APPEND);
+			echo '3: lot created - lot id: '.$lot_id."\n";
+			$appl_count = 0;
+		} else {
+			$lot_id = $p_lot_id;
+			echo "2.2: lot id is passed.. find out how many applicants already created", "\n";
+			$appl_count_qry = "select count(*) total_applications from lot_applications where lot_id = ?";
+			$appl_count_res = runQuerySingleRow($dbh, $appl_count_qry, array($lot_id));
+			$appl_count = $appl_count_res["total_applications"];
+			echo "2.3: total applicants already created appl_count:", $appl_count,"\n";
+		}
+		if($lot_id < 1) return -1;
+
+		$appl_level_visa_type = null;
+
+		foreach ($p_services_arr as $key => $service) {
+			//if($log_to_file) file_put_contents($logFileName,'4: service loop, service id: '.$service["service_id"]."\n",FILE_APPEND);
+			//if($log_to_file) file_put_contents($logFileName,'5: service loop, service id: '.$service["service_json"]."\n",FILE_APPEND);
+			echo '4: service loop, service id: '.$service["service_id"]."\n";
+			echo '5: service loop, service json: '.$service["service_json"]."\n";
+			// check if this service json has visa-type in it.. if it does populate it into application
+			if(empty($appl_level_visa_type)) { 
+				$svs_json_arr = json_decode($service["service_json"], true);
+				if(!empty($svs_json_arr["visa-type"])) {
+					$appl_level_visa_type = $svs_json_arr["visa-type"];
+				}
+			}
+			if(empty($p_lot_id)) {
+				// this means lot is already creaetd so lot services would also have been created
+				$lot_service_id = insert_lot_service($dbh, $lot_id, $service["service_id"], $service["service_json"]);
+				//if($log_to_file) file_put_contents($logFileName,'6: service loop, lot service inserted, : '.$lot_service_id."\n",FILE_APPEND);
+				echo '6: service loop, lot service inserted, : '.$lot_service_id."\n";
+			}
+			// for each service we need to put in blank rows in application images
+			$svs_docs_res = create_service_blank_docs($dbh, $service["service_id"], $service["service_json"]);
+			echo "7. create service docs done, printing the result.."."\n";
+			print_r($svs_docs_res);
+			echo "\n";
+			$svs_id_json_arr[$service["service_id"]] = $service["service_json"];
+			if(!$svs_docs_res["error"] && !empty($svs_docs_res["service_images_arr"])) {
+				$svs_images_arr[$service["service_id"]] = $svs_docs_res["service_images_arr"];
+			}
+			echo "8. final services images array.."."\n";
+			print_r($svs_images_arr);
+			echo "\n";
+		}
+
+		//for ($i=0; $i < $p_application_count; $i++) { 
+		for ($i=$appl_count+1; $i <= $appl_count+$p_application_count; $i++) { 
+			//insert_group_blank_appl($dbh, $p_lot_id, $p_application_seq_no)
+			$lot_appl_id = insert_group_blank_appl($dbh, $lot_id, $i, $appl_level_visa_type, $i);
+			echo "9. lot application: ", $i," created.. lot_appl_id: ".$lot_appl_id."\n";
+			foreach ($svs_id_json_arr as $service_id => $service_json) {
+				echo "9.1. going to create application service for appl: $lot_appl_id service_id: $service_id, json: ".$service_json."\n";
+				$appl_service_id = insert_application_service($dbh, $lot_appl_id, $service_id, $service_json, "NEW");
+				echo "10. application service created.. appl_service_id: ".$appl_service_id."\n";
+				foreach ($svs_images_arr[$service_id] as $key => $image) {
+					$appl_svs_image_id = insert_appl_service_image($dbh, $appl_service_id, $image);
+					echo "11. service image:".$image." created.. appl_svs_image_id: ".$appl_svs_image_id."\n";
+				}
+			}
+		}
+		//insert_lot_appl_services($dbh, $lot_id);
+
+	} catch (PDOException $ex) {
+		echo "12. exception occurred.. message: ".$ex->getMessage()."\n";
+		if($p_auto_state) $dbh->rollBack();
+		throw $ex;
+	}
+
+	echo "13. commit: "."\n";
+	if($p_auto_state) $dbh->commit();
+	ob_end_flush();
+	// returning only lot id as other stuff can be derived from it.
+	return $lot_id;
+	
+}
+
+function add_service($dbh, $p_application_id, $p_services_arr, $p_auto_state=true) {
+
+	global $ob_file;
+	if(empty($ob_file)) $ob_file = fopen("../logs/v3_add_service-".date('YmdHis').".log",'a');
+	ob_start('ob_file_callback');
+
+	if($p_auto_state) $dbh->beginTransaction();
+
+	try {
+		echo '1: create service application id: '.$p_application_id."\n";
+		echo "2. service array: ", "\n";
+		print_r($p_services_arr);
+		echo "\n";
+
+		$rca_services_res = get_rca_services($dbh);
+		echo "3. rca services result: ", "\n";
+		print_r($rca_services_res);
+		echo "\n";
+
+		foreach ($rca_services_res as $key => $service) {
+			$svs_default_json_arr[$service["rca_service_id"]] = $service["default_service_json"];
+		}
+		echo "3.1. svs_default_json_arr: ", "\n";
+		print_r($svs_default_json_arr);
+		echo "\n";
+
+		foreach ($p_services_arr as $key => $service) {
+			echo '4: service loop, service id: '.$service["service_id"]."\n";
+			$service_json = $service["service_json"];
+			echo '5: service loop, service json passed: '.$service["service_json"]."\n";
+			if(empty($service_json)) {
+				// service json is passed blank, pick default service json from service defn
+				echo "5.1 passed empty, pick default service json from rca_services defn", $svs_default_json_arr[$service["service_id"]], "\n";
+				$service_json = $svs_default_json_arr[$service["service_id"]];
+			}
+			echo "5.2 finally service json: ", $service_json, "\n";
+
+			//$lot_service_id = insert_lot_service($dbh, $lot_id, $service["service_id"], $service["service_json"]);
+			//echo '6: service loop, lot service inserted, : '.$lot_service_id."\n";
+			$svs_docs_res = create_service_blank_docs($dbh, $service["service_id"], $service_json);
+			echo "7. create service docs done, printing the result.."."\n";
+			print_r($svs_docs_res);
+			echo "\n";
+			$svs_json_arr[$service["service_id"]] = $service_json;
+			if(!$svs_docs_res["error"] && !empty($svs_docs_res["service_images_arr"])) {
+				$svs_images_arr[$service["service_id"]] = $svs_docs_res["service_images_arr"];
+			}
+			echo "8. final services images array.."."\n";
+			print_r($svs_images_arr);
+			echo "\n";
+		}
+
+		$lot_appl_id = $p_application_id;
+		echo "9. lot application lot_appl_id: ".$lot_appl_id."\n";
+		foreach ($svs_json_arr as $service_id => $service_json) {
+			$appl_service_id = insert_application_service($dbh, $lot_appl_id, $service_id, $service_json, "NEW");
+			echo "10. application service created.. appl_service_id: ".$appl_service_id."\n";
+			foreach ($svs_images_arr[$service_id] as $key => $image) {
+				$appl_svs_image_id = insert_appl_service_image($dbh, $appl_service_id, $image);
+				echo "11. service image:".$image." created.. appl_svs_image_id: ".$appl_svs_image_id."\n";
+			}
+		}
+		//insert_lot_appl_services($dbh, $lot_id);
+
+	} catch (PDOException $ex) {
+		echo "12. exception occurred.. message: ".$ex->getMessage()."\n";
+		if($p_auto_state) $dbh->rollBack();
+		throw $ex;
+	}
+
+	echo "13. commit: "."\n";
+	if($p_auto_state) $dbh->commit();
+	// returning only lot id as other stuff can be derived from it.
+	ob_end_flush();
+	return 1;
+}
+
+function get_rca_services($dbh) {
+	$rca_svs_qry = "select rca_service_id, service_code, service_name, service_desc, service_options_json, service_seq
+							, service_primary_image, choose_at_group_json, allow_appl_override, default_docs_json
+							, default_service_json, service_icon, burger_icon
+					from rca_services
+					where enabled = 'Y'
+					";
+	try {
+		$rca_svs_res = runQueryAllRows($dbh, $rca_svs_qry, array());
+	} catch (PDOException $ex) {
+		echo "Something went wrong with rca service query..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $rca_svs_res;
+}
+
+function get_image_types($dbh) {
+	$img_type_qry = "select image_type_id, image_type_code, image_type_name, image_type_width,
+						 image_type_height, image_type_desc, default_blank_image_id 
+					   from image_types 
+					  where enabled = 'Y'
+					";
+	try {
+		$img_type_res = runQueryAllRows($dbh, $img_type_qry, array());
+	} catch (PDOException $ex) {
+		echo "Something went wrong with image type query..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $img_type_res;
+}
+
+function get_agent_id() {
+	if(!empty($_SESSION["agent_id"])) return $_SESSION["agent_id"];
+	return null;
+}
+
+function get_user_defn_params($dbh) {
+	$agent_id = get_agent_id();
+	// to do, change this default.. take it out, testing only.
+	//if(empty($agent_id)) $agent_id = 1;
+	// the below is fine..
+	if(!empty($agent_id)) {
+		$user_type = "AGT";
+		/*
+		$agt_qry = "select appl_mode from agents where agent_id = ?";
+		try {
+			$agt_res = runQuerySingleRow($dbh, $agt_qry, array($agent_id));
+		} catch (PDOException $ex) {
+			echo "Something went wrong with rca agent query..";
+			echo " Message: ", $ex->getMessage();
+			throw $ex;
+		}
+		*/
+		// this will get user, agent, entity, territry, channel etc
+		$agt_res = get_user_header_data($dbh);
+		$form_mode = $agt_res["appl_mode"];
+		$agent_code = $agt_res["agent_code"];
+		$entity_code = $agt_res["entity_code"];
+		$territory_code = $agt_res["territory_code"];
+		$channel_code = $agt_res["channel_code"];
+		$txn_currency = $agt_res["txn_currency"];
+
+	} else {
+		$user_type = "BO";
+		$form_mode = "SS";
+		// the below are not possible for BO, so is there a way to get them? maybe from a config?
+		$agent_code = "BO";
+		$entity_code = "";
+		$territory_code = "";
+		$channel_code = "";
+		$txn_currency = "AED";
+	}
+	return array("user-type" => $user_type
+				, "form-mode" => $form_mode
+				, "agent-code" => $agent_code
+				, "entity-code" => $entity_code
+				, "territory-code" => $territory_code
+				, "channel-code" => $channel_code
+				, "currency-code" => $txn_currency
+				);
+}
+
+function get_service_form_definition($dbh, $p_appl_service_id, $p_addn_data_arr) {
+	// 15-jun, ro do: this does take into consideration the values in applicaiton. we should get application data also
+	// to do: get fields like age-category, gender, profession.. 
+	$logging = false;
+	$t1 = microtime(true);
+	$t2 = microtime(true);
+	$t_diff = $t2-$t1;
+	if($logging) echo "Frm Defn 1. t2: $t2 t_diff: $t_diff", "\n";
+	$t2 = $t1;
+	global $ob_file;
+	if($logging) {
+		if(empty($ob_file)) $ob_file = fopen("../logs/v3_get_svs_form_defn-".date('YmdHis').".log",'a');
+		ob_start('ob_file_callback');
+		echo "1. in get_service_form_definition param p_appl_service_id: ", $p_appl_service_id, "\n";
+		echo "2. p_addn_data_arr";
+		print_r($p_addn_data_arr);
+		echo "\n";
+	}
+
+	$svs_qry = "select aps.service_options_json, rs.default_form_defn_json, form_definition_id 
+				  from application_services aps, rca_services rs
+				 where aps.service_id = rs.rca_service_id
+				   and aps.application_service_id = ?";
+	try {
+		$t2 = microtime(true);
+		$t_diff = $t2-$t1;
+		if($logging) echo "Frm Defn 2. t2: $t2 t_diff: $t_diff", "\n";
+		$t2 = $t1;
+		$svs_res = runQuerySingleRow($dbh, $svs_qry, array($p_appl_service_id));
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application service query..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if($logging) {
+		echo "3. Service query result: ";
+		print_r($svs_res);
+		echo "\n";
+	}
+	$form_defn_key_json = $svs_res["default_form_defn_json"];
+	$service_options_json = $svs_res["service_options_json"];
+	$svs_form_defn_id = $svs_res["form_definition_id"];
+	// check if we already have form definiton in place..
+	// even though this logic exists, we cannot store the form defn id as then we will not be able to put up different forms for BO/AGT etc..
+	// the form definition needs to be pulled dynamically all the time :(
+	if(!empty($svs_form_defn_id)) {
+		if($logging) echo "4. Form definiton id already present.. get definition from form_definition_id: ", $svs_form_defn_id, "\n";
+		$form_defn_qry = "select form_definition_key_json, form_definition_json from form_definitions where form_definition_id = ?";
+		try {
+			$form_defn_res = runQuerySingleRow($dbh, $form_defn_qry, array($svs_form_defn_id));
+		} catch (PDOException $ex) {
+			echo "Something went wrong with form definition query..";
+			echo " Message: ", $ex->getMessage();
+			throw $ex;
+		}
+		if($logging) {
+			echo "5: form defn qry result: ";
+			print_r($form_defn_res);
+			echo "\n";
+			ob_end_flush();
+		}
+		return $form_defn_res["form_definition_json"];
+	}
+
+	if(empty($form_defn_key_json)) {
+		if($logging) {
+			echo "6. No form id, and form defn key is also null, return null.", "\n";
+			ob_end_flush();
+		}
+		return null;
+	}
+
+	if($logging) echo "7. going to get values requqired for getting form definitions.", "\n";
+	$t2 = microtime(true);
+	$t_diff = $t2-$t1;
+	if($logging) echo "Frm Defn 2. t2: $t2 t_diff: $t_diff", "\n";
+	$t2 = $t1;
+	$form_params_arr = get_user_defn_params($dbh);
+
+	$form_defn_key_arr = json_decode($form_defn_key_json, true);
+	$service_options_arr = json_decode($service_options_json, true);
+	if($logging) {
+		echo "7.1 raw form_defn_key_arr: ";
+		print_r($form_defn_key_arr);
+		echo "7.2 form_params_arr: ";
+		print_r($form_params_arr);
+		echo "\n";
+	}
+	$t2 = microtime(true);
+	$t_diff = $t2-$t1;
+	if($logging) echo "Frm Defn 3. t2: $t2 t_diff: $t_diff", "\n";
+	$t2 = $t1;
+
+	foreach ($form_defn_key_arr as $key => $value) {
+		// cannot use $value in second as it wont know the update in 1st stmt.
+		if(empty($form_defn_key_arr[$key]) && !empty($form_params_arr[$key])) $form_defn_key_arr[$key] = $form_params_arr[$key];
+		if(empty($form_defn_key_arr[$key]) && !empty($service_options_arr[$key])) $form_defn_key_arr[$key] = $service_options_arr[$key];
+		// to do - additional data array
+	}
+	$t2 = microtime(true);
+	$t_diff = $t2-$t1;
+	if($logging) echo "Frm Defn 4. t2: $t2 t_diff: $t_diff", "\n";
+	$t2 = $t1;
+	if($logging) {
+		echo "8. final form defnition key array: ";
+		print_r($form_defn_key_arr);
+		echo "\n";
+	}
+
+	$form_defn_qry = "select form_definition_id, form_definition_key_json, form_definition_json from form_definitions where enabled = 'Y'";
+	try {
+		$form_defn_res = runQueryAllRows($dbh, $form_defn_qry, array());
+	} catch (PDOException $ex) {
+		echo "Something went wrong with form definition query..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	$t2 = microtime(true);
+	$t_diff = $t2-$t1;
+	if($logging) echo "Frm Defn 5. t2: $t2 t_diff: $t_diff", "\n";
+	$t2 = $t1;
+	foreach ($form_defn_res as $key => $value) {
+		$res_form_defn_key_arr = json_decode($value["form_definition_key_json"], true);
+		if($logging) {
+			echo "9. looping - form definition id: ", $value["form_definition_id"], "\n";
+			echo "10. res_form_defn_key_arr: ";
+			print_r($res_form_defn_key_arr);
+			echo "\n";
+		}
+		if(recursive_array_comp($res_form_defn_key_arr, $form_defn_key_arr)) {
+			if($logging) echo "11. Match found for form defn id: ", $value["form_definition_id"], "\n";
+			// keep the below update call commented, the issue is if form defn id gets stored then form defn will not come out based on BO/AGT etc.
+			/*
+			//update_appl_service_form_defn_id($dbh, $p_appl_service_id, $value["form_definition_id"]);
+			echo "12. going to update application_services for id: $p_appl_service_id with form defn id: ", $value["form_definition_id"], "\n";
+			update_appl_service($dbh, $p_appl_service_id, null, null, $value["form_definition_id"]);
+			*/
+			if($logging) ob_end_flush();
+			return $value["form_definition_json"];
+		}
+		$t2 = microtime(true);
+		$t_diff = $t2-$t1;
+		if($logging) echo "Frm Defn 6. t2: $t2 t_diff: $t_diff", "\n";
+		$t2 = $t1;
+	}
+	if($logging) echo "13. No match found.. return null.", "\n";
+	if($logging) ob_end_flush();
+	return null;
+}
+
+function check_service_form_complete($dbh, $p_appl_service_id, $p_appl_form_json) {
+	$svs_form_defn_json = get_service_form_definition($dbh, $p_appl_service_id, null);
+	$svs_form_defn_arr = json_decode($svs_form_defn_json, true);
+	$appl_form_arr = json_decode($p_appl_form_json, true);
+	$mandatory_missing = false;
+	$mandatory_missing_fields = "";
+	foreach ($svs_form_defn_arr["field_list"] as $key => $field_arr) {
+		if(!empty($field_arr["req"]) && $field_arr["req"] == "Y" && empty($appl_form_arr[$field_arr["name"]])) {
+			$mandatory_missing = true;
+			$mandatory_missing_fields .= $field_arr["name"].",";
+		}
+	}
+	$mandatory_missing_fields = rtrim($mandatory_missing_fields, ",");
+	return array("form_complete_status" => !$mandatory_missing, "mandatory_missing_fields" => json_encode(explode(',', $mandatory_missing_fields)));
+}
+
+/*
+function update_appl_service_form_defn_id($dbh, $p_appl_service_id, $p_form_definition_id) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$updt_appl_svs_qry = "update application_services
+							set form_definition_id = ?
+								, updated_by = ?
+								, updated_date = NOW()
+							where application_service_id = ?
+						";
+	$updt_appl_svs_params = array($p_form_definition_id, $user_id, $p_appl_service_id);
+	try {
+		runUpdate($dbh, $updt_appl_svs_qry, $updt_appl_svs_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with form definition id update..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+}
+*/
+
+function update_appl_service($dbh, $p_appl_service_id, $p_appl_service_json, $p_appl_service_status, $p_form_definition_id, $p_service_price, $p_validation_res, $p_auto_state=true) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$updt_appl_visa = false;
+	$updt_appl_svs_qry = "update application_services
+							set updated_by = ?
+								, updated_date = NOW()
+						";
+	$updt_appl_svs_params[] = $user_id;
+	if(!empty($p_form_definition_id)) {
+		$updt_appl_svs_qry .= " , form_definition_id = ?";
+		$updt_appl_svs_params[] = $p_form_definition_id;
+	}
+
+	if(!empty($p_appl_service_status)) {
+		// to do - status transition logic?? here? figure out.
+		$updt_appl_svs_qry .= " , service_status = ?";
+		$updt_appl_svs_params[] = $p_appl_service_status;
+	}
+
+	if(!empty($p_validation_res)) {
+		$updt_appl_svs_qry .= " , last_validation_result = ?";
+		$updt_appl_svs_params[] = $p_validation_res;
+	}
+
+	if(!empty($p_service_price)) {
+		$updt_appl_svs_qry .= " , service_price = ?";
+		$updt_appl_svs_params[] = $p_service_price;		
+	}
+	if(!empty($p_appl_service_json)) {
+		$updt_appl_svs_qry .= " , service_options_json = ?";
+		$updt_appl_svs_params[] = $p_appl_service_json;
+
+		// special code for visa_disp_type, if this json contains visa-type as key, then value must go to applicaion level
+		$appl_service_json_arr = json_decode($p_appl_service_json, true);
+		if(!empty($appl_service_json_arr["visa-type"])) {
+			$updt_appl_visa = true;
+			$appl_visa_type = $appl_service_json_arr["visa-type"];
+			$appl_updt_qry = "update lot_applications set visa_disp_val = ?, updated_by = ?, updated_date = NOW()
+								where lot_application_id = (select application_id from application_services where application_service_id = ?)
+							";
+			$appl_updt_params = array($appl_visa_type, $user_id, $p_appl_service_id);
+		}
+	}
+
+	$updt_appl_svs_qry .= " where application_service_id = ?";
+	$updt_appl_svs_params[] = $p_appl_service_id;
+	try {
+		if($p_auto_state) $dbh->beginTransaction();
+		$step = "1- application service";
+		runUpdate($dbh, $updt_appl_svs_qry, $updt_appl_svs_params);
+		if($updt_appl_visa) {
+			$step = "2- application";
+			runUpdate($dbh, $appl_updt_qry, $appl_updt_params);
+		}
+		if(!empty($p_appl_service_json)) {
+			// as soon as service json is updated, must redo mandatory docs
+			redo_service_docs($dbh, $p_appl_service_id);
+		}
+		if($p_auto_state) $dbh->commit();
+	} catch (PDOException $ex) {
+		echo "Something went wrong with ".$step." update..";
+		echo " Message: ", $ex->getMessage();
+		if($p_auto_state) $dbh->rollBack();
+		throw $ex;
+	}
+}
+
+function get_lot_applicaton_data($dbh, $p_lot_application_id) {
+	// v3 to do, remove the otb_required_flag, meet_assist_flag, spa_flag, lounge_flag, hotel_flag, ednrd_ref_no from the query
+	$appl_qry = "select lot_application_id, lot_id, 
+						application_passport_no, applicant_first_name, applicant_last_name, applicant_mid_name, 
+						application_visa_type_id, application_status, application_data,
+						otb_required_flag, meet_assist_flag, spa_flag, lounge_flag, hotel_flag, ednrd_ref_no,
+						applicant_seq_no, age_category, visa_disp_val, gender, profession
+				from lot_applications
+				where lot_application_id = ?
+				";
+	$appl_params = array($p_lot_application_id);
+	$appl_res = runQuerySingleRow($dbh, $appl_qry, $appl_params);
+	return $appl_res;
+}
+
+//function save_application_data($dbh, $p_application_id, $p_data_json) {
+function update_application_form($dbh, $p_application_id, $p_form_json) {
+	global $ob_file;
+	//if(empty($ob_file)) 
+		$ob_file = fopen("../logs/v3_update_form-".date('YmdHis').".log",'a');
+	ob_start('ob_file_callback');
+	echo "1. inside update_application_form, application_id: ". $p_application_id, "\n";
+	echo "2. form json: ", $p_form_json, "\n";
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$dec_json=json_decode($p_form_json, true);
+	echo "2.1 json decoded into array.. ";
+	print_r($dec_json);
+	echo "\n";
+	$application_data = get_lot_applicaton_data($dbh, $p_application_id);
+	/*
+	returns:
+	application_passport_no, applicant_first_name, applicant_last_name, applicant_mid_name, 
+	application_visa_type_id, application_status, application_data,
+	otb_required_flag, meet_assist_flag, spa_flag, lounge_flag, hotel_flag, ednrd_ref_no,
+	applicant_seq_no, age_category, visa_disp_val, gender, profession
+	*/
+	echo "3. returned from get.., result was: ";
+	print_r($application_data);
+	echo "\n";
+	/*
+	$appl_passport_no = getval($dec_json,'passport-no');
+	$appl_first_name = getval($dec_json,'given-names'); 
+	$appl_last_name = getval($dec_json,'surname');
+	$dob = getval($dec_json,'dob');
+	*/
+	if(!empty($dec_json['passport-no'])) $appl_passport_no = $dec_json['passport-no'];
+	else $appl_passport_no = $application_data["application_passport_no"];
+	if(!empty($dec_json['given-names'])) $appl_first_name = $dec_json['given-names'];
+	else $appl_first_name = $application_data["applicant_first_name"];
+	if(!empty($dec_json['surname'])) $appl_last_name = $dec_json['surname'];
+	else $appl_last_name = $application_service["applicant_last_name"];
+	if(!empty($dec_json['profession'])) {
+		//$appl_profession = $dec_json['profession'];
+		// if the profession is student, else take other
+		$appl_profession = check_profession($dbh, $dec_json["profession"]);
+	}
+	else $appl_profession = $application_data["profession"];
+	if(!empty($dec_json['gender'])) $appl_gender = $dec_json['gender'];
+	else $appl_gender = $application_data["gender"];
+	$dob = $dec_json['dob'];
+	echo "4. important values, appl_passport_no: ", $appl_passport_no, "\n";
+	echo "4. important values, appl_first_name: ", $appl_first_name, "\n";
+	echo "4. important values, appl_last_name: ", $appl_last_name, "\n";
+	echo "4. important values, gender: ", $appl_gender, "\n";
+	echo "4. important values, profession: ", $appl_profession, "\n";
+	echo "4. important values, dob: ", $dob, "\n";
+	$age_category = "adult";
+	if(!empty($dob)) {
+		$date_fmt = 'd/m/Y';
+		list($valid_date, $dob_obj) = create_valid_date($dob, $date_fmt);
+		if($valid_date) {
+			// find the difference between dob and today
+			// get_today_date returns array...
+			$today = get_today_date();
+			echo "print dates objects, dob:";
+			print_r($dob_obj);
+			echo "\n", "today:";
+			print_r($today);
+			echo "\n";
+			$dob_diff = date_diff($dob_obj, $today[1]);
+			echo "print date diff obj";
+			print_r($dob_diff);
+			echo "\n";
+			if($dob_diff->y < 18) { 
+				$age_category = "child"; 
+			} else if($dob_diff->y < 25) { 
+				$age_category = "mid"; 
+			} 
+		}
+	} else $age_category = $application_data["age_category"];
+	$visa_disp_value = $application_data["visa_disp_val"];
+	echo "4. important values, age_category: ", $age_category, "\n";
+	echo "4. important values, visa_disp_value: ", $visa_disp_value, "\n";
+	$otb_flag = null; $meet_assist_flag = null; $spa_flag = null; $lounge_flag = null; $hotel_flag = null;
+	echo "5. going to update application.. ", "\n";
+	update_lot_application($dbh, $p_application_id, 
+								$appl_passport_no, 
+								$appl_first_name, $appl_last_name, null, 
+								$age_category, $visa_disp_value, $appl_gender, $appl_profession,
+								$application_data["application_visa_type_id"], $application_data["application_status"], $p_form_json,
+								$otb_flag, $meet_assist_flag, $spa_flag, $lounge_flag, $hotel_flag,
+								$user_id
+							);
+	echo "6. update application done.. ", "\n";
+	ob_end_flush();
+}
+/*
+// get rid of this..
+function update_application_form($dbh, $p_application_id, $p_form_json) {
+	// write code to get current values - to do
+	// write code to update specific fields from json - to do
+	// call update_lot_application
+	// to do: update age-category
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$application_passport_no = null;
+	$applicant_first_name = null;
+	$applicant_last_name = null;
+	$applicant_mid_name = null;
+	$application_visa_type_id = null;
+	$application_status = 'UPDATED';
+	$otb_flag = null; $meet_assist_flag = null; $spa_flag = null; $lounge_flag = null; $hotel_flag = null;
+
+	update_lot_application($dbh, $p_application_id, 
+								$application_passport_no, 
+								$applicant_first_name, $applicant_last_name, $applicant_mid_name, 
+								$application_visa_type_id, $application_status, $p_form_json,
+								$otb_flag, $meet_assist_flag, $spa_flag, $lounge_flag, $hotel_flag,
+								$user_id
+								);
+}
+*/
+// v3 to do, remove the params $p_otb_flag, $p_meet_assist_flag, $p_spa_flag, $p_lounge_flag, $p_hotel_flag,
+function update_lot_application($dbh, $p_lot_application_id, 
+								$p_application_passport_no,
+								$p_applicant_first_name, $p_applicant_last_name, $p_applicant_mid_name, 
+								$p_age_category, $p_visa_disp_value, $p_gender, $p_profession,
+								$p_application_visa_type_id, $p_application_status, $p_application_data,
+								$p_otb_flag, $p_meet_assist_flag, $p_spa_flag, $p_lounge_flag, $p_hotel_flag,
+								$p_updated_by = -1
+								) {
+	// to do: update age-category
+	// to do: first backup the current application row into history table
+	$appl_updt_qry = "update lot_applications
+						set application_passport_no = ?
+						, applicant_first_name = ?
+						, applicant_last_name = ?
+						, applicant_mid_name = ?
+						, application_visa_type_id = ?
+						, application_status = ?
+						, application_data = ?
+						, age_category = ?
+						, visa_disp_val = ?
+						, gender = ?
+						, profession = ?
+						, updated_date = NOW()
+						, updated_by = ?
+					where lot_application_id = ?
+					";
+	$appl_updt_params = array($p_application_passport_no, 
+								$p_applicant_first_name, 
+								$p_applicant_last_name, 
+								$p_applicant_mid_name, 
+								$p_application_visa_type_id, 
+								$p_application_status, 
+								$p_application_data,
+								$p_age_category,
+								$p_visa_disp_value,
+								$p_gender, 
+								$p_profession,
+								$p_updated_by,
+								$p_lot_application_id
+							);
+	runUpdate($dbh, $appl_updt_qry, $appl_updt_params);
+}
+
+function update_application_status($dbh, $p_lot_application_id, $p_application_status) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$appl_updt_qry = "update lot_applications
+						set application_status = ?
+						, updated_date = NOW()
+						, updated_by = ?
+					where lot_application_id = ?
+					";
+	$appl_updt_params = array($p_application_status, 
+								$user_id,
+								$p_lot_application_id
+							);
+	runUpdate($dbh, $appl_updt_qry, $appl_updt_params);
+}
+function get_service_and_application_data($dbh, $p_appl_service_id) {
+	$appl_svs_qry = "select aps.application_service_id, aps.application_id, aps.service_id, aps.service_options_json, aps.service_status
+							, la.age_category, la.gender, la.profession
+							, rs.rca_service_id, rs.service_code, rs.service_name, rs.service_desc, rs.default_price_key_json
+					  from application_services aps, lot_applications la, rca_services rs
+					 where aps.application_service_id = ?
+					   and la.lot_application_id = aps.application_id
+					   and aps.service_id = rs.rca_service_id
+					";
+	try {
+		$appl_svs_res = runQuerySingleRow($dbh, $appl_svs_qry, array($p_appl_service_id));
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application and service query..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_svs_res;
+
+}
+
+function redo_service_docs($dbh, $p_appl_service_id) {
+	// get the current json from appl_service record
+	// get the requried documents (image types)
+	// find the ones that don't exist
+	// create the rows
+	global $ob_file;
+	$ob_started = false;
+	//if(empty($ob_file)) { 
+		$ob_file = fopen("../logs/v3_redo_service_docs-".date('YmdHis').".log",'a');
+		ob_start('ob_file_callback');
+		$ob_started = true;
+	//}
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	echo "1: inside redo.. application_service_id: ", $p_appl_service_id, "\n";
+	/*
+	// moved to function
+	$appl_svs_qry = "select aps.application_service_id, aps.application_id, aps.service_id, aps.service_options_json, aps.service_status
+							, la.age_category
+					  from application_services aps, lot_applications la
+					 where aps.application_service_id = ?
+					   and la.lot_application_id = aps.application_id
+					";
+	*/
+	try {
+		//$appl_svs_res = runQuerySingleRow($dbh, $appl_svs_qry, array($p_appl_service_id));
+		$appl_svs_res = get_service_and_application_data($dbh, $p_appl_service_id);
+		echo "2: appl_svs_res..";
+		print_r($appl_svs_res);
+		echo "\n";
+		if(empty($appl_svs_res)) {
+			if($ob_started) ob_end_flush();
+			return 0;
+		}
+		$service_id = $appl_svs_res["service_id"];
+		$service_json = $appl_svs_res["service_options_json"];
+		$addn_data_arr["age-category"] = $appl_svs_res["age_category"];
+		$addn_data_arr["gender"] = $appl_svs_res["gender"];
+		$addn_data_arr["profession"] = $appl_svs_res["profession"];
+		echo "3: post appl_svs_res.. important data elements - service_id: ", $service_id, "\n";
+		echo "3: post appl_svs_res.. important data elements - service_json: ", $service_json, "\n";
+		echo "3: post appl_svs_res.. important data elements - age_category: ", $appl_svs_res["age_category"], "\n";
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application service query..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+
+	$req_docs_img_types_json = get_service_doc_requirements($dbh, $service_id, $service_json, $addn_data_arr);
+	echo "4: post get_service_doc_requirements.. result req_docs_img_types_json : ", $req_docs_img_types_json, "\n";
+	if(empty($req_docs_img_types_json)) {
+		if($ob_started) ob_end_flush();
+		return 0;
+	}
+	$req_docs_img_types_arr = json_decode($req_docs_img_types_json, true);
+	echo "4.5 req_docs_img_types_arr..";
+	print_r($req_docs_img_types_arr);
+	echo "\n";
+	// implode does not work, array is a[][]
+	//$req_docs_img_types_str = implode('\',\'', $req_docs_img_types_arr);
+	//$req_docs_img_types_str = '\''.$req_docs_img_types_str.'\'';
+	$req_docs_img_types_str = "";
+	foreach ($req_docs_img_types_arr["image-types"] as $key => $image_type_codes_arr) {
+		$req_docs_img_types_str .= "'".$image_type_codes_arr["image-type-code"]."',";
+	}
+	$req_docs_img_types_str = rtrim($req_docs_img_types_str, ",");
+	echo "5: post get_service_doc_requirements.. req_docs_img_types_str : ", $req_docs_img_types_str, "\n";
+
+	$ins_appl_svs_img_qry = "insert into application_service_images
+								(application_service_id, image_id, created_by, updated_by)
+								select ?, it.default_blank_image_id, ?, ? from image_types it
+								where not exists (select 1 from application_service_images asi, images i 
+													where asi.image_id = i.image_id 
+													  and it.image_type_id = i.image_type_id
+													  and asi.application_service_id = ?
+													)
+								  and it.image_type_code in (".$req_docs_img_types_str.")";
+	echo "5.1 insert statement.. ", $ins_appl_svs_img_qry, "\n";
+	$ins_appl_svs_img_params = array($p_appl_service_id, $user_id, $user_id, $p_appl_service_id);
+
+	try {
+		runInsert($dbh, $ins_appl_svs_img_qry, $ins_appl_svs_img_params);
+		echo "6: post insert docs.. ", "\n";
+
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application service image creation..";
+		echo " Message: ", $ex->getMessage();
+		echo "query string: ", $ins_appl_svs_img_qry;
+		throw $ex;
+	}
+	if($ob_started) ob_end_flush();
+	return 1;
+}
+
+function insert_appl_service_image($dbh, $p_appl_service_id, $p_image_id) {
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$appl_svs_img_ins_qry = "insert into application_service_images 
+						(application_service_image_id, application_service_id, image_id
+						, created_by, created_date, updated_by, updated_date, enabled
+						) values (
+						null, ?, ?, 
+						?, NOW(), ?, NOW(), 'Y'
+						)";
+	$appl_svs_img_params = array($p_appl_service_id, $p_image_id, $user_id, $user_id);
+	try {
+		$appl_svs_img_id = runInsert($dbh, $appl_svs_img_ins_qry, $appl_svs_img_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application service image creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_svs_img_id;
+}
+
+function update_appl_service_image($dbh, $p_appl_service_image_id, $p_image_id) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$updt_appl_svs_qry = "update application_service_images
+							 set image_id = ?,
+							 	updated_by = ?,
+							 	updated_date = NOW()
+						   where application_service_image_id = ?
+						";
+	$updt_appl_svs_params = array($p_image_id, $user_id, $p_appl_service_image_id);
+	try {
+		runUpdate($dbh, $updt_appl_svs_qry, $updt_appl_svs_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application service image update..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return 1;
+}
+
+function insert_application_service($dbh, $p_application_id, $p_service_id, $p_service_json, $p_service_status) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$appl_svs_ins_qry = "insert into application_services 
+						(application_service_id, application_id, service_id, service_options_json, service_status
+						, created_by, created_date, updated_by, updated_date, enabled
+						) values (
+						null, ?, ?, ?, ?,
+						?, NOW(), ?, NOW(), 'Y'
+						)";
+	$appl_svs_params = array($p_application_id, $p_service_id, $p_service_json, $p_service_status, $user_id, $user_id);
+	try {
+		$appl_service_id = runInsert($dbh, $appl_svs_ins_qry, $appl_svs_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application service creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_service_id;
+}
+
+function recursive_array_comp($a, $b) {
+
+	$a_keys = array_keys($a);
+	$b_keys = array_keys($b);
+
+	if(!empty(array_diff($a_keys, $b_keys))||!empty(array_diff($b_keys, $a_keys))) {
+		// the keys are diffrent so get out.
+		return false;
+	}
+	// keys are not different
+	foreach ($a as $a_key => $a_value) {
+		if(is_array($a_value) != is_array($b[$a_key])) {
+			// one of the values is an array and other is not
+			return false;
+		}
+		if(is_array($a_value)) {
+			// both are arrays.. follows from above, call recursive
+			if(!recursive_array_comp($a_value, $b[$a_key])) {
+				// recursive call returned false, get out..
+				return false;
+			}
+		} else {
+			// both are not arrays
+			if($a_value != $b[$a_key]) {
+				// values are not same, get out
+				return false;
+			}
+		}
+	}
+	// foreach done, we are still alive, so return true..
+	return true;
+}
+
+function delete_application($dbh, $p_application_id, $p_auto_state=true) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$del_appl_qry = "delete from lot_applications where lot_application_id = ?";
+	//$del_appl_img_qry = "delete from application_images where lot_applicaton_id = ?";
+	$del_appl_svs_qry = "delete from application_services where application_id = ?";
+	$del_appl_svs_img_qry = "delete from application_service_images where application_service_id in (select application_service_id from application_services where application_id = ?)";
+
+	$del_params = array($p_application_id);
+	// first is lock check, if locked, return the lock data
+	$lock_check_result = check_lock($dbh, 'LOT_APPLICATION', $p_application_id);
+	if($lock_check_result["locked"] && $lock_check_result["lock_data"]["locked_by_user_id"] != $user_id) {
+		return array("result" => false, "data" => $lock_check_result);
+	}
+
+	if($p_auto_state) $dbh->beginTransaction();
+
+	try {
+		$step = 1;
+		$sth = $dbh->prepare($del_appl_svs_img_qry);
+		$sth->execute(array_values($del_params));
+		$step = 2;
+		$sth = $dbh->prepare($del_appl_svs_qry);
+		$sth->execute(array_values($del_params));
+		$step = 3;
+		$sth = $dbh->prepare($del_appl_qry);
+		$sth->execute(array_values($del_params));
+	} catch (PDOException $ex) {
+		if($p_auto_state) $dbh->rollBack();
+		echo "Error in delete application data at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	/*
+	try {
+		$sth = $dbh->prepare($del_appl_img_qry);
+		$sth->execute(array_values($del_params));
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "Error in delete applicaiton image data, Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	*/
+	if($p_auto_state) $dbh->commit();
+	return array("result" => true, "data" => null);
+
+}
+
+function delete_appl_service($dbh, $p_appl_service_id, $p_auto_state=true) {
+	$del_appl_svs_qry = "delete from application_services where application_service_id = ?";
+	$del_appl_svs_img_qry = "delete from application_service_images where application_service_id = ?";
+
+	$del_params = array($p_appl_service_id);
+
+	if($p_auto_state) $dbh->beginTransaction();
+
+	try {
+		$step = 1;
+		$sth = $dbh->prepare($del_appl_svs_img_qry);
+		$sth->execute(array_values($del_params));
+		$step = 2;
+		$sth = $dbh->prepare($del_appl_svs_qry);
+		$sth->execute(array_values($del_params));
+	} catch (PDOException $ex) {
+		if($p_auto_state) $dbh->rollBack();
+		echo "Error in delete application service data at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if($p_auto_state) $dbh->commit();
+}
+
+function delete_appl_service_image($dbh, $p_appl_service_image_id) {
+	$del_appl_svs_img_qry = "delete from application_service_images where application_service_image_id = ?";
+
+	$del_params = array($p_appl_service_image_id);
+
+	try {
+		$step = 1;
+		$sth = $dbh->prepare($del_appl_svs_img_qry);
+		$sth->execute(array_values($del_params));
+	} catch (PDOException $ex) {
+		echo "Error in delete application service data at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+}
+/*
+function get_application_list($dbh, $p_agent_id, $p_start_at, $p_num_rows, $p_search_str, $p_filters) {
+	$appl_list_qry = "select date_format(convert_tz(al.travel_date, 'UTC', 'Asia/Kolkata'), '%b-%e-%Y') travel_date
+						, la.applicant_first_name, la.applicant_last_name, al.lot_comments, la.visa_disp_val
+						, date_format(convert_tz(la.created_date, 'UTC', 'Asia/Kolkata'), '%b-%e-%y') appl_created_date
+						, al.application_lot_code, la.application_passport_no, la.lot_id
+						, group_concat(rs.service_desc) service_desc, group_concat(concat(rs.service_desc, '-', aps.service_status)) services
+				from lot_applications la
+					left join application_lots al on la.lot_id = al.application_lot_id
+					left outer join application_services aps on la.lot_application_id = aps.application_id
+					left outer join rca_services rs on aps.service_id = rs.rca_service_id
+				where al.agent_id = ?
+				group by la.lot_application_id
+				limit ?,?
+				";
+	//$appl_list_params = array($p_agent_id, $p_start_at, $p_num_rows);
+	$appl_list_params = array($p_agent_id, (int)$p_start_at, (int)$p_num_rows);
+	try {
+		// to get rid of PDO binding as character erroring the limit clause
+		$dbh->setAttribute( PDO::ATTR_EMULATE_PREPARES, false );
+		$appl_list_res = runQueryAllRows($dbh, $appl_list_qry, $appl_list_params);
+	} catch (PDOException $ex) {
+		echo "Error in list query , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_list_res;
+}
+*/
+
+function get_application_list($dbh, $p_agent_id, $p_start_at, $p_num_rows, $p_search_str, $p_filters, $p_multi_sort_arr) {
+
+	$logging = false;
+	$appl_list_qry_p1 = "select * from 
+					(select travel_date, lot_application_id
+						, applicant_first_name, applicant_last_name
+						, lot_comments, application_lot_code, lot_id
+						, visa_disp_val, appl_created_date, application_passport_no
+						, group_concat(service_desc) service_desc, group_concat(services) services
+						, group_concat(
+							concat(application_passport_no, '~', lot_comments, '~', application_lot_code, '~', visa_disp_val, '~'
+								, applicant_first_name, '~', applicant_mid_name, '~', applicant_last_name, '~', ednrd_ref_no, '~'
+								, travel_date, '~', travel_date1, '~',travel_date2, '~'
+								, appl_created_date, '~', appl_created_date1, '~',appl_created_date2, '~'
+								, service_code, '~', service_name
+							) 
+						) search_str
+					from 
+					(select 
+						ifnull(cast(date_format(convert_tz(al.travel_date, 'UTC', 'Asia/Kolkata'), '%b-%e-%Y') as char), '') as travel_date
+						, ifnull(la.applicant_first_name, '') as applicant_first_name
+						, ifnull(la.applicant_last_name, '') as applicant_last_name
+						, ifnull(la.applicant_mid_name, '') as applicant_mid_name
+						, ifnull(al.lot_comments, '') as lot_comments
+						, ifnull(la.visa_disp_val, '') as visa_disp_val
+						, ifnull(cast(date_format(convert_tz(la.created_date, 'UTC', 'Asia/Kolkata'), '%b-%e-%y') as char), '') as appl_created_date
+						, ifnull(cast(date_format(convert_tz(la.created_date, 'UTC', 'Asia/Kolkata'), '%d-%M-%Y') as char), '') as appl_created_date1
+						, ifnull(cast(date_format(convert_tz(la.created_date, 'UTC', 'Asia/Kolkata'), '%d/%m/%Y') as char), '') as appl_created_date2
+						, al.application_lot_code
+						, ifnull(la.application_passport_no, '') as application_passport_no
+						, la.lot_application_id
+						, la.lot_id
+						, ifnull(cast(date_format(convert_tz(al.travel_date, 'UTC', 'Asia/Kolkata'), '%d-%M-%Y') as char), '') as travel_date1
+						, ifnull(cast(date_format(convert_tz(al.travel_date, 'UTC', 'Asia/Kolkata'), '%d/%m/%Y') as char), '') as travel_date2
+						, ifnull(la.ednrd_ref_no, '') as ednrd_ref_no
+						, rs.rca_service_id
+						, ifnull(rs.service_code, '') as service_code
+						, ifnull(rs.service_name, '') as service_name
+						, ifnull(rs.service_desc, '') as service_desc
+						, concat(rs.service_desc, '-', aps.service_status) services
+				from lot_applications la
+					left join application_lots al on la.lot_id = al.application_lot_id
+					left outer join application_services aps on la.lot_application_id = aps.application_id
+					left outer join rca_services rs on aps.service_id = rs.rca_service_id
+				where al.agent_id = ?
+				";
+	$appl_list_qry_p2 = " ) a
+						group by lot_application_id
+						) b
+						where 1 = 1 
+						";
+	$appl_list_params[] = $p_agent_id;
+	if(!empty($p_filters["travel_from_date"]) &&  !empty($p_filters["travel_to_date"])) {
+		$appl_list_qry_p1 .= " and al.travel_date between str_to_date(?, '%d/%m/%Y') and str_to_date(?, '%d/%m/%Y')";
+		$appl_list_params[] = $p_filters["travel_from_date"];
+		$appl_list_params[] = $p_filters["travel_to_date"];
+	}
+	if(!empty($p_filters["lot_date_from"]) &&  !empty($p_filters["lot_date_to"])) {
+		$appl_list_qry_p1 .= " and al.lot_date between str_to_date(?, '%d/%m/%Y') and str_to_date(?, '%d/%m/%Y')";
+		$appl_list_params[] = $p_filters["lot_date_from"];
+		$appl_list_params[] = $p_filters["lot_date_to"];
+	}
+
+	if(!empty($p_filters["service_id"])) {
+		//$appl_list_qry_p1 .= " and rs.rca_service_id = ? ";
+		$appl_list_qry_p1 .= " and exists (select 1 from application_services aps1 where aps.application_id = aps1.application_id and aps1.service_id = ?)";
+		$appl_list_params[] = $p_filters["service_id"];
+	}
+	if(!empty($p_filters["status"]) &&  ($p_filters["status"] != "ALL")) {
+		//$appl_list_qry_p1 .= " and aps.service_status = ? ";
+		$appl_list_qry_p1 .= " and exists (select 1 from application_services aps1 where aps.application_id = aps1.application_id and aps1.service_status = ?)";
+		$appl_list_params[] = $p_filters["status"];
+	}
+	// now concat appl_list_qry_p2
+	$appl_list_qry = $appl_list_qry_p1.$appl_list_qry_p2;
+
+	if(!empty($p_search_str)) {
+		$appl_list_qry .= " and search_str like ?";
+		$appl_list_params[] = "%".$p_search_str."%";
+	}
+
+	if(!empty($p_multi_sort_arr)) {
+		$order_by_str = "";
+		foreach ($p_multi_sort_arr as $key => $value) {
+			if(!empty($value["column"]) && !empty($value["direction"])) {
+				$order_by_str .= $value["column"]." ".$value["direction"].", ";
+			}
+		}
+		if(!empty($order_by_str)) {
+			$order_by_str = rtrim($order_by_str, ", ");
+			$appl_list_qry .= " order by ".$order_by_str;
+		}
+		
+	}
+
+	$appl_list_qry .= " limit ?,? ";
+	$appl_list_params[] = (int)$p_start_at;
+	$appl_list_params[] = (int)$p_num_rows;
+
+	if($logging) {
+		echo "query", "\n";
+		print_r($appl_list_qry);
+		echo "\n";
+		echo "params..";
+		print_r($appl_list_params);
+		echo "\n";
+	}
+	//$appl_list_params = array($p_agent_id, $p_start_at, $p_num_rows);
+	//$appl_list_params = array($p_agent_id, (int)$p_start_at, (int)$p_num_rows);
+	try {
+		// to get rid of PDO binding as character erroring the limit clause
+		$dbh->setAttribute( PDO::ATTR_EMULATE_PREPARES, false );
+		$appl_list_res = runQueryAllRows($dbh, $appl_list_qry, $appl_list_params);
+	} catch (PDOException $ex) {
+		echo "query string", "\n";
+		echo $appl_list_qry;
+		echo "\n";
+		echo "Error in list query , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_list_res;
+}
+
+function get_notifications_list($dbh, $p_agent_id, $p_user_id, $p_start_at, $p_num_rows) {
+	$ntf_qry = "select rca_notification_id, subject, body, agent_id, user_id
+						, generated_by, link_to_entity, link_to_entity_pk, expires_period_hours
+						, created_date, notification_icon_url
+						, case when time_diff_mins between 0 and 1 then concat(time_diff_mins, ' ', ' Minute ago')
+							when time_diff_mins between 1 and 59 then concat(time_diff_mins, ' ', ' Minutes ago')
+							when time_diff_mins > 59 and time_diff_hours between 0 and 1 then concat(time_diff_hours, ' ', ' Hour ago')
+							when time_diff_mins > 59 and time_diff_hours between 1 and 24 then concat(time_diff_hours, ' ', ' Hours ago')
+							when time_diff_hours > 24 and time_diff_days between 0 and 1 then concat(time_diff_days, ' ', ' Day ago')
+							else concat(time_diff_days, ' ', ' Days ago') end time_ago
+					from (
+					select rca_notification_id, subject, body, agent_id, user_id
+						, generated_by, link_to_entity, link_to_entity_pk, expires_period_hours
+						, created_date, '' notification_icon_url
+						, timediff(created_date, NOW()) time_diff
+						, timestampdiff(MINUTE, created_date, NOW()) time_diff_mins
+						, timestampdiff(HOUR, created_date, NOW()) time_diff_hours
+						, timestampdiff(DAY, created_date, NOW()) time_diff_days
+					from rca_notifications
+					where enabled = 'Y'
+					  and (? = -99 or agent_id = ?)
+					  and (? = -999 or user_id = ?)
+					order by created_date desc
+					limit ?, ?
+					) a
+				";
+	if(empty($p_agent_id)) {
+		$p_agent_id = -99;
+	}
+	if(empty($p_user_id)) {
+		$p_user_id = -999;
+	}
+	$ntf_params = array($p_agent_id, $p_agent_id, $p_user_id, $p_user_id, (int)$p_start_at, (int)$p_num_rows);
+	try {
+		// to get rid of PDO binding as character erroring the limit clause
+		$dbh->setAttribute( PDO::ATTR_EMULATE_PREPARES, false );
+		$ntf_res = runQueryAllRows($dbh, $ntf_qry, $ntf_params);
+	} catch (PDOException $ex) {
+		echo "query string", "\n";
+		echo $ntf_qry;
+		echo "\n";
+		echo "Error in list query , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $ntf_res;
+}
+
+function get_new_lot_code($dbh, $p_agent_id) {
+	if(empty($p_agent_id)) {
+		$agent_id = $_SESSION["agent_id"];
+	} else {
+		$agent_id = $p_agent_id;
+	}
+	if(empty($agent_id)) {
+		$lot_code_p1 = "RCA";
+		$agent_id = -99;
+	} else {
+		$agt_qry = "select agent_code from agents where agent_id = ?";
+		$agt_res = runQuerySingleRow($dbh, $agt_qry, array($agent_id));
+		$lot_code_p1 = $agt_res["agent_code"];
+		if(empty($agt_res)) {
+			return null;
+		}
+	}
+
+	$now = new DateTime(null, new DateTimeZone('Asia/Calcutta'));
+	$lot_code_p2 = $now->format('d-M-Y');
+	$agt_seq_qry = "select agent_lot_currval from agent_lot_seq where agent_id = ? for update";
+	$agt_params = array($agent_id);
+	try {
+		$agt_res = runQuerySingleRow($dbh, $agt_seq_qry, $agt_params);
+		if(empty($agt_res)) {
+	    	// insert
+			$agt_seq_ins = "insert into agent_lot_seq
+													(agent_lot_seq_id, agent_id, agent_lot_currval
+													) values (
+														null, ?, ?
+													) 
+	                                                ";
+			$lot_code_p3 = 1;
+			$agt_seq_ins_params = array($agent_id, $lot_code_p3);
+			$x = runInsert($dbh, $agt_seq_ins, $agt_seq_ins_params);
+		} else {
+			// update
+			$lot_code_p3 = $agt_res["agent_lot_currval"];
+			$lot_code_p3+=1;
+			$agt_seq_updt_qry = "update agent_lot_seq set agent_lot_currval = agent_lot_currval+1 where agent_id = ?";
+			$agt_seq_updt_params = array($agent_id);
+			runUpdate($dbh, $agt_seq_updt_qry, $agt_seq_updt_params);
+		}
+	} catch (PDOException $ex) {
+	        //e($r, "error: ".$ex->getMessage());
+		echo "error occurred in update agent_lot_seq, message..", $ex->getMessage();
+		//$dbh->rollBack();
+		throw $ex;
+	}
+
+	//$dbh->commit();
+	// now we are ready to return
+	return $lot_code_p1."-".$lot_code_p2."-".$lot_code_p3;
+	//$_SESSION['gen_lot_code'] = $r["lot-code"];
+	//ex($r);
+}
+function check_profession($dbh, $p_ednrd_prof_code) {
+	// use the ednrd code is 9900015 (STUDENT)
+	if(in_array($p_ednrd_prof_code, array('9900015'), true)) return "student";
+	return "other";
+}
+
+function construct_price_key_array($dbh, $p_service_appl_data_res){
+	$appl_svs_res = $p_service_appl_data_res;
+	$addn_data_arr["age-category"] = $appl_svs_res["age_category"];
+	$addn_data_arr["gender"] = $appl_svs_res["gender"];
+	$addn_data_arr["profession"] = $appl_svs_res["profession"];
+
+	$default_svs_price_key_json = $appl_svs_res["default_price_key_json"];
+	$service_json = $appl_svs_res["service_options_json"];
+	// now make this into array fill it up
+	$default_svs_price_key_arr = json_decode($default_svs_price_key_json, true);
+	$svs_json_arr = json_decode($service_json, true);
+	$user_params_arr = get_user_defn_params($dbh);
+	/*
+	echo "4. service default price key and services json array.. ", "\n";
+	print_r($default_svs_price_key_arr);
+	print_r($svs_json_arr);
+	echo "\n";
+	*/
+	foreach ($default_svs_price_key_arr as $key => $value) {
+		//echo "5. looping in default services docs array: $key, value..", $value, "\n";
+		if(empty($value) && !empty($svs_json_arr[$key])){
+			//echo "6. found an empty slot in default array.. fill it using user input: ", $svs_json_arr[$key], "\n";
+			$default_svs_price_key_arr[$key] = $svs_json_arr[$key];
+		}
+		// if the entry is still empty, check within additional data
+		// cannot check in $value
+		if(empty($default_svs_price_key_arr[$key]) && !empty($addn_data_arr[$key])){
+			//echo "6.1. found an empty slot in default array.. fill it using additonal input: ", $p_addn_data_arr[$key], "\n";
+			$default_svs_price_key_arr[$key] = $addn_data_arr[$key];
+		}
+		if(empty($default_svs_price_key_arr[$key]) && !empty($user_params_arr[$key])){
+			//echo "6.2. found an empty slot in default array.. fill it using user_params_arr input: ", $user_params_arr[$key], "\n";
+			$default_svs_price_key_arr[$key] = $user_params_arr[$key];
+		}
+	}
+	return $default_svs_price_key_arr;
+}
+
+function get_service_price($dbh, $p_appl_service_id) {
+	// get service json from service, age_category from appl
+	// construct key json
+	// get all rows from pricing (service pricing rows)
+	// recursive compare.. matching row gives price
+	try {
+		$step = "get_service_and_application_data";
+		$appl_svs_res = get_service_and_application_data($dbh, $p_appl_service_id);
+		$step = "construct_price_key_array";
+		$default_svs_price_key_arr = construct_price_key_array($dbh, $appl_svs_res);
+		// now we have a default docs array that should be complete, even if not we dont care as next step should catch it.
+		/*
+		echo "7. final filled default array..", "\n";
+		print_r($default_svs_price_key_arr);
+		echo "\n";
+		*/
+		$step = "select pricing rows";
+		$price_qry = "select rca_pricing_id, price_code, price_desc, product_flag, product_name, price_params_json, price
+							from rca_pricing
+							where enabled = 'Y'
+							  and product_flag = 'N'
+						";
+		$price_res = runQueryAllRows($dbh, $price_qry, array());
+
+		foreach ($price_res as $key => $price) {
+			$price_rule_arr = json_decode($price["price_params_json"], true);
+			/*
+			echo "8. going to match a and b.. ", "\n";
+			print_r($default_svs_docs_arr);
+			print_r($price);
+			echo "\n";
+			*/
+		 	if(recursive_array_comp($default_svs_price_key_arr, $price_rule_arr)) {
+		 		//echo "9. matched.. break now..", "\n";
+		 		return $price["price"];
+		 	}
+		 }
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "something went wrong in get_service_price at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	} 
+	return 0;
+}
+
+function fit_product_pricing($dbh, $p_application_id) {
+	// get all the service jsons
+	// get all the service default price jsons
+	// fill up the price jsons
+	// put them together
+	// look for price
+	$appl_svs_qry = "select aps.application_service_id, aps.application_id, aps.service_id, aps.service_options_json, aps.service_status
+							, la.age_category, la.gender, la.profession
+							, rs.rca_service_id, rs.service_code, rs.service_name, rs.service_desc, rs.default_price_key_json
+					  from application_services aps, lot_applications la, rca_services rs
+					 where aps.application_id = ?
+					   and la.lot_application_id = aps.application_id
+					   and aps.service_id = rs.rca_service_id
+					  ";
+	try {
+		$appl_svs_res = runQueryAllRows($dbh, $appl_svs_qry, array($p_application_id));
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "something went wrong in application service query Message: ", $ex->getMessage();
+		throw $ex;
+	} 
+	foreach ($appl_svs_res as $key => $appl_svs_res) {
+		//$step = "get_service_and_application_data";
+		//$appl_svs_res = get_service_and_application_data($dbh, $appl_service["application_service_id"]);
+		$step = "construct_price_key_array";
+		$default_svs_price_key_arr = construct_price_key_array($dbh, $appl_svs_res);
+		// 2 alternatives below.. try the second one..
+		/*
+		// copy into consolidated array
+		foreach ($default_svs_price_key_arr as $key => $value) {
+			if($key != "service-name") {
+				$appl_price_key_arr[$key] = $value;
+			}
+		}
+		*/
+		// alternatively
+		$appl_price_key_arr[] = $default_svs_price_key_arr;
+	}
+	try {
+		$step = "select pricing rows";
+		$price_qry = "select rca_pricing_id, price_code, price_desc, product_flag, product_name, price_params_json, price
+							from rca_pricing
+							where enabled = 'Y'
+							  and product_flag = 'Y'
+						";
+		$price_res = runQueryAllRows($dbh, $price_qry, array());
+
+		foreach ($price_res as $key => $price) {
+			$price_rule_arr = json_decode($price["price_params_json"], true);
+			/*
+			echo "8. going to match a and b.. ", "\n";
+			print_r($appl_price_key_arr);
+			print_r($price);
+			echo "\n";
+			*/
+		 	if(recursive_array_comp($appl_price_key_arr, $price_rule_arr)) {
+		 		//echo "9. matched.. break now..", "\n";
+		 		return array("result" => true, "product_name" => $price["product_name"], "price" => $price["price"], "pricing_id" => $price["rca_pricing_id"]);
+		 	}
+		 }
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "something went wrong in fit_product_pricing at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	} 
+	return array("result" => false, "product_name" => null, "price" => null);
+}
+
+function validate_appl_service($dbh, $p_appl_service_id) {
+	$doc_incomplete = false;
+	$stage = "";
+	$ret_arr_data = null;
+
+	$logging = false;
+	$t1=microtime(true);
+
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "1 - Val SVS: t2: $t2, time diff: $time_diff", "\n";
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$appl_qry = "select application_data 
+					from lot_applications 
+					where lot_application_id = (select application_id from application_services where application_service_id = ?)
+				";
+	try {
+		$step = "1- get application json";
+		$appl_res = runQuerySingleRow($dbh, $appl_qry, array($p_appl_service_id));
+
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "2 - Val SVS: t2: $t2, time diff: $time_diff", "\n";
+
+		$appl_form_json = $appl_res["application_data"];
+		$step = "2-  check_service_form_complete";
+		$svs_form_compl_res = check_service_form_complete($dbh, $p_appl_service_id, $appl_form_json);
+
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "3 - Val SVS: t2: $t2, time diff: $time_diff", "\n";
+
+		$anything_incomplete = false;
+		if($svs_form_compl_res["form_complete_status"]) {
+			$form_incomplete = false;
+			$step = "3-  check_service_required_docs";
+			$svs_doc_compl_res = check_service_required_docs($dbh, $p_appl_service_id);	
+
+			$t2=microtime(true);
+			$time_diff = $t2-$t1;
+			$t1=$t2;
+			if($logging) echo "4 - Val SVS: t2: $t2, time diff: $time_diff", "\n";
+
+			if(!$svs_doc_compl_res["result"]) {
+				$anything_incomplete = true;
+				$doc_incomplete = true;
+				$stage = "Document Validation";
+				// string -> array -> json : this is because form validation function returns json
+				$ret_arr_data = json_encode(explode(",", $svs_doc_compl_res["doc_list"]));
+			}
+		} else {
+			$anything_incomplete = true;
+			$form_incomplete = true;
+			$doc_incomplete = false;
+			$stage = "Form Validation";
+			$ret_arr_data = $svs_form_compl_res["mandatory_missing_fields"];
+		}
+		$service_price = null;
+		if($anything_incomplete) {
+			// set status INCOMPLETE
+			$service_status = "INCOMPLETE";
+		} else {
+			// set status COMPLETE
+			$service_status = "COMPLETE";
+			// call service price to do:
+			$service_price = get_service_price($dbh, $p_appl_service_id);
+
+			$t2=microtime(true);
+			$time_diff = $t2-$t1;
+			$t1=$t2;
+			if($logging) echo "5 - Val SVS: t2: $t2, time diff: $time_diff", "\n";
+		}
+		$step = "4-  update service record";
+		$ret_arr = array("result" => !$anything_incomplete, "stage" => $stage, "data" => $ret_arr_data);
+
+		// update the service record with correct status, last param is to tell it not to start transaction
+		update_appl_service($dbh, $p_appl_service_id, null, $service_status, null, $service_price, json_encode($ret_arr), false);
+		// - cant call this.. as this has transaction control.. did call with extra param.. 
+		// so uncomment below only if it does not work.
+		/*
+		$updt_appl_svs_qry = "update application_services
+								set service_status = ?
+								  , service_price = ?
+								  , updated_by = ?
+								  , updated_date = NOW()
+								where application_service_id = ?
+							";
+		$updt_appl_params = array($services_status, $service_price, $user_id, $p_appl_service_id);
+		runUpdate($dbh, $updt_appl_svs_qry, $updt_appl_svs_params);
+		*/
+
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "6 - Val SVS: t2: $t2, time diff: $time_diff", "\n";
+
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "Error in validate application service data at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	//$ret_arr_data = null;
+	
+	//return !$anything_incomplete;
+	return $ret_arr;
+}
+
+function validate_application($dbh, $p_application_id, $p_validate_full=false, $p_auto_state=true) {
+	$logging = false;
+	$t1=microtime(true);
+
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "1 - Val App: t2: $t2, time diff: $time_diff", "\n";
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+
+	$lock_check_result = check_lock($dbh, 'LOT_APPLICATION', $p_application_id);
+
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "2 - Val App: t2: $t2, time diff: $time_diff", "\n";
+
+	if($lock_check_result["locked"] && $lock_check_result["lock_data"]["locked_by_user_id"] != $user_id) {
+		array("result" => false, "services_status" => null);
+	}
+
+	if($p_auto_state) $dbh->beginTransaction();
+	$any_service_incomplete = false;
+	// get all services for application
+	$appl_svs_qry = "select application_service_id, service_id, service_options_json, service_status
+					   from application_services
+					  where application_id = ?
+					";
+	if(!$p_validate_full) {
+		$appl_svs_qry .= " and service_status in ('INCOMPLETE', 'NEW', 'UPDATED')";
+	}
+
+	try {
+		$step = "application service query";
+		$appl_svs_res = runQueryAllRows($dbh, $appl_svs_qry, array($p_application_id));
+
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "3 - Val App: t2: $t2, time diff: $time_diff", "\n";
+		
+		$svs_result_arr = null;
+		// call validate_appl_service in loop
+		foreach ($appl_svs_res as $key => $appl_svs) {
+			$svs_result_arr[$appl_svs["application_service_id"]] = 'COMPLETE';
+			$step = "validate application service";
+			$val_app_svs_res = validate_appl_service($dbh, $appl_svs["application_service_id"]);
+			if(!$val_app_svs_res["result"]) {
+				$any_service_incomplete = true;
+				$svs_result_arr[$appl_svs["application_service_id"]] = 'INCOMPLETE';
+			}
+		}
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "4 - Val App: t2: $t2, time diff: $time_diff", "\n";
+		// if all validate services are true call complete application
+		if(!$any_service_incomplete) {
+			// call fit_product_pricing($dbh, $p_application_id) 
+			//array("result" => true, "product_name" => $price["product_name"], "price" => $price["price"], "pricing_id" => $price["rca_pricing_id"]);
+			$step = "fit product pricing";
+			$product_price_res = fit_product_pricing($dbh, $p_application_id);
+			$appl_price = null;
+			$prod_pricing_id = null;
+			if($product_price_res["result"]) {
+				$appl_price = $product_price_res["price"];
+				$prod_pricing_id = $pricing_id["result"];
+			}
+
+			$step = "complete application";
+			update_application_complete($dbh, $p_application_id, $appl_price, $prod_pricing_id);
+
+			$t2=microtime(true);
+			$time_diff = $t2-$t1;
+			$t1=$t2;
+			if($logging) echo "5 - Val App: t2: $t2, time diff: $time_diff", "\n";
+		}
+
+	} catch (PDOException $ex) {
+		if($p_auto_state) $dbh->rollBack();
+		echo "Error in validate application at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+
+	if($p_auto_state) $dbh->commit();
+
+	return array("result" => !$any_service_incomplete, "services_status" => $svs_result_arr);
+}
+
+function validate_lot($dbh, $p_lot_id, $p_validate_full=false, $p_auto_state=true) {
+	$logging = false;
+	$t1=microtime(true);
+
+	$t2=microtime(true);
+	$time_diff = $t2-$t1;
+	$t1=$t2;
+	if($logging) echo "1 - Val lot: t2: $t2, time diff: $time_diff", "\n";
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+
+	if($p_auto_state) $dbh->beginTransaction();
+	$any_appl_incomplete = false;
+	// get all services for application
+	$lot_appl_qry = "select lot_application_id, application_status
+					   from lot_applications
+					  where lot_id = ?
+					";
+	if(!$p_validate_full) {
+		$lot_appl_qry .= " and application_status in ('NEW', 'INCOMPLETE', 'UPDATED')";
+	}
+
+	try {
+		$lot_appl_res = runQueryAllRows($dbh, $lot_appl_qry, array($p_lot_id));
+		$t2=microtime(true);
+		$time_diff = $t2-$t1;
+		$t1=$t2;
+		if($logging) echo "2 - Val lot: t2: $t2, time diff: $time_diff", "\n";
+		
+		// call validate_application in loop
+		foreach ($lot_appl_res as $key => $appl) {
+			$appl_result_arr[$appl["lot_application_id"]] = 'COMPLETE';
+			$appl_val_res = validate_application($dbh, $appl["lot_application_id"], $p_validate_full, false);
+			$t2=microtime(true);
+			$time_diff = $t2-$t1;
+			$t1=$t2;
+			if($logging) echo "3 - Val lot: t2: $t2, time diff: $time_diff", "\n";
+
+			if(!$appl_val_res["result"]) {
+				$any_appl_incomplete = true;
+				$appl_result_arr[$appl["lot_application_id"]] = 'INCOMPLETE';
+			}
+		}
+		// if all validate services are true call complete application
+		if(!$any_appl_incomplete) {
+			update_lot_complete($dbh, $p_lot_id);
+
+			$t2=microtime(true);
+			$time_diff = $t2-$t1;
+			$t1=$t2;
+			if($logging) echo "4 - Val lot: t2: $t2, time diff: $time_diff", "\n";
+		}
+
+	} catch (PDOException $ex) {
+		if($p_auto_state) $dbh->rollBack();
+		echo "Error in validate lot --, Message: ", $ex->getMessage();
+		throw $ex;
+	}
+
+	if($p_auto_state) $dbh->commit();
+
+	return array("result" => !$any_appl_incomplete, "applications_status" => $appl_result_arr);
+}
+
+function update_application_complete($dbh, $p_application_id, $p_price, $p_pricing_id) {
+	// invalidate is one by one, do complete all together
+	// applicaiton is complete if all service are complete
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$updt_appl_qry_p1 = "update lot_applications
+						set application_status = 'COMPLETE'
+							, updated_date = NOW()
+							, updated_by = ?
+					";
+	$updt_appl_params[] = $user_id;
+	$updt_appl_qry_p2 = " where lot_application_id = ?
+						  and not exists (select 1 from application_services where application_id = ? and service_status in ('INCOMPLETE', 'NEW', 'UPDATED'))
+					";
+
+	if(empty($p_price)) {
+		// sum up from services
+		$appl_updt_price_qry = " , price = (select sum(ifnull(service_price, 0)) from application_services aps where aps.application_id = ?)
+								 , product_pricing_id = null ";
+		$updt_appl_params[] = $p_application_id; 
+	} else {
+		$appl_updt_price_qry = " , price = ?
+								 , product_pricing_id = ?";
+		$updt_appl_params[] = $p_price;
+		$updt_appl_params[] = $p_pricing_id;
+	}
+	$updt_appl_qry = $updt_appl_qry_p1.$appl_updt_price_qry.$updt_appl_qry_p2;
+	$updt_appl_params[] = $p_application_id; 
+	$updt_appl_params[] = $p_application_id;
+	try {
+		runUpdate($dbh, $updt_appl_qry, $updt_appl_params);
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "Error in update application , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+}
+
+function update_lot_complete($dbh, $p_lot_id) {
+	// invalidate is one by one, do complete all together
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	$updt_lot_qry = "update application_lots
+						set lot_status = 'COMPLETE'
+							, updated_date = NOW()
+							, updated_by = ?
+							, lot_price = (select sum(ifnull(price, 0)) from lot_applications where lot_id = ?)
+						where application_lot_id = ?
+						  and not exists (select 1 from lot_applications where lot_id = ? and application_status in ('INCOMPLETE', 'NEW', 'UPDATED'))
+					";
+	try {
+		runUpdate($dbh, $updt_lot_qry, array($user_id, $p_lot_id, $p_lot_id, $p_lot_id));
+	} catch (PDOException $ex) {
+		//$dbh->rollBack();
+		echo "Error in update lot , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+}
+
+function invalidate_service($dbh, $p_appl_service_id, $p_auto_state=true) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+		// update application as INCOMPLETE
+	$updt_appl_qry = "update lot_applications
+						set application_status = 'INCOMPLETE'
+							, updated_date = NOW()
+							, updated_by = ?
+						where lot_application_id = (select application_id from application_services where application_service_id = ?)
+					";
+
+	// update lot as INCOMPLETE
+	$updt_lot_qry = "update application_lots
+						set lot_status = 'INCOMPLETE'
+							, updated_date = NOW()
+							, updated_by = ?
+						where application_lot_id = (select lot_id from lot_applications where lot_application_id = (select application_id from application_services where application_service_id = ?)
+													)
+					";
+
+	if($p_auto_state) $dbh->beginTransaction();
+	try {
+		// update service as INCOMPLETE, as of now p_validation_res is passed null because we havent done the revalidation
+		update_appl_service($dbh, $p_appl_service_id, null, 'INCOMPLETE', null, null, null, false);
+
+		runUpdate($dbh, $updt_appl_qry, array($user_id, $p_appl_service_id));
+
+		runUpdate($dbh, $updt_lot_qry, array($user_id, $p_appl_service_id));
+	} catch (PDOException $ex) {
+		if($p_auto_state) $dbh->rollBack();
+		echo "Error in delete applicaiton service data at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if($p_auto_state) $dbh->commit();
+}
+
+function submit_lot_applications($dbh, $p_lot_id, $p_auto_state=true) {
+
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+
+	$updt_appl_svs_qry = "update application_services 
+								set service_status = 'SUBMIT'
+									, updated_by = ?
+									, updated_date = NOW()
+								where application_id in (select lot_application_id from lot_applications where lot_id = ? and application_status = 'COMPLETE')
+								";
+	$updt_appl_svs_params = array($user_id, $p_lot_id);
+
+	$updt_appl_qry = "update lot_applications
+							set application_status = 'SUBMIT'
+								, updated_by = ?
+								, updated_date = NOW()
+						where lot_id = ? and application_status = 'COMPLETE'
+					";
+	$updt_appl_params = array($user_id, $p_lot_id);
+	$updt_lot_qry = "update application_lots
+						set lot_status = 'SUBMIT'
+							, updated_by = ?
+							, updated_date = NOW()
+						where application_lot_id = ?
+						  and not exists (select 1 from lot_applications where lot_id = ? and application_status in ('INCOMPLETE', 'NEW', 'UPDATED', 'COMPLETE'))
+					";
+	$updt_lot_params = array($user_id, $p_lot_id, $p_lot_id);
+
+	//from validate_lot return array("result" => !$any_appl_incomplete, "applications_status" => $appl_result_arr);
+	if($p_auto_state) $dbh->beginTransaction();
+	$val_lot_res = validate_lot($dbh, $p_lot_id, false, false);
+	// this would have completed some appls, services and there may be some more lying around in complete status. 
+	// All of them would become submitted now
+	try {
+		$step = "update application_services";
+		$num_svs_updated = runUpdate($dbh, $updt_appl_svs_qry, $updt_appl_svs_params);
+		$step = "update lot_applications";
+		$num_appl_updated = runUpdate($dbh, $updt_appl_qry, $updt_appl_params);
+		$step = "update application_lots";
+		$num_lot_updated = runUpdate($dbh, $updt_lot_qry, $updt_lot_params);
+	} catch (PDOException $ex) {
+		if($p_auto_state) $dbh->rollBack();
+		echo "Error in delete applicaiton service data at step: ".$step.", Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if($p_auto_state) $dbh->commit();
+	return array("services_submitted" => $num_svs_updated, "applications_submitted" => $num_appl_updated, "lot_submited" => $num_lot_updated);
+}
+
+function get_user_header_data($dbh, $p_user_id) {
+	if(empty($p_user_id)) {
+		$user_id = getUserId();
+	} else $user_id = $p_user_id;
+	if(empty($user_id)) return null;
+	$usr_qry = "select u.user_id, u.email, u.fname, u.mname, u.lname
+						, a.agent_id, a.agent_code, a.agent_name, a.txn_currency, a.profile_image
+						, a.address, a.city, a.state, a.country, a.phone1, a.appl_mode
+						, e.entity_code, e.entity_name, e.entity_desc
+						, t.territory_code, t.territory_name, t.territory_desc
+						, c.channel_code, c.channel_name, c.channel_desc
+				from user_info u
+					left outer join agents a on u.agent_id = a.agent_id
+					left outer join rca_entities e on a.entity_id = e.rca_entity_id
+					left outer join rca_territories t on a.territory_id = t.rca_territory_id
+					left outer join rca_channels c on a.channel_id = c.rca_channel_id
+				where u.user_id = ?
+		";
+	$user_res = runQuerySingleRow($dbh, $usr_qry, array($user_id));
+	return $user_res;
+}
+
+function get_rca_statuses($dbh, $p_status_entity_code, $p_processing_stage_code) {
+	$sts_qry = "select rca_status_id, status_entity_code, status_code
+						, rca_status_name, ta_status_name, roll_up_appl_status_id, roll_up_lot_status_id
+						, processing_stage_code, enabled
+					from rca_statuses
+				where enabled = 'Y'
+				";
+	$params = array();
+	if(!empty($p_status_entity_code)) {
+		$sts_qry .= " and status_entity_code = ?";
+		$params[] = $p_status_entity_code;
+	}
+	if(!empty($p_processing_stage_code)) {
+		$sts_qry .= " and processing_stage_code = ?";
+		$params[] = $p_processing_stage_code;
+	}
+	try {
+		$rca_status_res = runQueryAllRows($dbh, $sts_qry, $params);
+	} catch (PDOException $ex) {
+		echo "Error in getting statuses , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $rca_status_res;
+}
+function get_rca_status_transitions($dbh, $p_from_status_id) {
+	$sts_qry = "select rst.rca_status_transition_id, rst.from_status_id, rst.to_status_id, rst.display_seq, rst.enabled
+						, rs.rca_status_id, rs.status_entity_code, rs.status_code
+						, rs.rca_status_name, rs.ta_status_name, rs.roll_up_appl_status_id, rs.roll_up_lot_status_id
+						, rs.processing_stage_code, rs.enabled
+					from rca_status_transitions rst,
+						rca_statuses rs
+				where rst.enabled = 'Y'
+				  and rs.enabled = 'Y'
+				  and rst.to_status_id = rs.rca_status_id
+				";
+	$params = array();
+	if(!empty($p_from_status_id)) {
+		$sts_qry .= " and rst.from_status_id = ?";
+		$params[] = $p_from_status_id;
+	}
+	try {
+		$rca_status_res = runQueryAllRows($dbh, $sts_qry, $params);
+	} catch (PDOException $ex) {
+		echo "Error in getting statuses transitions, Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	$rca_sts_trans_arr = null;
+	foreach ($rca_status_res as $key => $status_rec) {
+		$rca_sts_trans_arr[$status_rec["from_status_id"]] = array("rca_status_transition_id" => $status_rec["rca_status_transition_id"], 
+																	"to_status_id" => $status_rec["to_status_id"], 
+																	"display_seq" => $status_rec["display_seq"], 
+																	"rca_status_id" => $status_rec["rca_status_id"],
+																	"status_entity_code" => $status_rec["status_entity_code"], 
+																	"status_code" => $status_rec["status_code"],
+																	"rca_status_name" => $status_rec["rca_status_name"], 
+																	"ta_status_name" => $status_rec["ta_status_name"], 
+																	"processing_stage_code" => $status_rec["processing_stage_code"]
+																	);
+	}
+	return $rca_sts_trans_arr;
+}
+
+/******* locking related functions start ******/
+
+function lock_data($dbh, $p_entity, $p_entity_pk, $p_user_id) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	if(empty($p_user_id)) $p_user_id = $user_id;
+	$ins_lock_qry = "insert into locked_entities
+						(locked_entity_id, entity_name, entity_pk_value, locked_by_user_id, locked_at
+							, last_accessed_at, status, unlocked_at, unlocked_by_user_id
+							, created_by, created_date, updated_by, updated_date, enabled
+						) values 
+						(null, ?, ?, ?, NOW()
+						, NOW(), 'LOCKED', null, null
+						, ?, NOW(), ?, NOW(), 'Y'
+						)
+					";
+	$ins_lock_params = array($p_entity, $p_entity_pk, $p_user_id, $user_id, $user_id);
+	try {
+		$locked_entity_id = runInsert($dbh, $ins_lock_qry, $ins_lock_params);
+	} catch (PDOException $ex) {
+		echo "Error in locking , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $locked_entity_id;
+}
+
+function unlock_data($dbh, $p_entity, $p_entity_pk, $p_user_id) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	if(empty($p_user_id)) $p_user_id = $user_id;
+	$updt_lock_qry = "update locked_entities
+						set status = 'UNLOCKED'
+							, unlocked_at = NOW()
+							, unlocked_by_user_id = ?
+							, updated_by = ?
+							, updated_date = NOW()
+						where entity_name = ? 
+							and entity_pk_value = ? 
+							and locked_by_user_id = ?
+					";
+	$updt_lock_params = array($p_user_id, $user_id, $p_entity, $p_entity_pk, $user_id);
+	try {
+		runUpdate($dbh, $updt_lock_qry, $updt_lock_params);
+	} catch (PDOException $ex) {
+		echo "Error in Un-locking , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return 1;
+}
+
+function unlock_by_lock_id($dbh, $p_locked_entity_id, $p_user_id) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	if(empty($p_user_id)) $p_user_id = $user_id;
+	$updt_lock_qry = "update locked_entities
+						set status = 'UNLOCKED'
+							, unlocked_at = NOW()
+							, unlocked_by_user_id = ?
+							, updated_by = ?
+							, updated_date = NOW()
+						where locked_entity_id = ?
+					";
+	$updt_lock_params = array($p_user_id, $user_id, $p_locked_entity_id);
+	try {
+		runUpdate($dbh, $updt_lock_qry, $updt_lock_params);
+	} catch (PDOException $ex) {
+		echo "Error in Un-locking by id , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return 1;
+}
+
+function check_lock($dbh, $p_entity, $p_entity_pk) {
+	$user_id = getUserId();
+	if(empty($user_id)) $user_id = -1;
+	if(empty($p_user_id)) $p_user_id = $user_id;
+	$lock_qry = "select le1.locked_entity_id, le1.locked_at, le1.last_accessed_at, le1.locked_by_user_id 
+						, u.email, u.user_id, u.fname, u.lname
+				  from locked_entities le1
+				  		left outer join user_info u on le1.locked_by_user_id = u.user_id
+				  where le1.entity_name = ?
+					and le1.entity_pk_value = ?
+				    and le1.locked_entity_id = (select max(locked_entity_id) from locked_entities le2 
+												where le1.entity_name = le2.entity_name
+												  and le1.entity_pk_value = le2.entity_pk_value
+												  and status = 'LOCKED'
+												)
+					";
+	$lock_params = array($p_entity, $p_entity_pk);
+	try {
+		$lock_res = runQuerySingleRow($dbh, $lock_qry, $lock_params);
+	} catch (PDOException $ex) {
+		echo "Error in lock check , Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	if(!empty($lock_res)) {
+		$ret_arr = array("locked" => true, "lock_data" => $lock_res);
+	} else {
+		$ret_arr = array("locked" => false, "lock_data" => null);
+	}
+	return $ret_arr;
+}
+/******* locking related functions end ******/
+// v3 code ends..
+
+function insert_lot($dbh, $p_lot_code, $p_agent_id, $p_visa_type_id, $p_application_count, $p_comments, $p_travel_date, $p_status) {
+
+	// to do:
+	// lot date as parameter along with date conversion util
+	// throw back if not all madatory params are sent in
+	// raise ex when id generated is < 1
+	$lot_price = 0;
+	$on_hold_status = false;
+	if(!empty($p_visa_type_id)){
+		/*
+		$visa_type_qry = "select rca_processing_fee from visa_types where visa_type_id = ?";
+		$visa_type_param = array($p_visa_type_id);
+		$visa_type_res = runQuerySingleRow($dbh, $visa_type_qry, $visa_type_param);
+		if(empty($visa_type_res)) {
+			null;
+			// raise exception.. to do
+		} else {
+			$visa_processing_fee = $visa_type_res["rca_processing_fee"];
+			$lot_price = (empty($p_application_count)?0:$p_application_count) * (empty($visa_processing_fee)?0:$visa_processing_fee);
+		}
+		*/
+		$lot_price = price_lot($dbh, $p_agent_id, $p_visa_type_id, $p_application_count);
+	}
+	if(empty($p_status)) $p_status = "NEW";
+	//if($lot_price <= 0) return -1;
+	// guru 12-Apr, temp fix
+	if($lot_price <= 0) $lot_price = 0;
+	if ($p_status == "SUBMIT") {
+		// find out if this lot can proceed..
+		list($total_credits, $avl_credits, $avl_bal, $txn_currency, $security_deposit) = get_agent_credit_vals($dbh, $p_agent_id);
+		// calc the balance if this lot goes through
+		$new_bal = $avl_bal - $lot_price;
+		// we still allow, just all statuses must be on hold.
+		//if($new_bal < -1*$total_credits) return -1;
+		if($new_bal < -1*$total_credits) $on_hold_status = true;
+	}
+	if($on_hold_status) $status = "ON_BALANCE_HOLD";
+	else $status = $p_status;
+
+	$lot_ins_qry = "insert into application_lots 
+						(application_lot_id, application_lot_code, agent_id, visa_type_id, 
+						lot_application_count, lot_comments, lot_date, lot_status, 
+						created_date, created_by, updated_date, updated_by, enabled,
+						lot_price, travel_date
+						) values (
+						null, ?, ?, ?,
+						?, ?, NOW(), ?,
+						NOW(), -1, NOW(), -1, 'Y',
+						?, ?
+						)";
+	$lot_params = array($p_lot_code, $p_agent_id, $p_visa_type_id,
+						$p_application_count, $p_comments, $status,
+						$lot_price, $p_travel_date
+						);
+	try {
+		$lot_id = runInsert($dbh, $lot_ins_qry, $lot_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with lot creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $lot_id;
+}
+
+function get_lot_data($dbh, $p_lot_id) {
+	$lot_qry = "select al.application_lot_id, al.application_lot_code, al.agent_id, al.visa_type_id, al.lot_application_count
+			 			, al.lot_comments, al.lot_date, al.lot_status, al.lot_price, al.travel_date
+						, vt.visa_type_code, vt.visa_type_name, vt.visa_type_desc
+						, a.agent_code, a.agent_name, a.agent_desc
+			  from application_lots al
+					left outer join visa_types vt on al.visa_type_id = vt.visa_type_id
+					left outer join agents a on al.agent_id = a.agent_id
+			  where application_lot_id = ?
+				";
+	$lot_params = array($p_lot_id);
+	$lot_res = runQuerySingleRow($dbh, $lot_qry, $lot_params);
+	return $lot_res;
+}
+
+function submit_lot($dbh, $p_lot_id) {
+
+	$lot_res = get_lot_data($dbh, $p_lot_id);
+	$agent_id = $lot_res["agent_id"];
+	$lot_price = $lot_res["lot_price"];
+
+	// find out if this lot can proceed..
+	list($total_credits, $avl_credits, $avl_bal, $txn_currency, $security_deposit) = get_agent_credit_vals($dbh, $agent_id);
+	// calc the balance if this lot goes through
+	$new_bal = $avl_bal - $lot_price;
+	// we still allow, just all statuses must be on hold.
+	//if($new_bal < -1*$total_credits) return -1;
+	if($new_bal < -1*$total_credits) $on_hold_status = true;
+	if($on_hold_status) $status = "ON_BALANCE_HOLD";
+	else $status = "SUBMIT";
+
+	$lot_updt_qry = "update application_lots set lot_status = ? where application_lot_id = ?";
+	$lot_updt_params = array($status, $p_lot_id);
+	try {
+		runUpdate($dbh, $lot_updt_qry, $lot_updt_params);
+	} catch (PDOException $ex) {
+		echo "Error in lot submission, Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return 0;
+}
+
+function price_lot($dbh, $p_agent_id, $p_visa_type_id, $p_application_count){
+	$agent_price_qry = "select agent_id, visa_type_id, price from agent_pricing 
+						where agent_id = ?
+						  and visa_type_id = ?
+						";
+	$agent_params = array($p_agent_id, $p_visa_type_id);
+	$agent_price_res = runQuerySingleRow($dbh, $agent_price_qry, $agent_params);
+	if(empty($agent_price_res)) {
+		return -1;
+		// raise exception.. to do
+	} else {
+		$visa_processing_fee = $agent_price_res["price"];
+		$lot_price = (empty($p_application_count)?0:$p_application_count) * (empty($visa_processing_fee)?0:$visa_processing_fee);
+	}
+	return $lot_price;	
+}
+
+function insert_lot_application($dbh
+								, $p_lot_id
+								, $p_passport_no
+								, $p_first_name
+								, $p_last_name
+								, $p_mid_name
+								, $p_visa_type_id
+								, $p_application_data
+								, $p_otb_flag
+								, $p_meet_assist_flag
+								, $p_spa_flag
+								, $p_lounge_flag
+								, $p_hotel_flag
+								) {
+
+	// to do:
+	$appl_ins_qry = "insert into lot_applications 
+						(lot_application_id, lot_id, application_passport_no, 
+						applicant_first_name, applicant_last_name, applicant_mid_name, 
+						application_visa_type_id, application_status,
+						created_date, created_by, updated_date, updated_by, enabled,
+						application_data,
+						otb_required_flag, meet_assist_flag, spa_flag, lounge_flag, hotel_flag
+						) values (
+						null, ?, ?,
+						?, ?, ?,
+						?, 'NEW',
+						NOW(), -1, NOW(), -1, 'Y',
+						?,
+						?, ?, ?, ?, ?
+						)";
+	$appl_params = array($p_lot_id, $p_passport_no, 
+						$p_first_name, $p_last_name, $p_mid_name,
+						$p_visa_type_id,
+						$p_application_data,
+						$p_otb_flag, $p_meet_assist_flag, $p_spa_flag, $p_lounge_flag, $p_hotel_flag
+						);
+	try {
+		$appl_id = runInsert($dbh, $appl_ins_qry, $appl_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with application creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_id;
+}
+
+function insert_image($dbh, $p_image_type_id, 
+					$p_orig_file_name, $p_orig_file_path, 
+					$p_cropped_file_name, $p_cropped_file_path, 
+					$p_final_file_name, $p_final_file_path,
+					$p_image_status, $p_image_ocr_pct
+					) {
+
+	// to do:
+	$img_ins_qry = "insert into images 
+						(image_id, image_type_id, image_orig_file_name, image_orig_file_path, 
+						image_cropped_file_name, image_cropped_file_path, 
+						image_final_file_name, image_final_file_path, 
+						image_status, image_ocr_pct, 
+						created_date, created_by, updated_date, updated_by, enabled
+						) values (
+						null, ?, ?, ?,
+						?, ?,
+						?, ?,
+						?, ?,
+						NOW(), -1, NOW(), -1, 'Y'
+						)";
+	$img_params = array($p_image_type_id, $p_orig_file_name, $p_orig_file_path,
+						$p_cropped_file_name, $p_cropped_file_path, 
+						$p_final_file_name, $p_final_file_path,
+						$p_image_status, $p_image_ocr_pct
+						);
+	try {
+		$img_id = runInsert($dbh, $img_ins_qry, $img_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with image creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $img_id;
+}
+
+function insert_lot_image($dbh, $p_lot_id, $p_image_id, $p_lot_image_status) {
+
+	// to do:
+	// lot date as parameter along with date conversion util
+	$lot_img_ins_qry = "insert into lot_images 
+						(lot_image_id, lot_id, image_id, lot_image_status, 
+						created_date, created_by, updated_date, updated_by, enabled
+						) values (
+						null, ?, ?, ?,
+						NOW(), -1, NOW(), -1, 'Y'
+						)";
+	$lot_img_params = array($p_lot_id, $p_image_id, $p_lot_image_status);
+	try {
+		$lot_img_id = runInsert($dbh, $lot_img_ins_qry, $lot_img_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with lot image creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $lot_img_id;
+}
+
+function insert_application_image($dbh, $p_application_id, $p_image_id) {
+
+	// to do:
+	$appl_img_ins_qry = "insert into application_images 
+						(application_image_id, lot_applicaton_id, image_id, 
+						created_date, created_by, updated_date, updated_by, enabled
+						) values (
+						null, ?, ?, 
+						NOW(), -1, NOW(), -1, 'Y'
+						)";
+	$appl_img_ins_params = array($p_application_id, $p_image_id);
+	try {
+		$appl_img_id = runInsert($dbh, $appl_img_ins_qry, $appl_img_ins_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong with lot image creation..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $appl_img_id;
+}
+
+function get_image_data($dbh, $p_image_id){
+	$img_qry = "select image_id, image_type_id, image_orig_file_name, image_orig_file_path, 
+					image_cropped_file_name, image_cropped_file_path, image_final_file_name, image_final_file_path, 
+					image_status, image_ocr_pct
+				from images
+				where image_id = ?
+				";
+	$img_params = array($p_image_id);
+	$img_res = runQuerySingleRow($dbh, $img_qry, $img_params);
+	return $img_res;
+}
+
+function update_image($dbh, $p_image_id, $p_image_type_id,
+						$p_orig_file_path, $p_orig_file_name,
+						$p_cropped_file_path, $p_cropped_file_name,
+						$p_final_file_path, $p_final_file_name,
+						$p_image_status, $p_image_ocr_pct,
+						$p_updated_by = -1
+						) {
+	// pass all data changed or not, into this function
+	$img_updt_qry = "update images
+					set image_type_id = ?
+						, image_orig_file_name = ?
+						, image_orig_file_path = ?
+						, image_cropped_file_name = ?
+						, image_cropped_file_path = ?
+						, image_final_file_name = ?
+						, image_final_file_path = ?
+						, image_status = ?
+						, image_ocr_pct = ?
+						, updated_date = NOW()
+						, updated_by = ?
+					where image_id = ?
+					";
+	$img_updt_params = array($p_image_type_id, 
+								$p_orig_file_name,
+								$p_orig_file_path,
+								$p_cropped_file_name,
+								$p_cropped_file_path,
+								$p_final_file_name,
+								$p_final_file_path,
+								$p_image_status,
+								$p_image_ocr_pct,
+								$p_updated_by,
+								$p_image_id
+							);
+	runUpdate($dbh, $img_updt_qry, $img_updt_params);
+}
+
+function update_final_image($dbh, $p_image_id, $p_final_file_name, $p_final_file_path) {
+	$image_data = get_image_data($dbh, $p_image_id);
+	/*
+	image_orig_file_name, image_orig_file_path, 
+					image_cropped_file_name, image_cropped_file_path, image_final_file_name, image_final_file_path, 
+					image_status, image_ocr_pct
+	*/
+	update_image($dbh, $p_image_id, $image_data["image_type_id"],
+						$image_data["image_orig_file_path"], $image_data["image_orig_file_name"],
+						$image_data["image_cropped_file_path"], $image_data["image_cropped_file_name"],
+						$p_final_file_path, $p_final_file_name,
+						$image_data["image_status"], $image_data["image_ocr_pct"]
+					);
+}
+
+
+function update_lot_application_image($dbh, $p_application_id, $p_image_file_name, $p_image_file_path, $p_image_id) {
+	// this is called during RCA processing of submitted lots
+	// new image (p_image_id null) -> create image entry, lot image entry, appl image entry - no can do.. too many things needed
+	// image edit -> update image, update application_image entry 
+	// (make sure update is within the lot) to take care of image shuffle
+
+	if(empty($p_image_id)) {
+		return 0;
+	} else {
+		// update the image data first
+		update_final_image($dbh, $p_image_id, $p_image_file_name, $p_image_file_path);
+
+		// now update the applcation_imaage table
+		$updt_appl_img_qry = "update application_images
+   								set lot_applicaton_id = ?
+ 							  where image_id = ? 
+   								and lot_applicaton_id in (select la.lot_application_id 
+															from lot_applications la
+																, lot_applications la1
+															where la1.lot_application_id = ?
+							  								  and la1.lot_id = la.lot_id
+														)
+							";
+
+		$updt_appl_img_params = array($p_application_id, $p_image_id, $p_application_id);
+		runUpdate($dbh, $updt_appl_img_qry, $updt_appl_img_params);
+	}
+	return 1;
+
+}
+
+function save_new_image_for_appl($dbh, $p_lot_id, $p_application_id, $p_image_type_id, $p_image_file_path, $p_image_file_name) {
+	// this is invoked when user adds a new image to an existing application
+	// steps 1. create image record, 2. create lot image, 3. create application image
+	//$dbh->beginTransaction();
+	try {
+		$image_id = insert_image($dbh, $p_image_type_id, 
+									$p_image_file_name, $p_image_file_path, 
+									$p_image_file_name, $p_image_file_path, 
+									$p_image_file_name, $p_image_file_path,
+									'NEW', null
+									);
+		$lot_img_id = insert_lot_image($dbh, $p_lot_id, $image_id, 'NEW');
+		$appl_img_id = insert_application_image($dbh, $p_application_id, $image_id);
+	} catch (PDOException $ex) {
+		echo "Save new image failed, Message: ", $ex->getMessage();
+		//$dbh->rollBack();
+		throw $ex;
+	}
+	//$dbh->commit();
+	return array($image_id, $lot_img_id, $appl_img_id);
+}
+
+
+function get_agent_credit_vals($dbh, $p_agent_id) {
+	$credit_limit = 0; 
+	$available_credit = 0;
+	// get the credit limit from agent profile
+	// get the available credit as credit limit + sum of all agent payments - sum of all lot prices
+/*
+	$agent_credit_qry = "select a.agent_id, a.credit_limit, ifnull(sum(al.lot_price), 0) total_spent, ifnull(sum(ap.payment_amount), 0) total_added
+						 from agents a 
+						 	left outer join application_lots al on al.agent_id = a.agent_id
+							left outer join agent_payments ap on ap.agent_id = a.agent_id
+						where a.agent_id = ?
+						";
+*/
+	$agent_credit_qry = "select a.agent_id, a.credit_limit, total_spent, total_added, security_deposit, txn_currency, agent_name
+							from agents a 
+						 		-- left outer join (select agent_id,  ifnull(sum(lot_price), 0) total_spent from application_lots where lot_status != 'NEW' group by agent_id) al on al.agent_id = a.agent_id
+                                left outer join (select al.agent_id, sum(ifnull(la.price, 0)) total_spent 
+													  from lot_applications la, application_lots al 
+													 where la.lot_id = al.application_lot_id
+													   and la.application_status not in ('INCOMPLETE', 'COMPLETE', 'NEW')
+													group by al.agent_id
+												) x on x.agent_id = a.agent_id
+								left outer join (select agent_id, ifnull(sum(payment_amount), 0) total_added from agent_payments group by agent_id) ap on ap.agent_id = a.agent_id
+							where a.agent_id = ?
+						";
+	// remember to add group by a.agent_id if ever done for all agents
+	$agent_credit_params = array($p_agent_id);
+	$agent_credit_res = runQuerySingleRow($dbh, $agent_credit_qry, $agent_credit_params);
+	$agent_name = $agent_credit_res["agent_name"];
+	/*
+	$credit_limit = number_format($agent_credit_res["credit_limit"],2);
+	// they dont want available credit, they want to show available balance
+	$available_credit = number_format($agent_credit_res["credit_limit"] + $agent_credit_res["total_added"] - $agent_credit_res["total_spent"],2);
+	$avl_bal = number_format($agent_credit_res["total_added"] - $agent_credit_res["total_spent"],2);
+	$txn_currency = $agent_credit_res["txn_currency"];
+	$security_deposit = number_format($agent_credit_res["security_deposit"] );
+	*/
+	$credit_limit = $agent_credit_res["credit_limit"];
+	// they dont want available credit, they want to show available balance
+	$available_credit = $agent_credit_res["credit_limit"] + $agent_credit_res["total_added"] - $agent_credit_res["total_spent"];
+	$avl_bal = $agent_credit_res["total_added"] - $agent_credit_res["total_spent"];
+	$txn_currency = $agent_credit_res["txn_currency"];
+	$security_deposit = $agent_credit_res["security_deposit"];
+
+
+	return array($credit_limit, $available_credit, $avl_bal, $txn_currency, $security_deposit, $agent_name);
+}
+
+
+function get_application_for_lot($dbh, $p_lot_id) {
+	$appl_qry = "select la.lot_application_id, la.lot_id, 
+						la.application_passport_no, la.applicant_first_name, la.applicant_last_name, la.applicant_mid_name, 
+						la.application_visa_type_id, la.application_status,
+						al.application_lot_code, al.lot_status,
+						la.otb_required_flag, la.meet_assist_flag, la.spa_flag, la.lounge_flag, la.hotel_flag,
+						la.ednrd_ref_no
+				   from lot_applications la, application_lots al
+				  where la.enabled = 'Y'
+                    and la.lot_id = al.application_lot_id
+  					and la.lot_id = ?
+  				";
+  	$appl_params = array($p_lot_id);
+  	$appl_res = runQueryAllRows($dbh, $appl_qry, $appl_params);
+  	return $appl_res;
+}
+
+function get_lot_images($dbh, $p_lot_id) {
+	$lot_img_qry = "select li.lot_image_id, li.lot_id, li.image_id,
+						i.image_orig_file_name, i.image_orig_file_path,
+						i.image_cropped_file_name, i.image_cropped_file_path,
+						i.image_final_file_name, i.image_final_file_path,
+						i.image_type_id,
+						al.application_lot_code lot_code ,
+						al.lot_comments, al.lot_application_count, al.lot_date, al.lot_price, al.lot_status
+				  from lot_images li, images i, application_lots al
+				 where li.image_id = i.image_id
+  					and li.lot_id = al.application_lot_id
+  					and al.application_lot_id = ?
+  				";
+  	$lot_img_params = array($p_lot_id);
+  	$lot_img_res = runQueryAllRows($dbh, $lot_img_qry, $lot_img_params);
+  	return $lot_img_res;
+}
+
+function get_lot_appl_images($dbh, $p_lot_id) {
+	$lot_appl_img_qry = "select li.lot_image_id, li.lot_id, li.image_id,
+						i.image_orig_file_name, i.image_orig_file_path,
+						i.image_cropped_file_name, i.image_cropped_file_path,
+						i.image_final_file_name, i.image_final_file_path,
+						i.image_type_id,
+						al.application_lot_code lot_code ,
+						al.lot_comments, al.lot_application_count, al.lot_date, al.lot_price, al.lot_status,
+                        la.lot_application_id, la.application_passport_no, la.applicant_first_name, 
+						la.applicant_last_name, la.application_visa_type_id
+				  from lot_images li, images i, application_lots al
+						, application_images ai
+                        , lot_applications la
+				 where li.image_id = i.image_id
+  					and li.lot_id = al.application_lot_id
+					and ai.lot_applicaton_id = la.lot_application_id
+                    and ai.image_id = i.image_id
+  					and al.application_lot_id = ?
+					order by la.lot_application_id
+  				";
+  	$lot_all_img_params = array($p_lot_id);
+  	$lot_appl_img_res = runQueryAllRows($dbh, $lot_appl_img_qry, $lot_all_img_params);
+  	return $lot_appl_img_res;
+}
+
+
+function get_application_images($dbh, $p_application_id) {
+	$appl_img_qry = "select ai.application_image_id, ai.lot_applicaton_id, 
+							i.image_type_id, 
+    						case i.image_type_id 
+    							when 'pp-p1' then 'Passport Front' 
+    							when 'pp-p2' then 'Passport Back' 
+    							when 'pic' then 'Photo' 
+    							else 'Additional Document' end document_type,
+    						i.image_final_file_path, i.image_final_file_name, i.image_id
+						  from application_images ai, images i
+						 where ai.image_id = i.image_id
+  							and ai.lot_applicaton_id = ?";
+  	$appl_img_params = array($p_application_id);
+  	$appl_img_res = runQueryAllRows($dbh, $appl_img_qry, $appl_img_params);
+  	return $appl_img_res;
+}
+
+function getval($arr, $key) {
+	
+	foreach($arr as $k=>$obj) {
+		if($key==$obj['name']) return $obj['value'];
+	}
+	return null;
+}
+
+function save_application_visa_files($dbh, $p_application_id, $p_file_visa_file_name, $p_appl_visa_file_path){
+	$updt_appl_qry = "update lot_applications
+						 set received_visa_file_name = ?,
+						 	 received_visa_file_path = ?
+					   where lot_application_id = ?
+					";
+	$updt_appl_params = array($p_file_visa_file_name, $p_appl_visa_file_path, $p_application_id);
+	try {
+		runUpdate($dbh, $updt_appl_qry, $updt_appl_params);
+	} catch (PDOException $ex) {
+		echo "Something went wrong in update of application..";
+		echo " Message: ", $ex->getMessage();
+		throw $ex;
+		
+	}
+
+
+}
+
+function get_application_visa_file($dbh, $p_application_id) {
+	$appl_qry = "select application_passport_no, applicant_first_name, applicant_last_name, application_visa_type_id, received_visa_file_name, received_visa_file_path
+					from lot_applications
+					where lot_application_id = ?
+				";
+	$appl_params = array($p_application_id);
+	$appl_res = runQuerySingleRow($dbh, $appl_qry, $appl_params);
+	return $appl_res;
+}
+
+function get_visa_types($dbh, $p_visa_type_id) {
+	$visa_qry = "select visa_type_id, visa_type_name, visa_type_code, rca_processing_fee, visa_type_desc
+					from visa_types
+					where 1 = 1
+					  and enabled = 'Y'";
+	if(!empty($p_visa_type_id)) {
+		$visa_qry .= " and visa_type_id = ?";
+		$visa_params = array($p_visa_type_id);
+	} else $visa_params = array();
+
+	$visa_res = runQueryAllRows($dbh, $visa_qry, $visa_params);
+	return $visa_res;
+}
+
+function update_application_status_old($dbh, $p_application_id, $p_application_status) {
+
+	$appl_data = get_lot_applicaton_data($dbh, $p_application_id);
+
+	if(empty($appl_data)) return false;
+/*
+application_passport_no, applicant_first_name, applicant_last_name, applicant_mid_name, 
+                                                application_visa_type_id, application_status, application_data
+*/
+	update_lot_application($dbh, $p_application_id,
+								$appl_data["application_passport_no"],
+								$appl_data["applicant_first_name"], $appl_data["applicant_last_name"], $appl_data["applicant_mid_name"],
+								$appl_data["application_visa_type_id"], $p_application_status, $appl_data["application_data"]
+							);
+	return true;
+}
+
+function get_visa_stats($dbh, $p_agent_id) {
+	$visa_stats_qry1 = "select count(*) total_visa,
+								sum(case status when 'Approved' then 1 else 0 end) total_approved,
+								sum(case status when 'Rejected' then 1 else 0 end) total_rejected,
+								sum(case status when 'Rejected' then 0 when 'Approved' then 0 else 1 end) total_pending 
+								from (
+								select la.lot_application_id, 
+										case la.application_status when 'GRANTED' then 'Approved' when 'REJECTED' then 'Rejected' else 'Pending' end status
+								  from application_lots al, lot_applications la
+								 where al.application_lot_id = la.lot_id
+						";
+	$visa_stats_qry2 = ") b";
+	
+	if(!empty($p_agent_id)) {
+		$visa_stats_qry = $visa_stats_qry1;
+		$visa_stats_qry .= " and agent_id = ?";
+		$visa_stats_qry .= $visa_stats_qry2;
+		$visa_stats_params = array($p_agent_id);
+	} else {
+		$visa_stats_qry = $visa_stats_qry1;
+		$visa_stats_qry .= $visa_stats_qry2;
+		$visa_stats_params = array();
+	}
+	try {
+		$visa_stats_res = runQuerySingleRow($dbh, $visa_stats_qry, $visa_stats_params);
+	} catch (PDOException $ex) {
+		echo "Error in Visa Statistics query, Message: ", $ex->getMessage();
+		throw $ex;
+	}
+	return $visa_stats_res;
+}
+
+function get_country_list($dbh) {
+	$ctry_qry = "select country_code, country_name from countries where enabled = 'Y' order by display_seq";
+	$ctry_res = runQueryAllRows($dbh, $ctry_qry, array());
+	return $ctry_res;
+}
+function get_display_country_list($dbh) {
+	$list = get_country_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["country_code"], $value["country_name"]);
+	}
+	return $res;
+}
+
+
+function get_religion_list($dbh) {
+	$rel_qry = "select ednrd_religion_code, ednrd_religion_name, ednrd_religion_desc from ednrd_religions where enabled = 'Y' order by display_seq";
+	$rel_res = runQueryAllRows($dbh, $rel_qry, array());
+	return $rel_res;
+}
+function get_display_religion_list($dbh) {
+	$list = get_religion_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["ednrd_religion_code"], $value["ednrd_religion_name"]);
+	}
+	return $res;
+}
+
+function get_marital_status_list($dbh) {
+	$marital_sts_qry = "select ednrd_marital_status_code, ednrd_marital_status_name, ednrd_marital_status_desc from ednrd_marital_status where enabled = 'Y' order by display_seq";
+	$marital_sts_res = runQueryAllRows($dbh, $marital_sts_qry, array());
+	return $marital_sts_res;
+}
+function get_display_marital_status_list($dbh) {
+	$list = get_marital_status_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["ednrd_marital_status_code"], $value["ednrd_marital_status_name"]);
+	}
+	return $res;
+}
+
+
+function get_language_list($dbh) {
+	$lang_qry = "select ednrd_lang_id, ednrd_lang_code, ednrd_lang_name, ednrd_lang_desc, display_seq from ednrd_languages where enabled = 'Y' order by display_seq";
+	$lang_res = runQueryAllRows($dbh, $lang_qry, array());
+	return $lang_res;
+}
+function get_display_language_list($dbh) {
+	$list = get_language_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["ednrd_lang_code"], $value["ednrd_lang_name"]);
+	}
+	return $res;
+}
+function get_airline_list($dbh) {
+	$qry = "select ednrd_airline_id, ednrd_airline_code, ednrd_airline_name, ednrd_airline_desc, display_seq from ednrd_airlines where enabled = 'Y' order by display_seq";
+	$res = runQueryAllRows($dbh, $qry, array());
+	return $res;
+}
+function get_display_airline_list($dbh) {
+	$airline_list = get_airline_list($dbh);
+	foreach ($airline_list as $key => $value) {
+		$res[] = array($value["ednrd_airline_code"], $value["ednrd_airline_name"]);
+	}
+	return $res;
+}
+
+function get_airport_list($dbh) {
+	$qry = "select ednrd_airport_id, ednrd_airport_code, ednrd_airport_name, ednrd_airport_desc, display_seq from ednrd_airports where enabled = 'Y' order by display_seq";
+	$res = runQueryAllRows($dbh, $qry, array());
+	return $res;
+}
+function get_display_airport_list($dbh) {
+	$list = get_airport_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["ednrd_airport_code"], $value["ednrd_airport_name"]);
+	}
+	return $res;
+}
+
+function get_profession_list($dbh) {
+	$qry = "select ednrd_profession_id, ednrd_profession_code, ednrd_profession_name, ednrd_profession_desc, display_seq from ednrd_professions where enabled = 'Y' order by display_seq";
+	$res = runQueryAllRows($dbh, $qry, array());
+	return $res;
+}
+function get_display_profession_list($dbh) {
+	$list = get_profession_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["ednrd_profession_code"], $value["ednrd_profession_name"]);
+	}
+	return $res;
+}
+
+function get_passport_types_list($dbh) {
+	$passport_type_qry = "select passport_type_code, passport_type_name, passport_type_desc from passport_types where enabled = 'Y' order by display_seq";
+	$passport_type_res = runQueryAllRows($dbh, $passport_type_qry, array());
+	return $passport_type_res;
+}
+function get_display_passport_types_list($dbh) {
+	$list = get_passport_types_list($dbh);
+	foreach ($list as $key => $value) {
+		$res[] = array($value["passport_type_code"], $value["passport_type_name"]);
+	}
+	return $res;
+}
+function update_lot_price($dbh, $p_lot_id) {
+	global $log_to_file;
+	global $logFileName;
+	if(empty($log_to_file)) $log_to_file = true;
+	if(empty($logFileName)) $logFileName = "../logs/update_lot_price-".time().".log";
+	if($log_to_file) file_put_contents($logFileName,'1: In update lot price, lot_id: '.$p_lot_id."\n",FILE_APPEND);
+	$appl_count_qry = "select count(*) application_count, ap.price*count(*) price
+								, lot_id, al.lot_application_count, al.lot_price
+								, al.agent_id, al.visa_type_id
+						 from application_lots al, 
+								lot_applications la,
+								agent_pricing ap
+						where al.application_lot_id = la.lot_id
+						  and al.agent_id = ap.agent_id
+						  and al.visa_type_id = ap.visa_type_id
+						  and la.lot_id = ?
+						";
+	$appl_count_params = array($p_lot_id);
+	try {
+		$lot_appl_count_res = runQuerySingleRow($dbh, $appl_count_qry, $appl_count_params);
+	} catch(PDOException $ex) {
+		echo "Error occurred in lot price query, Message: ", $ex->getMessage();
+		if($log_to_file) file_put_contents($logFileName,'2: error in application query: '.$p_lot_id."\n",FILE_APPEND);
+		throw $ex;
+	}
+	$new_appl_count = $lot_appl_count_res["application_count"];
+	$agent_id =  $lot_appl_count_res["agent_id"];
+	$visa_type_id =  $lot_appl_count_res["visa_type_id"];
+
+	if($log_to_file) file_put_contents($logFileName,'3: post select, application count: '.$new_appl_count."\n",FILE_APPEND);
+	if($log_to_file) file_put_contents($logFileName,'4: post select, current price: '.$lot_appl_count_res["price"]."\n",FILE_APPEND);
+
+	$new_lot_price = price_lot($dbh, $agent_id, $visa_type_id, $new_appl_count);
+	if($log_to_file) file_put_contents($logFileName,'5: Post pricing: '.$new_lot_price."\n",FILE_APPEND);
+	
+	$lot_updt_qry = "update application_lots set lot_application_count = ?, lot_price = ? where application_lot_id = ?";
+	$lot_updt_params = array($new_appl_count, $new_lot_price, $p_lot_id);
+	try {
+		runUpdate($dbh, $lot_updt_qry, $lot_updt_params);
+		if($log_to_file) file_put_contents($logFileName,'6: update lot done: '.$p_lot_id."\n",FILE_APPEND);
+	} catch(PDOException $ex) {
+		echo "Error occurred in lot price update, Message: ", $ex->getMessage();
+		if($log_to_file) file_put_contents($logFileName,'7. error in update lot query: '.$p_lot_id."\n",FILE_APPEND);
+		throw $ex;
+	}
+	return 0;
+}
+
+//Created By Dipali-27-02-2017
+function get_agent_list($dbh) {
+	$rel_qry = "select agent_id, agent_code, agent_name from agents where enabled = 'Y' order by agent_name";
+	$rel_res = runQueryAllRows($dbh, $rel_qry, array());
+	return $rel_res;
+}
+
+function get_agent_details($dbh, $agent_id) {    
+	$agent_details_qry = "select agent_id, agent_code, agent_name, agent_desc,credit_limit,txn_currency,security_deposit,address,city,pincode,state,country,phone1,phone2,contact_person_name,contact_email_id,registration_no, tax_no,bank_account_name,bank_branch,ifsc_code 
+                                        from agents 
+                                        where agent_id = ? ";
+        $agent_details_params = array($agent_id);
+	$agent_details_res = runQuerySingleRow($dbh, $agent_details_qry, $agent_details_params);
+	return $agent_details_res;
+}
+//end of code
+
+function get_visa_file($dbh, $p_application_id) {
+	$visa_qry = "select received_visa_file_name, received_visa_file_path from lot_applications where lot_application_id = ?";
+	$visa_res = runQuerySingleRow($dbh, $visa_qry, array($p_application_id));
+	if(empty($visa_res["received_visa_file_name"])) return false;
+	return $visa_res["received_visa_file_path"].$visa_res["received_visa_file_name"];
+}
+?>

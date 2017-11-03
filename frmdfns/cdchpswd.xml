@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>chpswd</name>
+	<action></action>
+	<method>post</method>
+	<legend>Change Password</legend>
+	<inputelements>
+		<element>
+			<type>password</type>
+			<name>cdchpswd_curpswd</name>
+			<label>Current Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>
+
+		<element>
+			<type>password</type>
+			<name>cdchpswd_pswd1</name>
+			<label>New Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+			<additional>Password Requirements: 8-20 chars, min 1 lowercase letter, 1 uppercase letter and 1 number</additional>
+		</element>
+		<element>
+			<type>password</type>
+			<name>cdchpswd_pswd2</name>
+			<label>Confirm New Password</label>
+			<size>large</size>
+			<mandatory>yes</mandatory>
+		</element>
+		
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>ChangePassword</name>
+			<label>Change Password</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cdchpswdhndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

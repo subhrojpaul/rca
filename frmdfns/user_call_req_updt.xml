@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>UserRequestUpload</name>
+	<action></action>
+	<hasfile>true</hasfile>
+	<method>post</method>
+	<legend>Update User Call Request</legend>
+	<inputelements>
+		<element>
+			<type>text</type>
+			<name>user_req_id</name>
+			<label>User Call Request Id</label>
+			<size>large</size>
+			<value></value>
+			<readonly>yes</readonly>
+		</element>
+		<element>
+			<type>text</type>
+			<name>user_id</name>
+			<label>User Id</label>
+			<size>large</size>
+			<value></value>
+			<readonly>yes</readonly>
+		</element>
+		<element>
+			<type>text</type>
+			<name>test_type</name>
+			<label>Test Type</label>
+			<size>large</size>
+			<value></value>
+			<readonly>yes</readonly>
+		</element>
+		<element>
+			<type>text</type>
+			<name>selected_date</name>
+			<label>Preferred Date</label>
+			<size>large</size>
+			<readonly>yes</readonly>
+			<!--<value></value>-->
+		</element>
+		<element>
+			<type>text</type>
+			<name>new_date</name>
+			<label>New Date</label>
+			<size>large</size>
+			<!-- <mandatory>yes</mandatory> -->
+			<placeholder>DD/MM/YYYY</placeholder>
+		</element>
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>selected_time</name>
+			<label>Time Slot</label>
+			<size>large</size>
+			<select_stmt>select time_slot_id, time_slot from sh.preferred_time_slots where 1=1 and enabled = 'Y' order by display_seq</select_stmt> 
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>status</name>
+			<label>Status</label>
+			<size>large</size>
+			<option><option_value>NEW</option_value><option_text>NEW</option_text></option>
+			<option><option_value>POSTPONED</option_value><option_text>POSTPONED</option_text></option>
+			<option><option_value>CLOSED</option_value><option_text>CLOSED</option_text></option>
+			<value></value>
+		</element>
+		<element>
+			<type>static_select_with_value</type>
+			<name>rating</name>
+			<label>Satisfaction Rating</label>
+			<size>large</size>
+			<option><option_value>1</option_value><option_text>1</option_text></option>
+			<option><option_value>2</option_value><option_text>2</option_text></option>
+			<option><option_value>3</option_value><option_text>3</option_text></option>
+			<option><option_value>4</option_value><option_text>4</option_text></option>
+			<option><option_value>5</option_value><option_text>5</option_text></option>
+			<value></value>
+		</element>
+		<!--<element>
+			<type>text</type>
+			<name>owner</name>
+			<label>Owner</label>
+			<size>large</size>
+			<value></value>
+		</element>-->
+		<element>
+			<type>dynamic_select_with_value</type>
+			<name>owner</name>
+			<label>Owner</label>
+			<size>large</size>
+			<select_stmt>select a.user_id,a.fname from sh.user_info a, sh.backoffice_users bf where bf.report_call_owner_flag = 'Y' and a.user_id = bf.linked_user_id</select_stmt> 
+		</element>
+		<element>
+			<type>textarea</type>
+			<name>cd_remark</name>
+			<label>Remark</label>
+			<size>xlarge</size>
+			<readonly>no</readonly>
+			<rows>4</rows>
+		</element>
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Submit</name>
+			<id>btn-submit</id>
+			<label>Submit</label>
+			<subtype>btn-primary</subtype>
+			<action></action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<id>btn-cancel</id>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action></action>
+		</button>		
+	</actionbuttons>
+</form>

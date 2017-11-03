@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="20px" viewBox="0 0 14 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 8</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="1.5" y="10" width="3" height="3" rx="1"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <rect id="path-3" x="5.5" y="10" width="3" height="3" rx="1"></rect>
+        <mask id="mask-4" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-3"></use>
+        </mask>
+        <rect id="path-5" x="9.5" y="10" width="3" height="3" rx="1"></rect>
+        <mask id="mask-6" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-5"></use>
+        </mask>
+        <rect id="path-7" x="1.5" y="14" width="3" height="3" rx="1"></rect>
+        <mask id="mask-8" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-7"></use>
+        </mask>
+        <rect id="path-9" x="5.5" y="14" width="3" height="3" rx="1"></rect>
+        <mask id="mask-10" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-9"></use>
+        </mask>
+        <rect id="path-11" x="9.5" y="14" width="3" height="3" rx="1"></rect>
+        <mask id="mask-12" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-11"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard-Select" transform="translate(-370.000000, -434.000000)">
+            <g id="noun_283136_cc" transform="translate(370.000000, 434.000000)">
+                <g id="Group-8">
+                    <g id="Group">
+                        <g>
+                            <path d="M12.7647059,0 L11.1176471,0 C10.8911765,0 10.7058824,0.185294118 10.7058824,0.411764706 C10.7058824,0.638235294 10.8911765,0.823529412 11.1176471,0.823529412 L12.7647059,0.823529412 C12.9911765,0.823529412 13.1764706,1.00882353 13.1764706,1.23529412 L13.1764706,18.5294118 C13.1764706,18.7558824 12.9911765,18.9411765 12.7647059,18.9411765 L1.23529412,18.9411765 C1.00882353,18.9411765 0.823529412,18.7558824 0.823529412,18.5294118 L0.823529412,1.23529412 C0.823529412,1.00882353 1.00882353,0.823529412 1.23529412,0.823529412 L9.05882353,0.823529412 C9.28529412,0.823529412 9.47058824,0.638235294 9.47058824,0.411764706 C9.47058824,0.185294118 9.28529412,0 9.05882353,0 L1.23529412,0 C0.555882353,0 0,0.555882353 0,1.23529412 L0,18.5294118 C0,19.2088235 0.555882353,19.7647059 1.23529412,19.7647059 L12.7647059,19.7647059 C13.4441176,19.7647059 14,19.2088235 14,18.5294118 L14,1.23529412 C14,0.555882353 13.4441176,0 12.7647059,0 Z" id="Shape" fill="#333333" fill-rule="nonzero"></path>
+                            <path d="M12.3529412,3.05882353 C12.3529412,2.83235294 12.1676471,2.64705882 11.9411765,2.64705882 L2.05882353,2.64705882 C1.83235294,2.64705882 1.64705882,2.83235294 1.64705882,3.05882353 L1.64705882,6.35294118 C1.64705882,6.57941176 1.83235294,6.76470588 2.05882353,6.76470588 C2.28529412,6.76470588 2.47058824,6.57941176 2.47058824,6.35294118 L2.47058824,3.47058824 L11.5294118,3.47058824 L11.5294118,7.17647059 L3.29411765,7.17647059 C3.06764706,7.17647059 2.88235294,7.36176471 2.88235294,7.58823529 C2.88235294,7.81470588 3.06764706,8 3.29411765,8 L11.9411765,8 C12.1676471,8 12.3529412,7.81470588 12.3529412,7.58823529 L12.3529412,3.05882353 Z" id="Shape" fill="#333333" fill-rule="nonzero"></path>
+                            <use id="Rectangle-28" stroke="#333333" mask="url(#mask-2)" stroke-width="1.2" fill="#FFFFFF" xlink:href="#path-1"></use>
+                            <use id="Rectangle-28" stroke="#333333" mask="url(#mask-4)" stroke-width="1.2" fill="#FFFFFF" xlink:href="#path-3"></use>
+                            <use id="Rectangle-28" stroke="#333333" mask="url(#mask-6)" stroke-width="1.2" fill="#FFFFFF" xlink:href="#path-5"></use>
+                            <use id="Rectangle-28" stroke="#333333" mask="url(#mask-8)" stroke-width="1.2" fill="#FFFFFF" xlink:href="#path-7"></use>
+                            <use id="Rectangle-28" stroke="#333333" mask="url(#mask-10)" stroke-width="1.2" fill="#FFFFFF" xlink:href="#path-9"></use>
+                            <use id="Rectangle-28" stroke="#333333" mask="url(#mask-12)" stroke-width="1.2" fill="#FFFFFF" xlink:href="#path-11"></use>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

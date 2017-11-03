@@ -1,0 +1,73 @@
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc9998_HelveticaNeueLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc999c_HelveticaNeueUltraLight.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc999b_HelveticaNeueUltraLightItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc99a0_HelveticaNeueThin.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc9999_HelveticaNeueMedium.ttf') format('truetype'), url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc999f_HelveticaNeue.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc9993_HelveticaNeueMediumItalic.ttf') format('truetype'), url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc99a2_HelveticaNeueItalic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc999e_HelveticaNeueBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc9996_HelveticaNeueCondensedBlack.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc9995_HelveticaNeueCondensedBold.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc9997_HelveticaNeueThinItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc999a_HelveticaNeueLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Helveticaneue';
+  src: url('https://daks2k3a4ib2z.cloudfront.net/5655cb844ab6677569dc9960/5655cb844ab6677569dc999d_HelveticaNeueBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+

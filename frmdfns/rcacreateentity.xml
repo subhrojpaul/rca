@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <name>createentity</name>
+    <action></action>
+    <method>post</method>
+    <legend>Create RCA Entity</legend>
+    <inputelements>
+        <element>
+            <type>text</type>
+            <name>entity_code</name>
+            <label>Entity code</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_name</name>
+            <label>Entity Name</label>
+            <size>large</size>
+            <additional></additional>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_desc</name>
+            <label>Description</label>
+            <size>large</size>
+        </element>
+        <element>            
+            <type>select</type>
+            <name>entity_txn_currency</name>
+            <label>Transaction Currency</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+            <option>INR</option>
+            <option>AED</option>
+            <option>USD</option>
+            <selectedoption>INR</selectedoption>
+        </element>
+        <element>
+            <type>dynamic_select_with_value</type>
+            <name>entity_territory_id</name>
+            <select_stmt>select null id, "Select Territory" value from dual union all select rca_territory_id id, territory_name value from rca_territories</select_stmt>
+            <label>Territory</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <selectedoption></selectedoption>
+        </element>        
+
+        <element>
+            <label>Address details</label>
+            <type>divider</type>
+        </element>
+
+        <element>
+            <type>text</type>
+            <name>entity_address_line1</name>
+            <label>Address</label>
+            <size>large</size>
+            <placeholder>Address Line 1...</placeholder>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_address_line2</name>
+            <size>large</size>
+            <placeholder>Address Line 2...</placeholder>
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_city</name>
+            <label>City</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_pincode</name>
+            <label>Pincode</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_state</name>
+            <label>State</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+        </element>
+        <element>
+            <type>select</type>
+            <name>entity_country</name>
+            <label>Country</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <option>India</option>
+            <option>UAE</option>                
+            <selectedoption>India</selectedoption>
+        </element>   
+        <element>
+            <type>text</type>
+            <name>entity_phone1</name>
+            <label>Phone1</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <placeholder>919898989898</placeholder>
+            <additional>Include ISD and STD codes, if applicable</additional>
+        </element>
+        <element>
+            <type>text</type>
+            <name>entity_phone2</name>
+            <label>Phone2</label>
+            <size>large</size>
+            <!--<mandatory>yes</mandatory>-->
+            <placeholder>919898989898</placeholder>
+            <additional>Include ISD and STD codes, if applicable</additional>
+        </element>
+    </inputelements>
+    <actionbuttons>
+        <button>
+            <type>submit</type>
+            <name>Submit</name>
+            <label>Submit</label>
+            <subtype>btn-primary</subtype>
+            <action>../handlers/rcaentitycreatehndlr.php</action>
+        </button>
+        <button>
+            <type>submit</type>
+            <name>Cancel</name>
+            <label>Cancel</label>
+            <subtype></subtype>
+            <action>../pages/dashboard.php</action>
+        </button>		
+    </actionbuttons>
+</form>

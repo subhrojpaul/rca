@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 45.2 (43514) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 9</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Create-NEwGroup" transform="translate(-708.000000, -437.000000)">
+            <g id="Group-9" transform="translate(708.000000, 437.000000)">
+                <circle id="Oval" fill="#78C623" cx="32" cy="32" r="32"></circle>
+                <g id="Tick" transform="translate(19.000000, 21.000000)" fill-rule="nonzero" fill="#FFFFFF">
+                    <g id="Group">
+                        <polygon id="Shape" points="9.34615385 15.9187617 3.11538462 10.0964353 0 13.5075985 6.23076923 19.329925 9.34615385 22.7410882 12.4615385 19.329925 27 3.41116323 23.8846154 0"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

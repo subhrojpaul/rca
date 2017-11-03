@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <name>createterritory</name>
+    <action></action>
+    <method>post</method>
+    <legend>Create Territory</legend>
+    <inputelements>
+        <element>
+            <type>text</type>
+            <name>territory_code</name>
+            <label>Territory code</label>
+            <size>large</size>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>territory_name</name>
+            <label>Territory Name</label>
+            <size>large</size>
+            <additional></additional>
+            <mandatory>yes</mandatory>
+        </element>
+        <element>
+            <type>text</type>
+            <name>territory_desc</name>
+            <label>Description</label>
+            <size>large</size>
+        </element>
+    </inputelements>
+    <actionbuttons>
+        <button>
+            <type>submit</type>
+            <name>Submit</name>
+            <label>Submit</label>
+            <subtype>btn-primary</subtype>
+            <action>../handlers/rcaterritorycreatehndlr.php</action>
+        </button>
+        <button>
+            <type>submit</type>
+            <name>Cancel</name>
+            <label>Cancel</label>
+            <subtype></subtype>
+            <action>../pages/dashboard.php</action>
+        </button>		
+    </actionbuttons>
+</form>

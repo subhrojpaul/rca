@@ -1,0 +1,83 @@
+/* mixin */
+/* exp
+input,  
+textarea {  
+    @include input-placeholder {
+        color: $greyc;
+    }
+} */
+.alert_modal {
+  top: 30%; }
+
+.alert_modal.modal-dialog {
+  overflow: hidden;
+  overflow-y: auto;
+  width: 380px; }
+
+.alert_modal .modal-body {
+  padding: 0 0; }
+
+.alert_modal .modal-content {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  background-color: #F3F5F7; }
+
+.modal-backdrop.in {
+  opacity: .7 !important; }
+
+._close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer; }
+
+@media (min-width: 768px) {
+  .alert_modal.modal-dialog {
+    width: 380px;
+    margin: 0 auto; } }
+
+._dark_title {
+  background-color: #6D9EE1;
+  color: #FFF;
+  text-align: center; }
+  ._dark_title p {
+    margin-bottom: 25px; }
+  ._dark_title .margin0 {
+    margin: 0; }
+  ._dark_title h2 {
+    padding: 0;
+    font-family: 'UbuntuB';
+    font-size: 45px;
+    margin: 0;
+    line-height: 20px; }
+    ._dark_title h2 .sm {
+      font-size: 10px; }
+
+._white_body {
+  background-color: #FFF;
+  text-align: center;
+  padding: 2em 1em; }
+  ._white_body p {
+    font-size: 12px;
+    color: #666; }
+  ._white_body .md_bold {
+    font-size: 14px;
+    color: #444;
+    font-family: 'UbuntuM'; }
+    ._white_body .md_bold.lg {
+      font-size: 16px; }
+  ._white_body .sm {
+    font-size: 13px;
+    font-family: 'UbuntuM'; }
+  ._white_body.lg {
+    padding: 4em 1em; }
+
+._muli_heading {
+  float: left;
+  width: 100%; }
+  ._muli_heading h2 {
+    float: left;
+    margin-left: 20px; }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="15px" height="21px" viewBox="0 0 15 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 12</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M9.59997559,21 L9.59997559,17.9973917 C9.59997559,16.8958578 8.70454509,16 7.59997559,16 C6.48770523,16 5.59997559,16.8942627 5.59997559,17.9973917 L5.59997559,21 L9.59997559,21 Z" id="path-1"></path>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="4" height="5" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <rect id="path-3" x="3" y="4" width="9" height="17" rx="1"></rect>
+        <mask id="mask-4" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="9" height="17" fill="white">
+            <use xlink:href="#path-3"></use>
+        </mask>
+        <rect id="path-5" x="0" y="20.2000122" width="15" height="0.800000012" rx="0.400000006"></rect>
+        <mask id="mask-6" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="15" height="0.800000012" fill="white">
+            <use xlink:href="#path-5"></use>
+        </mask>
+        <rect id="path-7" x="5" y="6" width="3" height="3"></rect>
+        <mask id="mask-8" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-7"></use>
+        </mask>
+        <rect id="path-9" x="7" y="10" width="3" height="3"></rect>
+        <mask id="mask-10" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="3" height="3" fill="white">
+            <use xlink:href="#path-9"></use>
+        </mask>
+        <path d="M5.62009838,2.60313381 C5.83018849,2.08797699 6.45181203,1.67035987 7.00201108,1.67035987 L8.05762248,1.67035987 C8.61074168,1.67035987 9.22924932,2.08749701 9.43953517,2.60313381 L9.90218489,3.73758592 C10.112275,4.25274274 9.83204525,4.67035987 9.27278582,4.67035987 L5.78684773,4.67035987 C5.22915012,4.67035987 4.94716282,4.25322272 5.15744866,3.73758592 L5.62009838,2.60313381 Z" id="path-11"></path>
+        <mask id="mask-12" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="4.88413236" height="3" fill="white">
+            <use xlink:href="#path-11"></use>
+        </mask>
+        <rect id="path-13" x="7.09997559" y="0" width="0.800000012" height="2" rx="0.400000006"></rect>
+        <mask id="mask-14" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="0.800000012" height="2" fill="white">
+            <use xlink:href="#path-13"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard" transform="translate(-1124.000000, -382.000000)" stroke="#CCCCCC">
+            <g id="Group-7" transform="translate(1064.000000, 54.000000)">
+                <g id="Group-12" transform="translate(60.000000, 328.000000)">
+                    <g id="Group-2">
+                        <use id="Combined-Shape" mask="url(#mask-2)" stroke-width="1.6" xlink:href="#path-1"></use>
+                        <use id="Rectangle-7" mask="url(#mask-4)" stroke-width="1.6" xlink:href="#path-3"></use>
+                        <use id="Rectangle-9" mask="url(#mask-6)" stroke-width="2" fill="#D8D8D8" xlink:href="#path-5"></use>
+                        <use id="Rectangle-14" mask="url(#mask-8)" stroke-width="1.6" xlink:href="#path-7"></use>
+                        <use id="Rectangle-14" mask="url(#mask-10)" stroke-width="1.6" xlink:href="#path-9"></use>
+                        <use id="Rectangle-12" mask="url(#mask-12)" stroke-width="1.6" xlink:href="#path-11"></use>
+                        <use id="Rectangle-15" mask="url(#mask-14)" stroke-width="2" xlink:href="#path-13"></use>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

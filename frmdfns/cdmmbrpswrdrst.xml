@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>forgotpwd</name>
+	<action></action>
+	<method>post</method>
+	<legend>Forgot CollegeDoors Password</legend>
+	<inputelements>
+		<element>
+			<name>email</name>
+			<label>eMail Address</label>
+			<type>email</type>
+			<size>medium</size>
+		</element>
+		<element>
+			<name>forgot_text</name>
+			<label>I am a CollegeDoors member. Please generate a new password and send it to my email address.</label>
+			<type>const_text</type>
+			<size>medium</size>
+		</element>
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Send</name>
+			<label>Send</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cdmmbrpwdhndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

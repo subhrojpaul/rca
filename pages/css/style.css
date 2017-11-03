@@ -1,0 +1,105 @@
+    
+ header {
+     width: 100%;
+     padding: 10px;
+     height: 66px;
+     display: block;
+     background: #fff;
+ }
+
+ .logoinner {
+     float: left;
+     padding: 0 10px;
+     margin-left: 20px;
+ }
+ .logoinner img{
+     width: 150px;
+     height: auto;
+ }
+  
+.welcometext{
+    text-transform: uppercase;
+    float: right;
+    line-height: 34px;
+    margin-top: 6px;                
+}
+
+.welcometext div{
+    float: left;
+    margin-right: 5px;
+}
+
+.ulred {
+  background: #ed1c24;
+  height: 52px;
+}
+
+.ulred ul li{
+  width: 19%;
+  text-align: center;
+  height: 20px;
+  margin-top: 15px;
+}
+   
+.ulred ul li a{
+  color:#fff;
+}     
+
+.glyphicon.glyphicon-one-fine-dot {
+    margin-bottom: -.8em;
+    overflow: hidden;
+}
+.glyphicon.glyphicon-one-fine-dot:before {
+    content:"\25cf";
+    font-size: 3em;
+}
+
+.contentdiv {
+    background-color:#f6f6f6;
+    clear: both;
+}
+
+.headingdiv {
+    clear: both;
+    border: 1px solid #ccc;
+    padding: 20px;
+}
+
+.tableheading {
+    height: 35px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+           
+.tableheading div{
+    font-weight: bold;
+    float: left;
+    width: 20%;
+    border: 1px solid #ccc;
+    text-align: center;
+    padding-top: 7px;
+    padding-bottom: 7px;      
+}
+
+.tabledata div{
+    font-weight: bold;
+    float: left;
+    width: 20%;
+    border: 1px solid #ccc;
+    text-align: center;
+    padding-top: 7px;
+    padding-bottom: 7px;  
+    height: 35px; 
+    font-weight: normal;   
+}
+
+
+.viewbtn {
+    color: #fff;
+    background-color: #000;
+    border-color: #2e6da4;
+    height: 23px;
+    padding-top: 0px;
+    border-radius: 14px;
+}
+            

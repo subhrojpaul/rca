@@ -1,0 +1,604 @@
+jQuery.fn.extend({
+  da: function(a,v) {
+    return this.each(function() {
+      $(this).attr('data-'+a,v).data(a,v);
+    });
+  },
+});
+var ld,la,ls,lp,apps={},ca;
+var activeServiceId=0;
+//var m_services={};
+var uploadQueue={qOrder:[],qElements:{},qCounter:0,uploading:false};
+
+function getLotDetails(){
+	ajax({method:'ajax_get_lot_appl_data',lot_id:408},renderLotDetails);
+}
+function renderLotDetails(response){
+	ld=response.data.lot_dtls.lot_data;
+	la=response.data.lot_dtls.lot_applications;
+	ls=response.data.lot_dtls.lot_services;
+	lp=response.data.lot_dtls.appl_pp_pics;
+
+	$('.travel_box').html(tbHtml());
+
+	$ab=$('._app_box');
+	var first=true;
+	la.forEach(function(a){
+		var html=appHtml(first,a.lot_application_id,a.application_passport_no,a.applicant_first_name+' '+a.applicant_last_name,a.application_status);
+		first=false;
+		$ab.append(html);
+	});
+	$('._app_row').on('click',appRowClick);
+	$('._app_row ._multi_check').on('click',mutliCheckClick);
+	getAppDetail();
+}
+function mutliCheckClick(){
+	$cb=$(this).find('input[type="checkbox"]');
+	$cb.prop('checked',!$cb.prop('checked'));
+	return false;
+}
+function travelDate(str) {
+	mon={'01':'JAN','02':'FEB','03':'MAR','04':'APR','05':'MAY','06':'JUN','07':'JUL','08':'AUG','09':'SEP','10':'OCT','11':'NOV','12':'DEC'};
+	return mon[str.substring(5,7)]+'<h2>'+str.substring(8,10)+'</h2>'+str.substring(0,4);
+}
+function visatype(vi) {
+	return null;
+}
+
+function tbHtml(){
+	var html='';
+	html+='<div class="_applicant_grp">';
+    html+='    <img src="svg/applicant_group.svg" alt="" title="" width="40"  />';
+    html+='    <div class="grp_info"><p>REFERENCE NO</p><span>'+ld.application_lot_code+'</span></div>';
+    html+='    <div class="grp_info"><p>GROUP NAME</p><span>'+ld.lot_comments+'</span></div>';
+    html+='    <div class="grp_info travel_pull"><p>TRAVEL DATE</p><div class="travel_date">'+travelDate(ld.travel_date)+'</div></div>';
+    html+='</div>';
+    html+='<div class="_applicant_grp">';
+    html+='    <img src="svg/edit_circle.svg" alt="" title="" width="40" />';
+    html+='    <div class="grp_info"><p>VISA TYPE</p><span>'+visatype(ld.visa_type_id)+'</span></div>';
+    html+='    <div class="grp_info"><p>ADULT </p><span>'+Number(ld.lot_application_count)+'</span></div>';
+    html+='    <div class="grp_info"><p>CHILD</p><span>'+0+'</span></div>';
+    html+='    <div class="grp_info"><p>PAX</p><span>'+Number(ld.lot_application_count)+'</span></div>';
+    html+='</div>';
+    return html;
+
+}
+function appHtml(first,laid,ppnpo,name,stat){
+	var html='';
+	html+=	'<div class="_app_row'+(first?' active':'')+'" data-laid="'+laid+'"">';
+	html+=		'<div class="_multi_check">';
+	html+=			'<input type="checkbox" name="check" id="app'+laid+'">';
+	html+=			'<label for="'+laid+'"></label>';
+	html+=		'</div>';
+	html+=		'<div class="_app_img"><img src="'+lp[laid].image_url+'" data-blank-src="svg/applicant_i.svg" /></div>';
+	html+=		'<div class="_app_text">';
+	html+=			'<span>'+ppnpo+'</span>';
+	html+=			'<p>'+name+'</p>';
+	html+=		'</div>';
+	html+=		'<span class="status '+((stat=='COMPLETED'||stat=='INCOMPLETE')?stat.toLowerCase():'')+'">'+stat+'</span>';
+	//html+=		'<div class="_ribbon"></div>';
+	html+=	'</div>';
+	return html;
+}
+function getAppDetail(laid){
+	laid=laid||$('._app_row.active').data('laid');
+	if (apps.hasOwnProperty(laid)) {
+		ca=apps[laid];
+		renderAppDetails();
+	} else {
+		ajax({method:'ajax_get_application_data',app_id:laid},getAppDetailSuccess);
+	}
+}
+function getAppDetailSuccess(response) {
+	apps[response.data.app_id]=response.data.app_dtls;
+	ca=apps[response.data.app_id];
+	renderAppDetails();
+}
+function renderAppDetails() {
+	renderApp();
+}
+function renderApp(){
+	var d=ca.application_data;
+	var html='';
+    html+='<img src="svg/applicant_i.svg" alt="" title="" width="25" style="float: left;margin-top: 3px;">';
+    html+='<div class="app_info"><p>APPLICANT NO.</p><span>'+d.applicant_seq_no+'</span></div>';
+    html+='<div class="app_info"><p>APPLICANT NAME</p><span>'+d.applicant_first_name+' '+d.applicant_last_name+'</span></div>';
+    html+='<div class="app_info"><p>PASSPORT NO.</p><span>'+d.application_passport_no+'</span></div>';
+    html+='<div class="clearfix"></div>';
+    var s=ca.application_services;
+    var thtml='';
+    var first=true;
+    $('.tabs-service li').hide();
+    $('.service_dropdown ._service_col').show();
+    s.forEach(function(s1){
+    	console.log(s1);
+    	html+='<div class="status_box"><span class="active">'+m_services[s1.service_id].service_name+'</span> '+s1.service_status+'</div>';
+    	$('.tabs-service a[href="#tab-'+s1.service_id+'"]').parent().data('service-id',s1.service_id).data('app-service-id',s1.application_service_id);
+    	$('.tabs-service a[href="#tab-'+s1.service_id+'"]').parent().show();
+    	$('.service_dropdown ._service_col[data-service-id="'+s1.service_id+'"]').hide();
+    	$('.col-md-12._service_box').show();
+    	if (first) $('.tabs-service li[data-service-id="'+s1.service_id+'"] a').click();
+		first=false;
+	});
+	if (s.length==$('.service_dropdown ._service_col').length) $('#add_service').hide();
+	else $('#add_service').show();
+
+	$('._applicant').html(html);
+	$('._app_heading_left').html('<p>'+ld.lot_comments+' <i class="fa fa-angle-right _angle_right"></i> <span class=""> APPLICANT '+d.applicant_seq_no+'</span></p>');
+
+	s.forEach(function(s1){
+    	serv_optn=JSON.parse(m_services[s1.service_id].service_options_json);
+    	serv_optn=serv_optn[Object.keys(serv_optn)[0]];
+    	keys = Object.keys(serv_optn);
+    	var $t=$('#tab-'+s1.service_id);
+    	$t.data('app-service-id',s1.application_service_id);
+    	var thtml="";
+		keys.forEach(function(k){
+			so=serv_optn[k];
+			if (so.type=='dropdown') {
+				thtml+='<div class="_select" style="margin-bottom:10px;">';
+				thtml+='	<p>'+m_services[s1.service_id].service_name+' Type</p>';
+				thtml+='	<select name="'+k+'" data-priced="'+so.priced+'">';
+				//thtml+=		'<option>Select '+k.replace('-',' ').replace('_',' ')+'</option>';
+				thtml+='		<option>Select</option>';
+				so.values.forEach(function(sov){
+					var sojson=JSON.parse(s1.service_options_json);
+					sel=(sojson!=null && sojson[k]==sov.code)?' selected':'';
+					thtml+='	<option value="'+sov.code+'"'+sel+'>'+sov.name+'</option>';
+				});
+				thtml+='	</select>';
+	            thtml+='	<i class="fa fa-angle-down _angle"></i>';
+				thtml+='</div>';
+			}
+			if (so.type=='checkbox') {
+				thtml+='<div class="__control">';
+				thtml+='	<div class="_multi_check">';
+				thtml+='		<input name="'+k+'" id="'+k+'" type="checkbox"  data-priced="'+so.priced+'">';
+				thtml+='		<label for="'+k+'">'+so.name+'</label>';
+				thtml+='	</div>';
+				thtml+='</div>';
+			}
+		});
+		thtml+='<button type="button" class="__btn_sm" onclick="applyServiceChanges($(this))">Apply Changes</button>';
+		
+		$t.find('._service_option_row').html(thtml);
+		var asi=ca.application_service_images[s1.application_service_id];
+		$t.find('._document_row').html('');
+		if (asi) asi.forEach(function(i){
+
+			//d=$t.find('._document_col[data-image-type-code="'+i.image_type_code+'"]');
+			//if (i.image_orig_file_name!=null) d.find('.preview img').attr('src',i.image_orig_file_path+i.image_orig_file_name).show();
+			//d.show();
+			var img_url='';
+			if (i.show_blank_image_flag=="Y") img_url='';
+			else if(i.image_orig_file_name!=null) img_url=i.image_orig_file_path+i.image_orig_file_name;
+			$t.find('._document_row').append(docHtml(s1.application_service_id,i.image_type_code,img_url,i.application_service_image_id));
+		});
+		$t.find('._document_row').append(formDocHtml(m_services[s1.service_id].service_name,s1.service_id,s1.application_service_id));
+		$t.find('._document_row').append(docHtml(s1.application_service_id,'OTHER',''));
+    });
+    initFileEvents();
+    if(activeServiceId!=0) {
+		$('.tabs-service li[data-service-id="'+activeServiceId+'"] a').click();
+		activeServiceId=0;
+	}
+}
+function applyServiceChanges($t){
+	if (!$t.hasClass('__btn_active')) return;
+	$s=$t.closest('._service_option_row');
+	var selServ={};
+	activeServiceId=$t.closest('.tab-content').data('service-id');
+	//selServ["rca-service-id"]=service_id;
+	$s.find('select').each(function(){
+		if ($(this).data('priced')=="Yes") selServ[$(this).attr("name")]=$(this).val();
+	});
+	$s.find('input[type="checkbox"]').each(function(){
+		if ($(this).data('priced')=="Yes") selServ[$(this).attr("name")]=$(this).prop('checked')?'Yes':'No';
+	});
+	ajax({method:'ajax_update_appl_service',app_service_id:$s.parent().data('app-service-id'),service_json:JSON.stringify(selServ)},applyServiceChangesSuccess);
+}
+function applyServiceChangesSuccess(){
+	var app_id = $('._app_row.active').data('laid');
+	ca=null;
+	delete apps[app_id];
+	$('._app_row.active').click();
+	console.log(activeServiceId);
+}
+function initServices(){
+	var serviceKeys=Object.keys(m_services);
+	console.log(serviceKeys);
+	serviceKeys.forEach(function(k){
+		$('.tabs-service li[data-service-id="0"]').first().da('service-id',k).find('a').html(m_services[k].service_name);
+		$('.tabs_body .tab-content[data-service-id="0"]').first().da('service-id',k);
+		var $s=$('._service_col[data-service-id="0"]').first().da('service-id',k);
+		$s.find('img').attr('src','svg/'+m_services[k].service_code.toLowerCase()+'_xs.svg');  
+		$s.find('h4').html(m_services[k].service_name);
+	});
+	$('.tabs-service li[data-service-id="0"], .tabs_body .tab-content[data-service-id="0"], ._service_col[data-service-id="0"]').remove();
+}
+
+function showForm($t){
+	$('#form_modal').modal('show');
+	console.log($t);
+	var sid=$t.data('app-service-id'),app_id=$('._app_row.active').data('laid');
+	var formdef=JSON.parse(apps[app_id].application_service_form_defns[sid].form_defn);
+	console.log(formdef);
+	showImages($t);
+	renderForm(formdef);
+}
+function showImages($t) {
+	var $ic=$('#form_modal ._modal_form_img_list');
+	$ic.html('');
+	$t.closest('._document_row').find('._document_col .preview img').each(function(){
+		var $i=$(this);
+		console.log($i);
+		if ($i.attr('src')!='') $ic.append($i.clone().css({height:'100px',width:'auto'}));
+	});
+	setImg($ic.find('img').first());
+	$ic.find('img').click(function(){setImg($(this))});
+}
+function setImg(img) {
+	$i=$('#form_modal ._modal_form_img_view img');
+	$i.css('width','').css('height','').attr('src',img.attr('src'));
+	if ($i.width()>$i.height()) $i.css('width','100%').css('height','auto');
+	else $i.css('height','100%').css('width','auto');
+}
+function renderForm(formdef) {
+	var $fc=$('#form_modal ._form_col');
+	var fd=JSON.parse(ca.application_data.application_data);
+	if (fd==null) fd={};
+	console.log(fd);
+	$fc.html('');
+	formdef.field_list.forEach(function(field){
+		var v=(fd.hasOwnProperty(field.name)?fd[field.name]:'');
+		var $fg=$('<div class="col-md-6 form-group"/>');
+		$fc.append($fg);
+        if (field.type=='text') {
+        	$fg.append(
+        			'<input type="text" value="'+v+'" class="label_better" data-new-placeholder="'+formLabel(field.name)+'" placeholder="'+formLabel(field.name)+'" name="'+field.name+'" '+(field.req=='Y'?'required':'')+'>'
+        	);
+        }
+        if (field.type=='date') {
+        	$fg.append(
+        			'<input type="text" value="'+v+'" data-date="Y" class="label_better" data-new-placeholder="'+formLabel(field.name)+'" placeholder="'+formLabel(field.name)+'" name="'+field.name+'" '+(field.req=='Y'?'required':'')+'>'
+        	);
+        }
+        if (field.type=='list'||field.type=='long-list') {
+        	shtml='<select class="label_better" data-new-placeholder="'+formLabel(field.name)+'" placeholder="'+formLabel(field.name)+'" name="'+field.name+'" '+(field.req=='Y'?'required':'')+'>';
+        	shtml+='<option value="">Select '+formLabel(field.name)+'</option>';
+        	field.values.forEach(function(val){
+        		shtml+='<option value="'+val.id+'" '+(val.id==v?'SELECTED':'')+'>'+val.value+'</option>';
+        	});
+        	shtml+='</select>';
+        	$fg.append(
+        		shtml	
+        	);
+        }                          
+              		
+	});
+	$('._form_col .label_better').label_better();
+	initDate($('._form_col input[data-date="Y"]'));
+}
+function formSave(){
+	if (ca.application_data.application_data==null) ca.application_data.application_data={};
+	fd=ca.application_data.application_data;
+	$fc=$('#form_modal ._form_col');
+	$fc.find('input, select').each(function(){
+		$e=$(this);
+		fd[$e.attr('name')]=$e.val();
+	});
+	ajax({method:'ajax_update_application_form',app_id:$('._app_row.active').data('laid'),form_json:JSON.stringify(fd)});
+}
+function initDate($d) {
+    $d.daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        autoUpdateInput: false,
+        minDate : moment()
+    }).on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('DD/MM/YYYY'));
+    }).on('cancel.daterangepicker', function(ev, picker) {
+      $(this).val('');
+    });
+}
+function formLabel(name) {
+	var arr=[];
+	name=name.replace(new RegExp('_', 'g'), ' ');
+	name=name.replace(new RegExp('-', 'g'), ' ');
+	name.split(' ').forEach(function(str){
+		var f=str.slice(0,1), r=str.slice(1);
+		arr.push(f.toUpperCase()+r.toLowerCase());
+	});
+	return arr.join(' ');
+}
+
+ 
+function formDocHtml(servType,service_id,app_service_id){
+	var sdhtml='';
+	sdhtml+='<div class="_document_col" data-doc-type="FORM" data-service-id="'+service_id+'" data-app-service-id="'+app_service_id+'" onclick="showForm($(this))">';
+    sdhtml+='	<div class="_browse">';
+    sdhtml+='   	<img src="svg/visa_xs.svg" alt="" title="" class="_visa_xs" />';
+    sdhtml+='       <img src="svg/fill_visa_icon.svg" alt="" class="center-block" title="" />';
+    sdhtml+='       <p>Fill '+servType+' Form</p>';
+    sdhtml+='   </div>';
+    sdhtml+='   <span class="_lable">'+servType.toUpperCase()+' FORM</span>';
+    sdhtml+='</div>';
+    return sdhtml;
+}
+function docHtml(app_service_id,doc_type,img_url,img_id){
+	if (typeof img_id==='undefined') img_id='';
+	var sdhtml='';
+    sdhtml+='<div class="_document_col" data-image-type-code="'+doc_type+'" data-app-service-id="'+app_service_id+'" data-app-service-img-id="'+img_id+'">';
+    sdhtml+='	<div class="_browse">';
+    sdhtml+='   	<img src="svg/upload_icon.svg" alt="" class="center-block" title="" />';
+    sdhtml+='       <p>Drag and drop here to <br /> upload documents<br /> or <span class="_highlight">browse</span></p>';
+    sdhtml+='   </div>';
+    sdhtml+='   <span class="_lable">'+mGet(m_image_types,'image_type_code',doc_type,'image_type_name')+'</span>';
+    sdhtml+='   <div class="_thumbnail">';
+    sdhtml+='   	<input type="file" id="'+doc_type+app_service_id+'" name="'+doc_type+app_service_id+'">';
+    sdhtml+='       <div class="preview">';
+    sdhtml+='       	<img src="'+img_url+'" height="100%" width="100%" style="'+(img_url!=''?'display:block':'')+'">';
+    sdhtml+='           <div class="preview_overlay">';
+    sdhtml+='           	<span class="_edit_now"><i class="fa fa-edit"></i></span>';
+    if (doc_type=='OTHER')
+    sdhtml+='           	<span class="_delete_now"><i class="fa fa-trash-o"></i></span>';
+    sdhtml+='           </div>';
+    sdhtml+='       </div>';
+    sdhtml+='   </div>';
+    sdhtml+='</div>';
+    return sdhtml;
+}
+function clickFile(){
+	$t=$(this);
+	console.log($t);
+	$t.closest('._document_col').find('input[type="file"]').click();
+}
+function initFileEvents($d){
+	if (typeof $d==='undefined') $d=$('._document_col');
+	$d.find('input[type="file"]').change(fileChange);
+	$d.find('._edit_now').click(clickFile);
+	$d.find('._delete_now').click(deleteFile);
+	$('._service_option_row').find('input, select').change(function(){
+		$(this).closest('._service_option_row').find('.__btn_sm').addClass('__btn_active');
+	});
+
+}
+function deleteFile(){
+	$d=$(this).closest('._document_col');
+	if ($d.data('app-service-img-id')!='') {
+		ajax({method:'ajax_delete_appl_service_image',app_service_image_id:$d.data('app-service-img-id')});
+	}
+	$d.remove();
+}
+
+
+
+function fileChange(){
+	var tmppath = URL.createObjectURL(event.target.files[0]);
+    $(this).closest("div").find("img").attr('src',tmppath);
+    $(this).closest("div").find("img").show();
+    //subhro
+    fileSelected($(this).closest("div").find("img"));
+}
+function deleteService(){
+	$t=$(this);
+	$('.tabs-service>li').first().click();
+	//console.log($t.parent().data('app-service-id'));
+	$t.parent().hide();
+	serv=ca.application_services.find(function(s){
+		return s.application_service_id==$t.parent().data('app-service-id')
+	});
+	ca.application_services.splice(ca.application_services.indexOf(serv),1);
+	delete ca.application_service_images[$t.parent().data('service-id')];
+	ajax({method:'ajax_delete_appl_service',app_service_id:$t.parent().data('app-service-id')});
+}
+
+function addService() {
+	var sc=[];
+	$('.service_dropdown input[type="checkbox"]').each(function(){
+		if ($(this).prop('checked')) {
+			var sid=$(this).closest('._service_col').data('service-id');
+			sc.push({service_id:sid});
+		}
+	});
+	if (sc.length>0) {
+		ajax({ method:'ajax_add_service', app_id:$('._app_row.active').data('laid'), services_arr:sc }, addServiceSuccess);
+		activeServiceId=sc[0].service_id;
+	}
+}
+
+function addServiceSuccess(res){
+	var app_id = $('._app_row.active').data('laid');
+	ca=null;
+	delete apps[app_id];
+	$('._app_row.active').click();
+	//location.reload();
+}
+
+function addApp(){
+	ajax({method:'ajax_create_application',lot_id:ld.application_lot_id,application_count:$('.add_passengers input').val()},addAppSuccess);
+}
+
+function addAppSuccess(){
+	location.reload();
+}
+
+function deleteApp(){
+	var sa=[];
+	$('._app_box ._multi_check input[type="checkbox"]').each(function(){
+		var $c=$(this);
+		if($c.prop('checked')) {
+			var $a=$c.closest('._app_row');
+			sa.push($a.data('laid'));
+			$a.remove();
+		}
+	});
+	if (sa.length>0) {
+		ajax({method:'ajax_delete_application',busy:false,app_id:sa});
+		if ($('._app_box ._app_row').length>0) {
+			if ($('._app_box ._app_row.active').length==0) $('._app_box ._app_row').first().click();
+		} else clearApp();
+	}
+	$('#cancel').click();
+}
+
+function clearApp(){
+	$('.col-md-12._service_box').hide();
+	$('.tabs_body .tab-content').hide();
+	$('._applicant').html('There are no applications in the in the current lot');
+	$('._app_heading_left').html('');
+}
+
+function initEvents(){
+	$('._service_delete').click(deleteService);
+	$('#delete').click(deleteApp);
+	$('#btn_add_service').click(addService);
+	$('.__btn_sm.__btn_active._add_btn').click(addApp);
+	$('#rca-form-save').click(formSave);
+	initFileEvents();
+}
+function appRowClick(){
+	//if($("#cancel").is(':visible')) return;
+	$t=$(this);
+	if(pendingSave()) askSave();
+	else processAppRowClick($t);
+}
+function pendingSave() {
+	return false;
+}
+function askSave(){
+
+}
+function processAppRowClick($t){
+	$('._app_row').removeClass('active');
+	$t.addClass('active');
+	getAppDetail($t.data('laid'));
+}
+function mGet(aName,byName,byValue,pName) {
+	var x=aName.find(function(el){return el[byName]===byValue;});
+	if (x==null) return null;
+	if (typeof pName==='string') return x[pName];
+	else return x;
+}
+
+function masterDataPrep(){
+	o_m_services={};
+	if (m_services.constructor === Array) {
+		m_services.forEach(function(s){
+			o_m_services[s.rca_service_id]=s;
+		});
+	} else {
+		o_m_services[m_services.rca_service_id]=m_services;
+	}
+	m_services=o_m_services;
+}
+
+function fileSelected($t) {
+	$t[0].onload=function(){
+		addToUploadQueue($t);
+	}
+}
+function addToUploadQueue($t){	
+	c=uploadQueue.qCounter;
+	uploadQueue.qCounter=c+1;
+	uploadQueue.qElements[c]={img:$t};
+	uploadQueue.qOrder.push(c);
+	$d=$t.closest('._document_col');
+	$clone=$(docHtml($d.data('app-service-id'),'OTHER',''));
+	$d.after($clone);
+	initFileEvents($clone);
+	$d.data('uploadQId',c);
+	$d.find('._lable').addClass('_ajax');
+	processUploadQueue();	
+}
+function jpegDataURL(img) {
+	var naturalImg = new Image();
+	naturalImg.src = img.src;
+	var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+	canvas.width=naturalImg.width;
+	canvas.height=naturalImg.height;
+	ctx.drawImage(naturalImg, 0, 0, naturalImg.width, naturalImg.height, 0, 0, canvas.width, canvas.height);
+	return canvas.toDataURL('image/jpeg');
+}
+
+function processUploadQueue(){
+	if (uploadQueue.uploading||uploadQueue.qOrder.length==0) return;
+	uploadQueue.uploading=true;
+	var c=uploadQueue.qOrder[0];
+	var $i=uploadQueue.qElements[c].img;
+	var fn=$i.closest('._thumbnail').find('input[type="file"]')[0].files[0].name;
+	var fd=new FormData();
+	fd.append('lotcode',ld.application_lot_code);
+	fd.append('base64imagedata',jpegDataURL($i[0]));
+	fd.append('filename',fn);
+	var $uc=$i.closest('._document_col');
+	var xhr=$.ajax({
+		type:'post',
+		url:'../handlers/imageuploadhandler.php',
+		data:fd,
+		dataType:'JSON',
+		processData: false,
+		contentType: false,
+		success:function($id) {
+			return function(response){
+				imageUploadComplete(response, $id);
+			} 
+		}($uc)
+		,
+		xhr: function() {
+			var myXhr = $.ajaxSettings.xhr();
+			if(myXhr.upload){
+				myXhr.upload.addEventListener(
+					'progress',
+					function($id) { 
+						return function (e) { 
+							if(e.lengthComputable){
+								var max = e.total, current = e.loaded, perc = Math.round((current * 100)/max);
+								$l=$id.find('._lable');
+								$l.css('background-position','-'+perc+'%');
+								//if (perc>=100) $l.css('background-position','-100%');
+							}
+						} 
+					} ($uc), 
+					false
+				);
+			}
+			return myXhr;
+        },
+	});
+}
+function imageUploadComplete(res,$id){
+	if (!res.error) {
+		var fn=res.data.filename;
+		$id.data('uploaded-filename',fn);
+		$id.find('._lable').removeClass('_ajax');
+		imageDataUpdate($id,fn)
+		
+	} else {
+		//PAUtils.message({title:'Error',message:response.message+'. Please try to upload again'});
+		console.log(response.message);
+	}
+	uploadQueue.uploading=false;
+	uploadQueue.qOrder.splice(0,1);
+	processUploadQueue();
+}
+function imageDataUpdate($id,fn) {
+	var laid=$('._app_row.active').data('laid'), itc=$id.data('image-type-code'), asii=$id.data('app-service-img-id'), asi=$id.data('app-service-id');
+	ajax({ method:'ajax_process_new_image', busy:false, image_type_code:itc, app_id:laid, app_service_image_id:asii, app_service_id:asi, image_file_name:fn }, 
+		function(r) {
+			imageDataUpdateSuccess(r,$id);
+		}
+	);
+}
+function imageDataUpdateSuccess(r,$id) {
+	if (r.data.img_dtls.hasOwnProperty('application_service_image_id'))
+	$id.da('app-service-img-id',r.data.img_dtls.application_service_image_id);
+}
+$(function() {
+	initEvents();
+	masterDataPrep();
+	initServices();
+	getLotDetails();
+});
+
+

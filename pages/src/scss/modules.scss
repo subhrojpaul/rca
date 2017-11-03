@@ -1,0 +1,60 @@
+$red: #f36c5a;
+$white: #FFF;
+$f5: #f5f5f5;
+$greyl: #F3F5F7;
+$greye: #EAECEF;
+$greyc:#CCC;
+$grey9:#999;
+$grey6:#666;
+$color5: #555;
+$color3:#333;
+$color4:#444444;
+$lblue: #448AFF;
+$black:#000000;
+$purp: #BA68C8;
+$green :#4CB6AC;
+$orange: #FF7043;
+$dblue: #7986CB;
+$font-stack: 'Ubuntu';
+$bold: 'UbuntuB';
+$txcenter: center;
+$border_box: border-box;
+$trans: transparent;
+$cursor: pointer;
+$floatl:left;
+$border-b: 1px solid #c1c1c1;
+
+
+/* mixin */
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+@mixin padding($padding) {
+	padding: $padding;
+}
+@mixin margin($margin) {
+	margin: $margin;
+}
+@mixin input-placeholder {
+    &.placeholder { @content; }
+    &:-moz-placeholder { @content; }
+    &::-moz-placeholder { @content; }
+    &:-ms-input-placeholder { @content; }
+    &::-webkit-input-placeholder { @content; }
+}
+/* exp
+input,  
+textarea {  
+    @include input-placeholder {
+        color: $greyc;
+    }
+} */
+
+
+
+
+
+

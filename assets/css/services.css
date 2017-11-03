@@ -1,0 +1,16 @@
+._service_text h2.sel {border-bottom: 2px solid #02B2F6; }
+._filter .item.sel{background: #02B2F6; cursor: pointer; color: #FFF; border: 1px solid #02B2F6; }
+.table_service th{position:relative;  padding: 13px 20px; cursor: pointer; }
+.table_service th[data-sort-dir="asc"]:after, .table_service th[data-sort-dir="desc"]:after {content:""; position:relative; width:0px; height:0px; top:-10px; margin-left:5px; border-bottom:10px solid #02B2F6; border-left:5px solid transparent; border-right:5px solid transparent; border-top:none; }
+.table_service th[data-sort-dir="desc"]:after {border-top:10px solid #02B2F6; border-bottom:none; top: 10px; }
+._passenger .lb_label.top { top: -22px !important; }
+._white_body {border: 1px solid #E7EAEF; box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.03); }
+.table_service.header {height:40px; overflow: hidden; z-index:1;position:absolute;width:100%;}
+.table_footer { position: absolute; bottom: 0px; font-size: 11px; line-height: 15px; overflow:hidden; left:2.5em; right:2.5em; height: 17px;}
+.table_footer .records { width:350px; }
+.table_footer .filters { display: inline-block; max-width: calc(100% - 350px); min-width:200px; height: 17px; position: absolute; right: 0px; bottom:0px; padding:0px 5px 0px 50px; background: #F3F5F7;}
+.table_footer .filters>span { background: #000; color: #fff; padding: 1px 5px; border-radius: 5px; margin: 0px 5px; float: left; max-width: 40%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; min-width:100px; text-align: center;}
+.table_footer .filters>span.hdr { position: absolute; left: 0px; top:0px; background:transparent;color:#333; min-width:50px; }
+.table_footer:hover { overflow:visible; }
+.table_footer .filters:hover { height: auto; padding: 20px 5px 5px 5px; border-radius: 5px;}
+.table_footer .filters:hover span { margin: 5px; white-space: normal;}

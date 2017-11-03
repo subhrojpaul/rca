@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>signin</name>
+	<action></action>
+	<method>post</method>
+	<legend>Sign In To CollegeDoors</legend>
+	<inputelements>
+		<element>
+			<name>cdsgnin_email</name>
+			<label>eMail Address</label>
+			<type>text</type>
+			<size>medium</size>
+		</element>
+		<element>
+			<name>cdsgnin_pswd</name>
+			<label>Password</label>
+			<type>password</type>
+			<size>medium</size>
+			<forgetpwdlink>../pages/cdmmbrpswrdrst.php</forgetpwdlink>
+		</element>
+
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Login</name>
+			<label>Login</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cdsgninhndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<name>cdpkgs</name>
+	<action></action>
+	<method>post</method>
+	<legend>Collegedoors - Contact Us</legend>
+	<inputelements>
+		
+		<element>
+			<type>text</type>
+			<name>cont_name</name>
+			<label>Name</label>
+			<size>xlarge</size>
+			<placeholder>Name</placeholder>	
+			<mandatory>yes</mandatory>		
+		</element>
+		<element>
+			<type>text</type>
+			<name>cont_email</name>
+			<label>Email</label>
+			<size>xlarge</size>
+			<mandatory>yes</mandatory>
+			<placeholder>Email</placeholder>s
+		</element>
+		<element>
+			<type>text</type>
+			<name>cont_subject</name>
+			<label>Subject</label>
+			<size>xlarge</size>
+			<placeholder>Subject</placeholder>
+			<mandatory>yes</mandatory>
+		</element>
+		<element>
+			<type>textarea</type>
+			<name>cont_text</name>
+			<label>Message</label>
+			<size>xlarge</size>
+			<placeholder>Message</placeholder>
+		</element>
+
+		
+		<!-- <element>
+			<type>checkbox</type>
+			<name>cdpkgs_pkg_recomended_flag</name>
+			<label>Recomended in Category?</label>
+			<size>medium</size>
+			<mandatory>yes</mandatory>
+			<additional></additional>
+		</element>		 -->
+	</inputelements>
+	<actionbuttons>
+		<button>
+			<type>submit</type>
+			<name>Register</name>
+			<label>Save</label>
+			<subtype>btn-primary</subtype>
+			<action>../handlers/cdcontacthndlr.php</action>
+		</button>
+		<button>
+			<type>submit</type>
+			<name>Cancel</name>
+			<label>Cancel</label>
+			<subtype></subtype>
+			<action>../pages/index.php</action>
+		</button>		
+	</actionbuttons>
+</form>

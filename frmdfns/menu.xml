@@ -1,0 +1,190 @@
+<menudef>
+    <menulist user_category="STUDENT" landingpage="../pages/cdmypage.php">
+         <topmenu  label="My Reports" page="" class="myreports">
+                <submenu>
+                  <submenuentry label="Test Level Report" page="cdmypage.php"/>
+                  <submenuentry label="Trend Report-JEE" page="cdtatvrep.php?test_type_id=1"/>
+                  <submenuentry label="Trend Report-BITSAT" page="cdtatvrep.php?test_type_id=2"/>
+                  <submenuentry label="Trend Report-NEET" page="cdtatvrep.php?test_type_id=3"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Account" page="" class="myaccount">
+                <submenu>
+                  <submenuentry label="My Subscriptions" page="cdmytxns.php"/>
+                  <submenuentry label="My Referrals" page="cdstud_myref.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Actions" page="" class="myactions">
+                <submenu>
+                  <submenuentry label="Subscribe" page="pricing.php"/>
+                  <submenuentry label="Take Test" page="cdtapkgselstages.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Friends" page="" class="myfriends">
+            <submenu>
+                  <submenuentry label="My Friends Reports" page="cdmystudperfrep.php"/>
+                  </submenu>
+         </topmenu>
+
+    </menulist>
+    <menulist user_category="RESELLER" landingpage="../pages/cdappointer.php">
+         <topmenu  label="My Students" page="" class="mystudents">
+                <submenu>
+                  <submenuentry label="Students Performance" page="cdmystudperfrep.php"/>
+                </submenu>
+         </topmenu>
+         <topmenu  label="My Reports" page="" class="myreports">
+                <submenu>
+                  <submenuentry label="Test Level Report" page="cdmypage.php"/>
+                  <submenuentry label="Trend Report-JEE" page="cdtatvrep.php?test_type_id=1"/>
+                  <submenuentry label="Trend Report-BITSAT" page="cdtatvrep.php?test_type_id=2"/>
+                  <submenuentry label="Trend Report-NEET" page="cdtatvrep.php?test_type_id=3"/>                  
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Account" page="" class="myaccount">
+                <submenu>
+                  <submenuentry label="My Revenue Share" page="commercial.php"/>
+                  <submenuentry label="My Activation Status" page="cdappointer.php"/>
+                  <submenuentry label="My Partners" page="cdmypartnerrep.php"/>
+                  <submenuentry label="My Referrals" page="cdmyrefrep.php"/>
+                  <submenuentry label="My Direct Transactions" page="cddirtxns.php"/>
+                  <submenuentry label="My Referral Transactions" page="cdreftxns.php"/>
+                  <submenuentry label="My Subscriptions" page="cdmytxns.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Actions" page="" class="myactions">
+                <submenu>
+                  <submenuentry label="Subscribe" page="pricing.php"/>
+                  <submenuentry label="Take Test" page="cdtapkgselstages.php"/>
+                  <submenuentry label="Schedule Test" page="cdtapkgselstages.php?selmode=schedule"/>
+               </submenu>
+         </topmenu>
+    </menulist>
+    <menulist user_category="PARENT" landingpage="../pages/cdmystudperfrep.php">
+         <topmenu  label="My Students" page="" class="mystudents">
+                <submenu>
+                  <submenuentry label="Students Performance" page="cdmystudperfrep.php"/>
+                </submenu>
+         </topmenu>
+         <topmenu  label="My Reports" page="" class="myreports">
+                <submenu>
+                  <submenuentry label="Test Level Report" page="cdmypage.php"/>
+                  <submenuentry label="Trend Report-JEE" page="cdtatvrep.php?test_type_id=1"/>
+                  <submenuentry label="Trend Report-BITSAT" page="cdtatvrep.php?test_type_id=2"/>
+                  <submenuentry label="Trend Report-NEET" page="cdtatvrep.php?test_type_id=3"/>                  
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Account" page="" class="myaccount">
+                <submenu>
+                  <submenuentry label="My Subscriptions" page="cdmytxns.php"/>
+                  <submenuentry label="My Referrals" page="cdstud_myref.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Actions" page="" class="myactions">
+                <submenu>
+                  <submenuentry label="Subscribe" page="pricing.php"/>
+                  <submenuentry label="Take Test" page="cdtapkgselstages.php"/>
+               </submenu>
+         </topmenu>
+
+    </menulist>
+
+    <menulist user_category="PARTNER" landingpage="../pages/commercial.php">
+         <topmenu  label="My Students" page="" class="mystudents">
+                <submenu>
+                  <submenuentry label="Students Performance" page="cdmystudperfrep.php"/>
+                </submenu>
+         </topmenu>
+         <topmenu  label="My Reports" page="" class="myreports">
+                <submenu>
+                  <submenuentry label="Test Level Report" page="cdmypage.php"/>
+                  <submenuentry label="Trend Report-JEE" page="cdtatvrep.php?test_type_id=1"/>
+                  <submenuentry label="Trend Report-BITSAT" page="cdtatvrep.php?test_type_id=2"/>
+                  <submenuentry label="Trend Report-NEET" page="cdtatvrep.php?test_type_id=3"/>                  
+               </submenu>
+         </topmenu>
+
+         <topmenu  label="My Account" page="" class="myaccount">
+                <submenu>
+                  <submenuentry label="My Revenue Share" page="commercial.php"/>
+                  <submenuentry label="My Referrals" page="cdmyrefrep.php"/>
+                  <submenuentry label="My Direct Transactions" page="cddirtxns.php"/>
+                  <submenuentry label="My Referral Transactions" page="cdreftxns.php"/>
+                  <submenuentry label="My Subscriptions" page="cdmytxns.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Actions" page="" class="myactions">
+                <submenu>
+                  <submenuentry label="Subscribe" page="pricing.php"/>
+                  <submenuentry label="Take Test" page="cdtapkgselstages.php"/>
+                  <submenuentry label="Schedule Test" page="cdtapkgselstages.php?selmode=schedule"/>
+               </submenu>
+         </topmenu>
+
+    </menulist>
+
+    <menulist user_category="NON-COMMERCIAL-ACADEMIC" landingpage="../pages/cdmystudperfrep.php">
+         <topmenu  label="My Students" page="" class="mystudents">
+                <submenu>
+                  <submenuentry label="Students Performance" page="cdmystudperfrep.php"/>
+                </submenu>
+         </topmenu>
+         <topmenu  label="My Reports" page="" class="myreports">
+                <submenu>
+                  <submenuentry label="Test Level Report" page="cdmypage.php"/>
+                  <submenuentry label="Trend Report-JEE" page="cdtatvrep.php?test_type_id=1"/>
+                  <submenuentry label="Trend Report-BITSAT" page="cdtatvrep.php?test_type_id=2"/>
+                  <submenuentry label="Trend Report-NEET" page="cdtatvrep.php?test_type_id=3"/>                  
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Account" page="" class="myaccount">
+                <submenu>
+                  <submenuentry label="My Referrals" page="cdmyrefrep.php"/>
+                  <submenuentry label="My Subscriptions" page="cdmytxns.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Actions" page="" class="myactions">
+                <submenu>
+                  <submenuentry label="Subscribe" page="pricing.php"/>
+                  <submenuentry label="Take Test" page="cdtapkgselstages.php"/>
+                  <submenuentry label="Schedule Test" page="cdtapkgselstages.php?selmode=schedule"/>
+               </submenu>
+         </topmenu>
+
+    </menulist>
+
+    <menulist user_category="COMMERCIAL-ACADEMIC" landingpage="../pages/cdmystudperfrep.php">
+         <topmenu  label="My Students" page="" class="mystudents">
+                <submenu>
+                  <submenuentry label="Students Performance" page="cdmystudperfrep.php"/>
+                </submenu>
+         </topmenu>
+         <topmenu  label="My Reports" page="" class="myreports">
+                <submenu>
+                  <submenuentry label="Test Level Report" page="cdmypage.php"/>
+                  <submenuentry label="Trend Report-JEE" page="cdtatvrep.php?test_type_id=1"/>
+                  <submenuentry label="Trend Report-BITSAT" page="cdtatvrep.php?test_type_id=2"/>
+                  <submenuentry label="Trend Report-NEET" page="cdtatvrep.php?test_type_id=3"/>                  
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Account" page="" class="myaccount">
+                <submenu>
+                  <submenuentry label="My Revenue Share" page="commercial.php"/>
+                  <submenuentry label="My Referrals" page="cdmyrefrep.php"/>
+                  <submenuentry label="My Direct Transactions" page="cddirtxns.php"/>
+                  <submenuentry label="My Referral Transactions" page="cdreftxns.php"/>
+                  <submenuentry label="My Subscriptions" page="cdmytxns.php"/>
+               </submenu>
+         </topmenu>
+         <topmenu  label="My Actions" page="" class="myactions">
+                <submenu>
+                  <submenuentry label="Subscribe" page="pricing.php"/>
+                  <submenuentry label="Take Test" page="cdtapkgselstages.php"/>
+                  <submenuentry label="Schedule Test" page="cdtapkgselstages.php?selmode=schedule"/>
+               </submenu>
+         </topmenu>
+
+    </menulist>
+
+
+</menudef>

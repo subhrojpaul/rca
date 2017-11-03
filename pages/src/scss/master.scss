@@ -1,0 +1,404 @@
+@import 'modules';
+@import url(../fonts/font-awesome.css);
+@import url(animations-min.css);
+@font-face {
+    src: url(../fonts/Ubuntu-M.ttf);
+    font-family: 'UbuntuM';
+    font-weight: normal;
+}
+@font-face {
+    src: url(../fonts/Ubuntu-L.ttf);
+    font-family: 'Ubuntu';
+    font-weight: lighter;
+}
+@font-face {
+    src: url(../fonts/Ubuntu-B.ttf);
+    font-family: 'UbuntuB';
+    font-weight: bold;
+}
+* {
+	-webkit-box-sizing:$border_box;
+	-moz-box-sizing:$border_box;
+	box-sizing:$border_box;
+	outline:0;
+}
+body {
+	background-color:$white;
+	background-attachment:fixed;line-height:22px;margin:0 auto;padding: 0;
+	font-family: $font-stack;
+}
+.body {
+	margin: 0 auto;
+	height: auto;
+	font-family: $font-stack;
+}
+.grey_bg {
+	background-color: $greyl;
+}
+p {
+	margin:0;
+	padding: 0;
+}
+.paddingtb_20 {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+.paddingtb_10 { @include padding(10px 10px); }
+.paddingtb_30 { @include padding(30px 30px); }
+.paddingtb_50 { @include padding(50px 50px); }
+a {
+	color: $grey6;
+}
+a:hover,a:active,a:focus {
+	color: $red;
+}
+._purple {
+	color: $purp;
+}
+._green {
+	color: $green;
+}
+._orange {
+	color: $orange;
+}
+.dblue {
+	color: $dblue;
+}
+.lblue {
+	color: $lblue;
+}
+/* btn style */
+.__btn,.__btn_sm {
+	height: 45px;
+	border:none;
+	color: #FFF;
+	width: 100%;
+	font-size: 13px;
+	border-radius: 30px;
+	cursor: not-allowed;
+}
+.__btn_sm,.__btn_solid {
+	width: auto;
+	padding: 0 3em;
+	height: 35px;
+	font-size: 11px;
+	margin-left: 3px;
+}
+.__btn_solid {
+	border:1px solid $grey9;
+	background: $trans;
+	color: $grey6;
+	@include border-radius(30px 30px);
+}
+.__btn_solidr {
+	border:1px solid $red;
+	background: $trans;
+	color: $red;
+}
+.__btn_active,.gradient,.__btn_active:hover,.__btn_solidr:hover {
+	box-shadow: 0 3px 4px 0 #FF7976;
+	background-image: linear-gradient(200deg, #F46C6C 10%, #E84A4A 90%);
+	transition: .6s all ease-in-out;
+	-webkit-transition:.6s all ease-in-out;
+	cursor: pointer;
+	color: $white;
+	&:hover {
+		box-shadow: 4px 4px 6px #f36c5a;
+	}
+}
+.__loginput {
+	.form-group {
+		position: relative;
+	}
+	input {
+		border:none;
+		border-bottom: 1px solid #c1c1c1;
+		height: 40px;
+		color: #222222;
+	}
+	input.label_alert {
+		border-bottom: 1px solid $red;
+	}
+	.__alert {
+		color: red;
+		font-size: 10px;
+	} 
+}
+.label_better {
+	border: none;
+	height: 30px;
+	padding-left: 1px;
+	font-size: 13px;
+	color: #333;
+	width: 100%;
+}
+input.label_better:disabled {
+	background: $white;
+    width:100%;
+}
+.lb_wrap {
+	width: 100%;
+}
+.lb_wrap .lb_label.top, .lb_wrap .lb_label.bottom {
+    left: 2px !important;
+}
+.lb_wrap .lb_label.left {
+    left: 0;
+}
+.lb_label {
+    color: $greyc;
+    margin-top: 27px;
+    font-size: 11px;
+}
+.lb_label.active {
+    color: $grey9;
+}
+/* header */
+.__header {
+		background-color:$white;
+		height: 60px;
+		box-shadow: 2px 3px 4px #EEE;
+	img.logo {
+		float: left;
+		margin:7px 20px;
+	}
+	.header_right {
+		float: right;
+		display: inline-flex;
+	}
+}
+.header_right > div {
+	height: 60px;
+	line-height: 60px;
+	text-align: $txcenter;
+	font-size: 16px;
+}
+.__ham {
+	background-image: linear-gradient(200deg, #F46C6C 10%, #E84A4A 90%);
+	width:70px;
+	i {
+		color: $white;
+		cursor: $cursor;
+		font-size: 18px;
+	}
+}
+/* search */
+.__search {
+		padding: .3em 1em;
+		color: $grey6;
+		cursor: $cursor;
+		float: right;
+		position: relative;
+		line-height: 35px;
+	span input {
+		@include border-radius(30px 30px);
+		border:none;
+		border:1px solid #CCC;
+		padding: 10px 15px;
+		display: none;
+		width:180px;
+		position: absolute;
+		right: 3em;
+	}
+}
+.__user {
+	padding: 0 2em;
+	position: relative;
+	img	{
+			@include border-radius(50%);
+		}
+	.__uname {
+		color: $grey6;
+		font-size: 12px;
+		font-family: 'UbuntuM';
+		font-weight: normal;
+		cursor: pointer;
+	}
+}
+.__user_body {
+		position: absolute;
+		width: 100%;
+		height: auto;
+		border-top: 1px solid $greye;
+		background: $white;
+		z-index: 999;
+		display: none;
+		text-align: center;
+		padding: 0 6em;
+		font-size: 12px;
+		box-shadow: 0 4px 6px $greye;
+	p {
+		color: $grey9;
+	}
+	h4 {
+		font-weight: bold;
+		font-size: 16px;
+	}
+	img.__uricon {
+		@include border-radius(50%);
+		border:1px solid $greyc;
+		@include padding(8px);
+		@include margin(1em 0);
+	}
+	ul.__user_nav {
+		margin: 0;
+		@include padding(3em 0);
+		border-top: 1px solid $greye;
+		list-style: none;
+		width: 100%;
+	}
+	ul.__user_nav li:first-child {
+		padding-left: 0;
+	}
+	ul.__user_nav li {
+		display: inline-block;
+		padding-left: 7em;
+	}
+	ul.__user_nav li a img {
+		margin-right: 10px;
+	}
+}
+.__pushmenu {
+	float: right;
+	overflow: hidden;
+	background: $color3;
+	display: none;
+	right: 0;
+	position: absolute;
+	z-index: 5;
+	height: 100%;
+	box-shadow: -1px 6px 6px #CCC;
+}
+.__pushmenu_inner {
+    width: 320px;
+   	@include padding(10px 25px);
+   	text-align: left;
+}
+.__pushmenu_inner nav {
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li { display:block;border-bottom: 1px solid $color5; }
+
+  a {
+	    display: block;
+	    padding: 0 3em;
+	    text-decoration: none;
+	    font-size: 12px;
+	    color: $white;
+    img {
+    	margin-right: 10px;
+    	width:16px;
+    }
+  }
+  :hover {
+  	color: $red;
+  	fill: $red;
+  }
+}
+/* pushmenu and user dropd */
+.__left {
+	@extend .grey_bg;
+	@include padding(1.5em 2.5em);
+}
+.__right {
+	background: #EAEDEF;
+	@include padding(1.5em 1.5em);
+}
+.create_btn {
+    height: 40px;
+    border: none;
+    color: #FFF;
+    width: auto;
+    padding: 0 3.5em;
+    font-size: 11px;
+    border-radius: 30px;
+    background-image: linear-gradient(200deg, #F46C6C 10%, #E84A4A 90%);
+    box-shadow: 0 3px 4px 0 #FF7976;
+    transition: .6s all ease-in-out;
+    -webkit-transition: .6s all ease-in-out;
+    -moz-transition: .6s all ease-in-out;
+}
+/* notification */
+._avail_box {
+	background: $white;
+	padding: 1em 1em;
+	span {
+		color: $grey9;
+		font-size: 11px;
+		float: left;
+		padding-right: 2em;
+		line-height: 15px;
+	}
+	h3 {
+		font-size: 2.2em;
+		line-height:0;
+		margin: 0 0 0;
+		color: $green;
+		text-align: right;
+		font-weight: bold;
+	}
+	p {
+		border-top: 1px solid $greye;
+		margin-top: 1em;
+		text-align: center;
+		padding: 4px 0 0;
+		color: $grey9;
+		font-size: 12px;
+	}
+}
+._notifyh5 {
+	font-size: 13px;
+	color: $color3;
+	font-weight: bold;
+	margin-bottom: 0;
+}
+._noty_box {
+	._noty_row {
+		border-bottom: 1px solid $greyc;
+		padding-top:1em;
+		padding-bottom: .3em;
+		._noty_icon,._noty_img {
+			float: left;
+			width: 35px;
+			height: 35px;
+			line-height: 35px;
+			background: $white;
+			border-radius: 50%;
+			text-align: center;
+			margin-right: 1em;
+			color:$white;
+			font-size: 10px;
+		}
+		._orange {
+			background-color: $orange;
+		}
+		._purple {
+			background-color: $purp;
+		}
+		._green {
+			background-color: $green;
+		}
+		._noty_img {
+			background: $trans;
+		}
+		._noty_text {
+			font-size: 11px;
+			line-height: 15px;
+			p {
+				color: $color5;
+				font-family: 'UbuntuM';
+			}
+			span {
+				line-height: 30px;
+				color: $grey9;
+			}
+		}
+	}
+	._noty_row:last-child {
+		border-bottom: 1px solid $trans;
+	}
+}
